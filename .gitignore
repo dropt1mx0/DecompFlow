@@ -1,0 +1,55 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build artifacts & distributions
+dist/
+build/
+release/
+out/
+packages/*/dist/
+packages/*/build/
+packages/*/release/
+
+# Logs & temp files
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Tool caches & session storage
+.playwright-mcp/
+.cache/
+.vite/
+.vite-temp/
+
+# Operating System files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE and Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# Environment & local credentials
+.env
+.env.*
+!.env.example
+*.local
+
+# TypeScript incremental build cache
+*.tsbuildinfo

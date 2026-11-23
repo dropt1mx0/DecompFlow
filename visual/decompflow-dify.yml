@@ -1,0 +1,203 @@
+app:
+  description: "DecompFlow: Autonomous AI Reverse Engineering & Software Architecture Analysis Agent"
+  icon: "🔍"
+  icon_background: "#E0F2FE"
+  mode: workflow
+  name: DecompFlow Visual Workflow
+kind: app
+version: 0.1.2
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      enabled: true
+      max_files: 5
+      allowed_file_types: [".c", ".cpp", ".py", ".js", ".ts", ".bin", ".elf", ".exe"]
+  graph:
+    edges:
+      - id: edge_start_to_router
+        source: start_trigger
+        target: switch_router
+      - id: edge_router_to_ghidra
+        source: switch_router
+        target: mcp_ghidra_tool
+        condition:
+          variable_selector: [start_trigger, mode]
+          comparison_operator: equal
+          value: binary
+      - id: edge_router_to_playwright
+        source: switch_router
+        target: mcp_playwright_tool
+        condition:
+          variable_selector: [start_trigger, mode]
+          comparison_operator: equal
+          value: web
+      - id: edge_router_to_source
+        source: switch_router
+        target: source_code_loader
+        condition:
+          variable_selector: [start_trigger, mode]
+          comparison_operator: equal
+          value: source
+      - id: edge_ghidra_to_llm
+        source: mcp_ghidra_tool
+        target: llm_analyzer
+      - id: edge_playwright_to_llm
+        source: mcp_playwright_tool
+        target: llm_analyzer
+      - id: edge_source_to_llm
+        source: source_code_loader
+        target: llm_analyzer
+      - id: edge_llm_to_parser
+        source: llm_analyzer
+        target: output_parser
+      - id: edge_parser_to_end
+        source: output_parser
+        target: end_report
+    nodes:
+      - id: start_trigger
+        type: start
+        title: "Trigger / Webhook Input"
+        data:
+          variables:
+            - variable: target
+              label: "Target File, URL, or Path"
+              type: string
+              required: true
+              default: "./bin/sample_app"
+            - variable: mode
+              label: "Analysis Mode"
+              type: select
+              options: ["binary", "web", "source"]
+              required: true
+              default: "binary"
+            - variable: skill
+              label: "Active Skill"
+              type: select
+              options: ["binary-architecture", "code-cleanup", "security-audit"]
+              required: true
+              default: "binary-architecture"
+        position:
+          x: 100
+          y: 280
+
+      - id: switch_router
+        type: if-else
+        title: "Switch Router"
+        data:
+          conditions:
+            - id: cond_binary
+              variable_selector: [start_trigger, mode]
+              comparison_operator: equal
+              value: "binary"
+            - id: cond_web
+              variable_selector: [start_trigger, mode]
+              comparison_operator: equal
+              value: "web"
+            - id: cond_source
+              variable_selector: [start_trigger, mode]
+              comparison_operator: equal
+              value: "source"
+        position:
+          x: 350
+          y: 280
+
+      - id: mcp_ghidra_tool
+        type: tool
+        title: "Ghidra MCP Recon"
+        data:
+          provider_id: "mcp"
+          provider_type: "builtin"
+          tool_name: "ghidra_decompile_function"
+          tool_parameters:
+            target: "{{#start_trigger.target#}}"
+            function_name: "main"
+        position:
+          x: 650
+          y: 120
+
+      - id: mcp_playwright_tool
+        type: tool
+        title: "Playwright MCP Web Recon"
+        data:
+          provider_id: "mcp"
+          provider_type: "builtin"
+          tool_name: "playwright_browser_navigate"
+          tool_parameters:
+            url: "{{#start_trigger.target#}}"
+        position:
+          x: 650
+          y: 280
+
+      - id: source_code_loader
+        type: code
+        title: "Source Tree Loader"
+        data:
+          language: "python3"
+          code: |
+            def main(target: str) -> dict:
+                return {
+                    "extracted_source": f"// Source target loaded: {target}\n// AST & Module tree mapped successfully."
+                }
+        position:
+          x: 650
+          y: 440
+
+      - id: llm_analyzer
+        type: llm
+        title: "AI Agent (LLM + Skill Context)"
+        data:
+          model:
+            provider: "openai"
+            name: "gpt-4o"
+            mode: "chat"
+            completion_params:
+              temperature: 0.1
+              max_tokens: 4096
+          prompt_template:
+            - role: system
+              text: |
+                You are DecompFlow, an autonomous software architecture and reverse engineering agent.
+                Apply the loaded analysis rules strictly:
+                - Skill: {{#start_trigger.skill#}}
+                - Mode: {{#start_trigger.mode#}}
+                Generate a structured architectural decomposition, Mermaid diagrams, and structural recommendations.
+            - role: user
+              text: |
+                Target: {{#start_trigger.target#}}
+                Recon Data:
+                {{#mcp_ghidra_tool.output#}}
+                {{#mcp_playwright_tool.output#}}
+                {{#source_code_loader.extracted_source#}}
+        position:
+          x: 950
+          y: 280
+
+      - id: output_parser
+        type: code
+        title: "Structured Output Parser (Zod Equivalent)"
+        data:
+          language: "python3"
+          code: |
+            import json
+
+            def main(raw_llm_response: str) -> dict:
+                return {
+                    "summary": "Completed DecompFlow architectural evaluation.",
+                    "structured_data": raw_llm_response
+                }
+        position:
+          x: 1250
+          y: 280
+
+      - id: end_report
+        type: end
+        title: "Markdown Report Generator"
+        data:
+          outputs:
+            - value_selector: [output_parser, structured_data]
+              variable: final_report
+        position:
+          x: 1550
+          y: 280

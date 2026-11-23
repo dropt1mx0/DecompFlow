@@ -1,0 +1,37 @@
+{
+  "name": "@decompflow/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/main/index.js",
+  "scripts": {
+    "build:renderer": "vite build",
+    "build:main": "esbuild src/main/index.ts --bundle --platform=node --format=esm --outfile=dist/main/index.js --external:electron --external:@decompflow/core --banner:js=\"import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);\"",
+    "build:preload": "esbuild src/preload/index.ts --bundle --platform=node --format=cjs --outfile=dist/preload/index.js --external:electron",
+    "build": "npm run build:renderer && npm run build:main && npm run build:preload",
+    "dev:renderer": "vite",
+    "dev": "npm run build:main && npm run build:preload && electron dist/main/index.js --no-sandbox --no-zygote --disable-gpu",
+    "start": "electron dist/main/index.js --no-sandbox --no-zygote --disable-gpu"
+  },
+  "dependencies": {
+    "@decompflow/core": "*",
+    "@xyflow/react": "^12.3.6",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.468.0",
+    "mermaid": "^11.4.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwind-merge": "^2.6.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "electron": "^33.2.1",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.16",
+    "typescript": "^5.6.3",
+    "vite": "^6.0.1"
+  }
+}

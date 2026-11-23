@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "rea": {
+      "command": "npx",
+      "args": ["-y", "rea-agents@latest", "mcp"],
+      "transport": "stdio",
+      "enabled": true
+    },
+    "ghidra": {
+      "command": "python3",
+      "args": ["./tools/ghidra_mcp_bridge.py"],
+      "transport": "stdio",
+      "enabled": true
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp"],
+      "transport": "stdio",
+      "enabled": true
+    }
+  }
+}

@@ -1,0 +1,24 @@
+appId: com.decompflow.studio
+productName: DecompFlow
+directories:
+  output: ../../dist-installers
+files:
+  - dist/**/*
+  - package.json
+linux:
+  target:
+    - AppImage
+    - deb
+    - rpm
+  category: Development
+  synopsis: Autonomous AI Reverse Engineering & Feature Reconstruction Studio
+  description: Autonomous AI Reverse Engineering, Binary Decompilation & Feature Reconstruction Studio powered by LangGraph, REA, Ghidra, and Playwright MCP.
+win:
+  target:
+    - nsis
+    - portable
+mac:
+  target:
+    - dmg
+    - zip
+  category: public.app-category.developer-tools

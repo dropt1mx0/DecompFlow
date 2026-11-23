@@ -1,0 +1,13 @@
+llm:
+  provider: "openai"
+  model: "gpt-4o"
+  temperature: 0.1
+  max_tokens: 4096
+
+limits:
+  max_functions_to_decompile: 20
+  request_timeout_ms: 60000
+
+output:
+  format: "markdown"
+  detailed_diagrams: true

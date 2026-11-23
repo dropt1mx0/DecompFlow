@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #131418;
+    color: #f0f1f5;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+}
+
+/* Custom Scrollbar matching Anchored */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #262933;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #363a48;
+}
+
+/* Pulsing neon glow for active nodes */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 16px rgba(56, 189, 248, 0.4), inset 0 0 8px rgba(56, 189, 248, 0.2);
+    border-color: rgba(56, 189, 248, 0.8);
+  }
+  50% {
+    box-shadow: 0 0 28px rgba(56, 189, 248, 0.75), inset 0 0 14px rgba(56, 189, 248, 0.4);
+    border-color: rgba(56, 189, 248, 1);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s infinite ease-in-out;
+}
+
+/* React Flow Canvas overrides */
+.react-flow__background {
+  background-color: #131418 !important;
+}
+
+.react-flow__controls {
+  background-color: #181a20 !important;
+  border: 1px solid #282b35 !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+}
+
+.react-flow__controls-button {
+  background-color: #181a20 !important;
+  border-bottom: 1px solid #282b35 !important;
+  color: #8b8f9e !important;
+  fill: #8b8f9e !important;
+}
+
+.react-flow__controls-button:hover {
+  background-color: #232630 !important;
+  color: #38bdf8 !important;
+  fill: #38bdf8 !important;
+}
