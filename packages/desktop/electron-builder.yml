@@ -2,6 +2,10 @@ appId: com.decompflow.studio
 productName: DecompFlow
 directories:
   output: ../../dist-installers
+publish:
+  - provider: github
+    owner: dropt1mx0
+    repo: DecompFlow
 files:
   - dist/**/*
   - package.json
