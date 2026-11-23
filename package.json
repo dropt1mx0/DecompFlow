@@ -7,7 +7,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build --workspaces",
+    "build": "npm run build:core && npm run build:cli && npm run build:desktop",
     "build:core": "npm run build --workspace=@decompflow/core",
     "build:cli": "npm run build --workspace=decompflow",
     "build:desktop": "npm run build --workspace=@decompflow/desktop",
