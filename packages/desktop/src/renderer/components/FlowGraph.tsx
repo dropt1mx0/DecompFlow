@@ -118,6 +118,22 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
         },
       },
       {
+        id: "deep_dive",
+        type: "custom",
+        position: { x: 700, y: 440 },
+        data: {
+          label: "Deep Dive Loop",
+          sublabel:
+            activeNode === "deep_dive"
+              ? "Targeted Symbol Decompilation..."
+              : completedNodes.includes("deep_dive")
+              ? "Multi-hop Evidence Refined"
+              : "Targeted MCP Fetch (Ghidra/REA)",
+          iconName: "deep_dive",
+          status: getNodeStatus("deep_dive"),
+        },
+      },
+      {
         id: "report",
         type: "custom",
         position: { x: 390, y: 570 },
@@ -224,6 +240,31 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
         animated: activeNode === "analyze" && completedNodes.includes("source_recon"),
         style: { stroke: "#64748b", strokeWidth: 1.5 },
         markerEnd: { type: MarkerType.ArrowClosed, color: "#64748b" },
+      },
+      {
+        id: "e-analyze-deepdive",
+        source: "analyze",
+        target: "deep_dive",
+        sourceHandle: "source-right",
+        targetHandle: "target-left",
+        animated: activeNode === "deep_dive",
+        style: {
+          stroke: activeNode === "deep_dive" || completedNodes.includes("deep_dive") ? "#f97316" : "#33384a",
+          strokeWidth: 2,
+        },
+        markerEnd: { type: MarkerType.ArrowClosed, color: "#f97316" },
+      },
+      {
+        id: "e-deepdive-analyze",
+        source: "deep_dive",
+        target: "analyze",
+        animated: activeNode === "analyze" && completedNodes.includes("deep_dive"),
+        style: {
+          stroke: completedNodes.includes("deep_dive") ? "#f97316" : "#33384a",
+          strokeWidth: 1.5,
+          strokeDasharray: "4 4",
+        },
+        markerEnd: { type: MarkerType.ArrowClosed, color: "#f97316" },
       },
       {
         id: "e-analyze-report",

@@ -1,15 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
 import mermaid from "mermaid";
 import { Download, Copy, Check, FileText, Code2, ShieldCheck } from "lucide-react";
+import { EvidenceItem } from "../types";
 
 interface ReportViewerProps {
   reportMarkdown: string | null;
   onSave?: () => void;
+  onSelectEvidence?: (item: EvidenceItem) => void;
 }
 
 export const ReportViewer: React.FC<ReportViewerProps> = ({
   reportMarkdown,
   onSave,
+  onSelectEvidence,
 }) => {
   const [copied, setCopied] = useState(false);
   const [copiedSnippetId, setCopiedSnippetId] = useState<string | null>(null);
@@ -231,22 +234,43 @@ export const ReportViewer: React.FC<ReportViewerProps> = ({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#1e212c]">
-                  {rows.map((row, rIdx) => (
-                    <tr key={rIdx} className="hover:bg-[#181a24] transition-colors">
-                      <td className="px-4 py-2.5 font-mono text-[#cbd5e1] max-w-[200px] truncate">{row[0]}</td>
-                      <td className="px-4 py-2.5 font-mono text-[#38bdf8]">{row[1]}</td>
-                      <td className="px-4 py-2.5 font-mono text-[#94a3b8] max-w-[320px] truncate">{row[2]}</td>
-                      <td className="px-4 py-2.5 text-right font-mono">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                          row[3]?.includes("VERIFIED")
-                            ? "bg-[#22c55e]/15 text-[#22c55e] border border-[#22c55e]/30"
-                            : "bg-[#f59e0b]/15 text-[#f59e0b] border border-[#f59e0b]/30"
-                        }`}>
-                          {row[3]?.replace(/\*\*/g, "") || "VERIFIED"}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
+                  {rows.map((row, rIdx) => {
+                    const item: EvidenceItem = {
+                      source: row[0] || "",
+                      location: row[1] || "",
+                      snippet: row[2] || "",
+                      confidence: row[3]?.replace(/\*\*/g, "").trim() || "VERIFIED",
+                    };
+                    return (
+                      <tr
+                        key={rIdx}
+                        onClick={() => onSelectEvidence && onSelectEvidence(item)}
+                        className="hover:bg-[#1a1d2b] transition-colors cursor-pointer group"
+                        title="Click to inspect code & cross references in Drawer"
+                      >
+                        <td className="px-4 py-2.5 font-mono text-[#cbd5e1] max-w-[200px] truncate group-hover:text-white">
+                          {row[0]}
+                        </td>
+                        <td className="px-4 py-2.5 font-mono text-[#38bdf8] group-hover:underline">
+                          {row[1]}
+                        </td>
+                        <td className="px-4 py-2.5 font-mono text-[#94a3b8] max-w-[320px] truncate">
+                          {row[2]}
+                        </td>
+                        <td className="px-4 py-2.5 text-right font-mono">
+                          <span
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                              row[3]?.includes("VERIFIED")
+                                ? "bg-[#22c55e]/15 text-[#22c55e] border border-[#22c55e]/30"
+                                : "bg-[#f59e0b]/15 text-[#f59e0b] border border-[#f59e0b]/30"
+                            }`}
+                          >
+                            {row[3]?.replace(/\*\*/g, "") || "VERIFIED"}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

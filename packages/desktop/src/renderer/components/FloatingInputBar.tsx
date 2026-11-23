@@ -10,6 +10,9 @@ import {
   Square,
   UploadCloud,
   X,
+  Key,
+  ShieldCheck,
+  RefreshCw,
 } from "lucide-react";
 import { TargetMode } from "../types";
 
@@ -29,6 +32,7 @@ interface FloatingInputBarProps {
   sessionContextChars?: number;
   onSelectTarget: () => void;
   onClearTarget: () => void;
+  onOpenSettings?: () => void;
 }
 
 export const FloatingInputBar: React.FC<FloatingInputBarProps> = ({
@@ -47,12 +51,77 @@ export const FloatingInputBar: React.FC<FloatingInputBarProps> = ({
   sessionContextChars = 0,
   onSelectTarget,
   onClearTarget,
+  onOpenSettings,
 }) => {
   const [skillMenuOpen, setSkillMenuOpen] = useState(false);
   const [modeMenuOpen, setModeMenuOpen] = useState(false);
+  const [modelMenuOpen, setModelMenuOpen] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
+
+  // Active Model and Local LLM State
+  const [activeProvider, setActiveProvider] = useState("openai");
+  const [activeModel, setActiveModel] = useState("gpt-4o");
+  const [detectedLocalModels, setDetectedLocalModels] = useState<string[]>([]);
+  const [isScanningLocal, setIsScanningLocal] = useState(false);
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Load configured model from backend on mount
+  useEffect(() => {
+    if (window.electronAPI?.getConfig) {
+      window.electronAPI.getConfig().then((res) => {
+        if (res?.yamlConfig?.llm) {
+          const p = res.yamlConfig.llm.provider || "openai";
+          const m = res.yamlConfig.llm.model || (p === "ollama" ? "qwen2.5-coder" : "gpt-4o");
+          setActiveProvider(p);
+          setActiveModel(m);
+        }
+      });
+    }
+  }, []);
+
+  const handleScanLocalModels = async () => {
+    setIsScanningLocal(true);
+    if (window.electronAPI?.detectLocalModels) {
+      try {
+        const res = await window.electronAPI.detectLocalModels();
+        const models = [...(res.ollama?.models || []), ...(res.lmstudio?.models || [])];
+        setDetectedLocalModels(models);
+        if (models.length > 0 && (activeProvider === "ollama" || activeProvider === "lmstudio")) {
+          setActiveModel(models[0]);
+        }
+      } catch (err) {
+        console.error("Local LLM scan error:", err);
+      }
+    }
+    setIsScanningLocal(false);
+  };
+
+  const handleSelectModel = async (p: string, m: string) => {
+    setActiveProvider(p);
+    setActiveModel(m);
+    setModelMenuOpen(false);
+    if (window.electronAPI?.getConfig && window.electronAPI?.saveConfig) {
+      try {
+        const current = await window.electronAPI.getConfig();
+        const updated = {
+          ...(current.yamlConfig || {}),
+          llm: {
+            ...(current.yamlConfig?.llm || {}),
+            provider: p,
+            model: m,
+            base_url: p === "ollama" ? "http://127.0.0.1:11434/v1" : p === "lmstudio" ? "http://127.0.0.1:1234/v1" : undefined,
+          },
+        };
+        await window.electronAPI.saveConfig({ yamlConfig: updated });
+      } catch (err) {
+        console.error("Failed to save selected model:", err);
+      }
+    }
+  };
+
+  const isLocalActive = activeProvider === "ollama" || activeProvider === "lmstudio";
 
   // Click outside listener for dropdowns
   useEffect(() => {
@@ -287,6 +356,97 @@ export const FloatingInputBar: React.FC<FloatingInputBarProps> = ({
                       <span>{m} Mode</span>
                     </button>
                   ))}
+                </div>
+              )}
+            </div>
+
+            {/* Model & Local LLM Selector Pill */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => {
+                  setModelMenuOpen(!modelMenuOpen);
+                  setSkillMenuOpen(false);
+                  setModeMenuOpen(false);
+                }}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
+                  isLocalActive
+                    ? "bg-[#142419] border-[#22c55e]/40 text-[#22c55e]"
+                    : "bg-[#20232c] hover:bg-[#282c38] text-[#8b8f9e] hover:text-[#f0f1f5] border-[#2d313e]"
+                }`}
+              >
+                {isLocalActive ? (
+                  <ShieldCheck className="w-3 h-3 text-[#22c55e]" />
+                ) : (
+                  <Key className="w-3 h-3 text-purple-400" />
+                )}
+                <span className="truncate max-w-[110px]">{activeModel}</span>
+                {isLocalActive && (
+                  <span className="text-[9px] px-1 py-0.2 rounded bg-[#22c55e]/20 text-[#22c55e] font-mono font-bold hidden sm:inline">
+                    LOCAL
+                  </span>
+                )}
+                <ChevronDown className="w-3 h-3 text-[#565a69]" />
+              </button>
+
+              {modelMenuOpen && (
+                <div className="absolute bottom-full left-0 mb-2 w-64 bg-[#181a20] border border-[#2d313e] rounded-xl shadow-2xl p-2 z-50 flex flex-col gap-1.5 animate-in fade-in slide-in-from-bottom-2 duration-150">
+                  <div className="flex items-center justify-between px-1 pb-1 border-b border-[#262a38]">
+                    <span className="text-[10px] font-mono uppercase text-[#8b8f9e] tracking-wider font-semibold">
+                      Reasoning Model
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleScanLocalModels}
+                      disabled={isScanningLocal}
+                      className="text-[10px] text-[#38bdf8] hover:underline flex items-center gap-1 cursor-pointer"
+                    >
+                      <RefreshCw className={`w-2.5 h-2.5 ${isScanningLocal ? "animate-spin" : ""}`} />
+                      <span>{isScanningLocal ? "Scanning..." : "Scan"}</span>
+                    </button>
+                  </div>
+
+                  <div className="flex flex-col gap-0.5 max-h-48 overflow-y-auto">
+                    {[
+                      { p: "openai", m: "gpt-4o", label: "gpt-4o (OpenAI Cloud)" },
+                      { p: "ollama", m: "qwen2.5-coder", label: "qwen2.5-coder (Ollama)" },
+                      { p: "lmstudio", m: "deepseek-coder", label: "deepseek-coder (LM Studio)" },
+                      ...detectedLocalModels.map((m) => ({
+                        p: "ollama",
+                        m,
+                        label: `${m} (Local Detected)`,
+                      })),
+                    ]
+                      .filter((item, idx, arr) => arr.findIndex((x) => x.m === item.m) === idx)
+                      .map((opt) => (
+                        <button
+                          key={opt.m}
+                          type="button"
+                          onClick={() => handleSelectModel(opt.p, opt.m)}
+                          className={`text-left px-2.5 py-1.5 rounded-lg text-xs transition-colors flex items-center justify-between cursor-pointer ${
+                            activeModel === opt.m
+                              ? "bg-[#282c38] text-[#f97316] font-medium"
+                              : "text-[#8b8f9e] hover:bg-[#20232c] hover:text-[#f0f1f5]"
+                          }`}
+                        >
+                          <span className="truncate">{opt.label}</span>
+                          {activeModel === opt.m && <span className="w-1.5 h-1.5 rounded-full bg-[#f97316]" />}
+                        </button>
+                      ))}
+                  </div>
+
+                  {onOpenSettings && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setModelMenuOpen(false);
+                        onOpenSettings();
+                      }}
+                      className="w-full text-center py-1 mt-1 border-t border-[#262a38] text-[10px] text-[#8b8f9e] hover:text-[#f0f1f5] transition-colors cursor-pointer"
+                    >
+                      Configure endpoints in Settings →
+                    </button>
+                  )}
                 </div>
               )}
             </div>

@@ -61,6 +61,10 @@ program
         activeSkill: options.skill,
         userPrompt: options.prompt,
         outPath,
+        iteration: 0,
+        maxIterations: 3,
+        pendingQueries: [],
+        symbolSnippets: {},
       });
 
       console.log("\n=================== [ ANALYSIS COMPLETE ] ====================\n");

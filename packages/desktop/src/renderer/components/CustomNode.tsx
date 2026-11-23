@@ -12,6 +12,7 @@ import {
   Loader2,
   AlertCircle,
   Package,
+  RefreshCw,
 } from "lucide-react";
 import { NodeData } from "../types";
 
@@ -37,6 +38,8 @@ export const CustomNode: React.FC<{ data: NodeData; isConnectable?: boolean }> =
         return <Sparkles className="w-5 h-5 text-purple-400" />;
       case "report":
         return <FileText className="w-5 h-5 text-rose-400" />;
+      case "deep_dive":
+        return <RefreshCw className={`w-5 h-5 text-[#f97316] ${data.status === "running" ? "animate-spin" : ""}`} />;
     }
   };
 
@@ -60,6 +63,20 @@ export const CustomNode: React.FC<{ data: NodeData; isConnectable?: boolean }> =
       <Handle
         type="target"
         position={Position.Top}
+        isConnectable={isConnectable}
+        className="!bg-[#33384a] !w-2.5 !h-2.5 !border-[#14161f]"
+      />
+      <Handle
+        type="target"
+        position={Position.Left}
+        id="target-left"
+        isConnectable={isConnectable}
+        className="!bg-[#33384a] !w-2.5 !h-2.5 !border-[#14161f]"
+      />
+      <Handle
+        type="source"
+        position={Position.Right}
+        id="source-right"
         isConnectable={isConnectable}
         className="!bg-[#33384a] !w-2.5 !h-2.5 !border-[#14161f]"
       />

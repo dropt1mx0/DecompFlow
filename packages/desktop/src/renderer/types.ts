@@ -12,7 +12,7 @@ export interface EvidenceItem {
 export interface NodeData {
   label: string;
   sublabel: string;
-  iconName: "trigger" | "router" | "ghidra" | "rea" | "playwright" | "source" | "llm" | "report";
+  iconName: "trigger" | "router" | "ghidra" | "rea" | "playwright" | "source" | "llm" | "report" | "deep_dive";
   status: NodeExecutionStatus;
   details?: any;
 }
@@ -76,6 +76,19 @@ export interface AnalysisProgressEvent {
   data?: any;
 }
 
+export interface LocalLlmDetectionResult {
+  ollama: {
+    available: boolean;
+    models: string[];
+    host: string;
+  };
+  lmstudio: {
+    available: boolean;
+    models: string[];
+    host: string;
+  };
+}
+
 export interface McpTestResult {
   success: boolean;
   latencyMs?: number;
@@ -108,6 +121,7 @@ export interface ElectronAPI {
   listSkills: () => Promise<string[]>;
   getConfig: () => Promise<{ yamlConfig: any; mcpConfig: any; envApiKey: string }>;
   saveConfig: (data: { yamlConfig?: any; mcpConfig?: any; envApiKey?: string }) => Promise<{ success: boolean; error?: string }>;
+  detectLocalModels: () => Promise<LocalLlmDetectionResult>;
   testMcpConnections: () => Promise<Record<string, McpTestResult>>;
   getSystemInfo: () => Promise<SystemInfo>;
   onThemeUpdated: (callback: (theme: "dark" | "light") => void) => () => void;

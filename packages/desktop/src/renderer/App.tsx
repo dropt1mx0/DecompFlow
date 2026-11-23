@@ -7,7 +7,8 @@ import { ChatStream, MessageItem } from "./components/ChatStream";
 import { FlowGraph } from "./components/FlowGraph";
 import { ReportViewer } from "./components/ReportViewer";
 import { SettingsModal } from "./components/SettingsModal";
-import { TargetMode, ProjectItem, SessionItem, WorkspaceData } from "./types";
+import { EvidenceCodeDrawer } from "./components/EvidenceCodeDrawer";
+import { TargetMode, ProjectItem, SessionItem, WorkspaceData, EvidenceItem } from "./types";
 import { UploadCloud } from "lucide-react";
 
 export const App: React.FC = () => {
@@ -15,6 +16,10 @@ export const App: React.FC = () => {
   const [activeView, setActiveView] = useState<"chat" | "graph" | "report">("chat");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [globalDragOver, setGlobalDragOver] = useState(false);
+
+  // Evidence Code Drawer State
+  const [selectedEvidence, setSelectedEvidence] = useState<EvidenceItem | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   // Workspace and Projects State
   const [projects, setProjects] = useState<ProjectItem[]>([
@@ -392,6 +397,16 @@ export const App: React.FC = () => {
     }
   }, []);
 
+  const handleSelectEvidence = (item: EvidenceItem) => {
+    setSelectedEvidence(item);
+    setDrawerOpen(true);
+  };
+
+  const handleDeepDiveFromDrawer = (prompt: string) => {
+    setPromptText(prompt);
+    setActiveView("chat");
+  };
+
   // Quick action from HeroState
   const handleSelectHeroAction = async (
     actionText: string,
@@ -731,6 +746,7 @@ export const App: React.FC = () => {
                     isRunning={isRunning}
                     onOpenGraph={() => setActiveView("graph")}
                     onOpenReport={() => setActiveView("report")}
+                    onSelectEvidence={handleSelectEvidence}
                   />
                 )}
 
@@ -751,6 +767,7 @@ export const App: React.FC = () => {
                   sessionContextChars={sessionContextChars}
                   onSelectTarget={handleSelectTarget}
                   onClearTarget={handleClearTarget}
+                  onOpenSettings={() => setSettingsOpen(true)}
                 />
               </>
             )}
@@ -769,12 +786,24 @@ export const App: React.FC = () => {
             {/* View: Report (Markdown + Rendered Mermaid SVG) */}
             {activeView === "report" && (
               <div className="w-full h-full relative">
-                <ReportViewer reportMarkdown={finalReport} onSave={handleSaveReport} />
+                <ReportViewer
+                  reportMarkdown={finalReport}
+                  onSave={handleSaveReport}
+                  onSelectEvidence={handleSelectEvidence}
+                />
               </div>
             )}
           </div>
         </div>
       </div>
+
+      {/* Interactive Evidence Code Drawer */}
+      <EvidenceCodeDrawer
+        isOpen={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        evidence={selectedEvidence}
+        onDeepDive={handleDeepDiveFromDrawer}
+      />
 
       {/* Settings Modal (Syncs with decompflow.yaml & mcp-servers.json) */}
       <SettingsModal isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />

@@ -12,6 +12,13 @@ export interface ChatMessage {
   content: string;
 }
 
+export interface PendingQuery {
+  server: string;
+  tool: string;
+  args: Record<string, any>;
+  reason: string;
+}
+
 export const DecompFlowState = Annotation.Root({
   target: Annotation<string>,           // Путь к бинарнику, директории или URL
   mode: Annotation<"binary" | "web" | "source">,
@@ -24,6 +31,10 @@ export const DecompFlowState = Annotation.Root({
   messages: Annotation<ChatMessage[] | undefined>,   // История сообщений для follow-up
   finalReport: Annotation<string>,      // Итоговый структурированный отчет
   outPath: Annotation<string | undefined>, // Путь сохранения отчета
+  iteration: Annotation<number>,        // Текущий шаг многошаговой доразведки (0, 1, 2...)
+  maxIterations: Annotation<number>,    // Лимит итераций (по умолчанию 3)
+  pendingQueries: Annotation<PendingQuery[]>, // Очередь точечных запросов к MCP
+  symbolSnippets: Annotation<Record<string, string>>, // Кеш декомпилированных функций/файлов
 });
 
 export type DecompFlowStateType = typeof DecompFlowState.State;

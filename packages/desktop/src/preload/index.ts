@@ -24,6 +24,10 @@ export interface ElectronAPI {
   listSkills: () => Promise<string[]>;
   getConfig: () => Promise<{ yamlConfig: any; mcpConfig: any; envApiKey: string }>;
   saveConfig: (data: any) => Promise<{ success: boolean; error?: string }>;
+  detectLocalModels: () => Promise<{
+    ollama: { available: boolean; models: string[]; host: string };
+    lmstudio: { available: boolean; models: string[]; host: string };
+  }>;
   testMcpConnections: () => Promise<Record<string, { success: boolean; latencyMs?: number; error?: string }>>;
   getSystemInfo: () => Promise<any>;
   onThemeUpdated: (callback: (theme: "dark" | "light") => void) => () => void;
@@ -43,6 +47,7 @@ const api: ElectronAPI = {
   listSkills: () => ipcRenderer.invoke("skills:list"),
   getConfig: () => ipcRenderer.invoke("config:get"),
   saveConfig: (data: any) => ipcRenderer.invoke("config:save", data),
+  detectLocalModels: () => ipcRenderer.invoke("llm:detect-local"),
   testMcpConnections: () => ipcRenderer.invoke("mcp:testConnections"),
   getSystemInfo: () => ipcRenderer.invoke("system:get-info"),
   onThemeUpdated: (callback: (theme: "dark" | "light") => void) => {

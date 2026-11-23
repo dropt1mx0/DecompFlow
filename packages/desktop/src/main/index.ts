@@ -287,6 +287,48 @@ function setupIpc() {
     }
   });
 
+  // Local LLM Detection (Ollama & LM Studio in 1 Click)
+  ipcMain.handle("llm:detect-local", async () => {
+    const result = {
+      ollama: { available: false, models: [] as string[], host: "http://127.0.0.1:11434" },
+      lmstudio: { available: false, models: [] as string[], host: "http://127.0.0.1:1234" },
+    };
+
+    // Ping Ollama
+    try {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), 1500);
+      const res = await fetch("http://127.0.0.1:11434/api/tags", { signal: controller.signal });
+      clearTimeout(id);
+      if (res.ok) {
+        const data: any = await res.json();
+        const models = (data.models || []).map((m: any) => m.name || m.model).filter(Boolean);
+        result.ollama.available = true;
+        result.ollama.models = models;
+      }
+    } catch {
+      // Ollama not reachable
+    }
+
+    // Ping LM Studio
+    try {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), 1500);
+      const res = await fetch("http://127.0.0.1:1234/v1/models", { signal: controller.signal });
+      clearTimeout(id);
+      if (res.ok) {
+        const data: any = await res.json();
+        const models = (data.data || []).map((m: any) => m.id).filter(Boolean);
+        result.lmstudio.available = true;
+        result.lmstudio.models = models;
+      }
+    } catch {
+      // LM Studio not reachable
+    }
+
+    return result;
+  });
+
   // Test MCP Connections
   ipcMain.handle("mcp:testConnections", async () => {
     try {

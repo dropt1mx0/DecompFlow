@@ -15,6 +15,8 @@ import {
   FolderTree,
   Terminal,
   RefreshCw,
+  ShieldCheck,
+  Sparkles,
 } from "lucide-react";
 import { McpTestResult, SystemInfo } from "../types";
 
@@ -41,6 +43,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   const [apiKey, setApiKey] = useState("");
   const [baseUrl, setBaseUrl] = useState("");
   const [temperature, setTemperature] = useState(0.1);
+
+  // Local LLM Detection
+  const [scanningLocal, setScanningLocal] = useState(false);
+  const [localOllamaModels, setLocalOllamaModels] = useState<string[]>([]);
+  const [localLmStudioModels, setLocalLmStudioModels] = useState<string[]>([]);
+  const [localScanMessage, setLocalScanMessage] = useState<string | null>(null);
 
   // MCP Servers Config
   const [reaEnabled, setReaEnabled] = useState(true);
@@ -135,6 +143,33 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       }
     }
     setDetectingPaths(false);
+  };
+
+  const handleScanLocal = async () => {
+    setScanningLocal(true);
+    setLocalScanMessage(null);
+    if (window.electronAPI?.detectLocalModels) {
+      try {
+        const res = await window.electronAPI.detectLocalModels();
+        const ollamaList = res.ollama?.models || [];
+        const lmList = res.lmstudio?.models || [];
+        setLocalOllamaModels(ollamaList);
+        setLocalLmStudioModels(lmList);
+
+        const found: string[] = [];
+        if (res.ollama?.available) found.push(`Ollama (${ollamaList.length} models)`);
+        if (res.lmstudio?.available) found.push(`LM Studio (${lmList.length} models)`);
+
+        if (found.length > 0) {
+          setLocalScanMessage(`Discovered: ${found.join(", ")}`);
+        } else {
+          setLocalScanMessage("No local models found on :11434 (Ollama) or :1234 (LM Studio)");
+        }
+      } catch (err: any) {
+        setLocalScanMessage("Detection error: " + (err.message || String(err)));
+      }
+    }
+    setScanningLocal(false);
   };
 
   const handleTestConnections = async () => {
@@ -449,55 +484,146 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
           ) : activeTab === "llm" ? (
             /* TAB 2: LLM REASONING */
             <div className="space-y-4">
-              <span className="text-[10px] font-mono uppercase text-[#8b8f9e] tracking-wider block font-semibold flex items-center gap-1.5">
-                <Key className="w-3.5 h-3.5 text-[#f97316]" />
-                <span>LLM Reasoning Engine</span>
-              </span>
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-mono uppercase text-[#8b8f9e] tracking-wider block font-semibold flex items-center gap-1.5">
+                  <Key className="w-3.5 h-3.5 text-[#f97316]" />
+                  <span>LLM Reasoning Engine & Local Offline AI</span>
+                </span>
 
+                <button
+                  onClick={handleScanLocal}
+                  disabled={scanningLocal}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#181a24] hover:bg-[#202432] border border-[#2d3144] text-[11px] text-[#cbd5e1] hover:text-[#f0f1f5] transition-colors cursor-pointer"
+                >
+                  <RefreshCw className={`w-3 h-3 text-[#22c55e] ${scanningLocal ? "animate-spin" : ""}`} />
+                  <span>{scanningLocal ? "Scanning :11434 / :1234..." : "Scan Local LLMs (Ollama / LM Studio)"}</span>
+                </button>
+              </div>
+
+              {localScanMessage && (
+                <div className="p-2.5 rounded-lg bg-[#141a1f] border border-[#22394a] text-xs text-[#38bdf8] flex items-center gap-2">
+                  <Sparkles className="w-3.5 h-3.5 text-[#38bdf8] shrink-0" />
+                  <span>{localScanMessage}</span>
+                </div>
+              )}
+
+              {/* Provider Selection Buttons */}
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-medium text-[#8b8f9e] block">Select LLM Provider</label>
+                <div className="grid grid-cols-4 gap-2">
+                  {[
+                    { id: "openai", label: "OpenAI Cloud", desc: "gpt-4o", defaultUrl: "" },
+                    { id: "ollama", label: "Ollama Local", desc: "Port 11434", defaultUrl: "http://127.0.0.1:11434/v1" },
+                    { id: "lmstudio", label: "LM Studio", desc: "Port 1234", defaultUrl: "http://127.0.0.1:1234/v1" },
+                    { id: "custom", label: "Custom OpenAI", desc: "Self-hosted", defaultUrl: baseUrl || "http://127.0.0.1:8000/v1" },
+                  ].map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => {
+                        setProvider(p.id);
+                        if (p.defaultUrl) setBaseUrl(p.defaultUrl);
+                        if (p.id === "ollama") {
+                          if (localOllamaModels.length > 0) setModelName(localOllamaModels[0]);
+                          else setModelName("qwen2.5-coder");
+                        } else if (p.id === "lmstudio") {
+                          if (localLmStudioModels.length > 0) setModelName(localLmStudioModels[0]);
+                          else setModelName("deepseek-coder");
+                        } else if (p.id === "openai") {
+                          setModelName("gpt-4o");
+                          setBaseUrl("");
+                        }
+                      }}
+                      className={`p-2 rounded-xl border text-left flex flex-col gap-0.5 transition-all cursor-pointer ${
+                        provider === p.id
+                          ? "border-[#f97316] bg-[#221812] shadow-md shadow-[#f97316]/10"
+                          : "border-[#262a38] bg-[#12141a] hover:border-[#38bdf8]/40"
+                      }`}
+                    >
+                      <span className={`text-xs font-semibold ${provider === p.id ? "text-[#f97316]" : "text-[#f0f1f5]"}`}>
+                        {p.label}
+                      </span>
+                      <span className="text-[10px] text-[#8b8f9e] font-mono">{p.desc}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Local Offline Banner */}
+              {(provider === "ollama" || provider === "lmstudio") && (
+                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-[#142319] border border-[#22c55e]/30 text-[#22c55e]">
+                  <ShieldCheck className="w-5 h-5 shrink-0" />
+                  <div className="text-xs">
+                    <span className="font-semibold block">LOCAL / OFFLINE — 100% Private Mode Active</span>
+                    <span className="text-[11px] text-[#a7f3d0] opacity-90">
+                      All decompiled code, disassembly, and AST structures are processed locally on your hardware. Zero telemetry.
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Model Picker or Manual Input */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[11px] font-medium text-[#8b8f9e] mb-1 block">Provider</label>
-                  <input
-                    type="text"
-                    value={provider}
-                    onChange={(e) => setProvider(e.target.value)}
-                    className="w-full px-2.5 py-1.5 rounded-lg bg-[#101217] border border-[#2d3140] text-[#f0f1f5] outline-none focus:border-[#f97316] font-mono text-xs"
-                  />
+                  <label className="text-[11px] font-medium text-[#8b8f9e] mb-1 block">Active Model</label>
+                  {provider === "ollama" && localOllamaModels.length > 0 ? (
+                    <select
+                      value={modelName}
+                      onChange={(e) => setModelName(e.target.value)}
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-[#101217] border border-[#2d3140] text-[#f0f1f5] outline-none focus:border-[#f97316] font-mono text-xs cursor-pointer"
+                    >
+                      {localOllamaModels.map((m) => (
+                        <option key={m} value={m}>
+                          {m}
+                        </option>
+                      ))}
+                    </select>
+                  ) : provider === "lmstudio" && localLmStudioModels.length > 0 ? (
+                    <select
+                      value={modelName}
+                      onChange={(e) => setModelName(e.target.value)}
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-[#101217] border border-[#2d3140] text-[#f0f1f5] outline-none focus:border-[#f97316] font-mono text-xs cursor-pointer"
+                    >
+                      {localLmStudioModels.map((m) => (
+                        <option key={m} value={m}>
+                          {m}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      type="text"
+                      value={modelName}
+                      onChange={(e) => setModelName(e.target.value)}
+                      placeholder={provider === "ollama" ? "qwen2.5-coder" : provider === "lmstudio" ? "deepseek-coder" : "gpt-4o"}
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-[#101217] border border-[#2d3140] text-[#f0f1f5] outline-none focus:border-[#f97316] font-mono text-xs"
+                    />
+                  )}
                 </div>
 
                 <div>
-                  <label className="text-[11px] font-medium text-[#8b8f9e] mb-1 block">Model Name</label>
+                  <label className="text-[11px] font-medium text-[#8b8f9e] mb-1 block">
+                    API Key {provider === "ollama" || provider === "lmstudio" ? "(Optional for Local)" : "(Required for Cloud)"}
+                  </label>
                   <input
-                    type="text"
-                    value={modelName}
-                    onChange={(e) => setModelName(e.target.value)}
-                    className="w-full px-2.5 py-1.5 rounded-lg bg-[#101217] border border-[#2d3140] text-[#f0f1f5] outline-none focus:border-[#f97316] font-mono text-xs"
+                    type="password"
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                    placeholder={provider === "ollama" || provider === "lmstudio" ? "local (not needed)" : "sk-proj-..."}
+                    className="w-full px-2.5 py-1.5 rounded-lg bg-[#101217] border border-[#2d3140] text-[#f0f1f5] outline-none focus:border-[#f97316] font-mono text-xs placeholder:text-[#424656]"
                   />
                 </div>
               </div>
 
               <div>
                 <label className="text-[11px] font-medium text-[#8b8f9e] mb-1 block">
-                  API Key (OPENAI_API_KEY)
-                </label>
-                <input
-                  type="password"
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  placeholder="sk-proj-..."
-                  className="w-full px-2.5 py-1.5 rounded-lg bg-[#101217] border border-[#2d3140] text-[#f0f1f5] outline-none focus:border-[#f97316] font-mono text-xs placeholder:text-[#424656]"
-                />
-              </div>
-
-              <div>
-                <label className="text-[11px] font-medium text-[#8b8f9e] mb-1 block">
-                  Base URL (Optional, for Local LLMs or Ollama)
+                  API Endpoint / Base URL
                 </label>
                 <input
                   type="text"
                   value={baseUrl}
                   onChange={(e) => setBaseUrl(e.target.value)}
-                  placeholder="http://localhost:11434/v1"
+                  placeholder="http://127.0.0.1:11434/v1"
                   className="w-full px-2.5 py-1.5 rounded-lg bg-[#101217] border border-[#2d3140] text-[#f0f1f5] outline-none focus:border-[#f97316] font-mono text-xs placeholder:text-[#424656]"
                 />
               </div>

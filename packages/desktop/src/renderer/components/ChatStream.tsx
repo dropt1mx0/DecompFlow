@@ -12,13 +12,14 @@ import {
   Copy,
   Check,
 } from "lucide-react";
-import { MessageItem } from "../types";
+import { MessageItem, EvidenceItem } from "../types";
 
 interface ChatStreamProps {
   messages: MessageItem[];
   isRunning: boolean;
   onOpenGraph: () => void;
   onOpenReport: () => void;
+  onSelectEvidence?: (item: EvidenceItem) => void;
 }
 
 export const ChatStream: React.FC<ChatStreamProps> = ({
@@ -26,6 +27,7 @@ export const ChatStream: React.FC<ChatStreamProps> = ({
   isRunning,
   onOpenGraph,
   onOpenReport,
+  onSelectEvidence,
 }) => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
@@ -206,26 +208,33 @@ export const ChatStream: React.FC<ChatStreamProps> = ({
                     {msg.evidence.map((item, idx) => (
                       <div
                         key={idx}
-                        className="p-2.5 rounded-lg bg-[#161820] border border-[#252834] space-y-1.5 text-xs"
+                        onClick={() => onSelectEvidence && onSelectEvidence(item)}
+                        className="p-2.5 rounded-lg bg-[#161820] border border-[#252834] hover:border-[#f97316]/70 hover:bg-[#1b1e2a] space-y-1.5 text-xs transition-all cursor-pointer group"
+                        title="Click to inspect code, line numbers & cross references"
                       >
                         <div className="flex items-center justify-between">
-                          <span className="font-mono text-[#8b8f9e] text-[11px] truncate max-w-[280px]">
+                          <span className="font-mono text-[#8b8f9e] group-hover:text-[#f0f1f5] text-[11px] truncate max-w-[280px] transition-colors">
                             {item.source}
                           </span>
-                          <span
-                            className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase font-mono ${
-                              item.confidence === "VERIFIED"
-                                ? "bg-[#22c55e]/15 text-[#22c55e] border border-[#22c55e]/30"
-                                : "bg-[#f59e0b]/15 text-[#f59e0b] border border-[#f59e0b]/30"
-                            }`}
-                          >
-                            {item.confidence}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] text-[#64748b] group-hover:text-[#f97316] transition-colors font-mono hidden sm:inline">
+                              Inspect code →
+                            </span>
+                            <span
+                              className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase font-mono ${
+                                item.confidence === "VERIFIED"
+                                  ? "bg-[#22c55e]/15 text-[#22c55e] border border-[#22c55e]/30"
+                                  : "bg-[#f59e0b]/15 text-[#f59e0b] border border-[#f59e0b]/30"
+                              }`}
+                            >
+                              {item.confidence}
+                            </span>
+                          </div>
                         </div>
-                        <div className="text-[11px] font-mono text-[#38bdf8]">
-                          @ {item.location}
+                        <div className="text-[11px] font-mono text-[#38bdf8] flex items-center justify-between">
+                          <span>@ {item.location}</span>
                         </div>
-                        <pre className="p-2 rounded bg-[#0f1115] border border-[#1e212b] text-[11px] font-mono text-[#cbd5e1] overflow-x-auto whitespace-pre-wrap leading-relaxed">
+                        <pre className="p-2 rounded bg-[#0f1115] border border-[#1e212b] group-hover:border-[#2d3244] text-[11px] font-mono text-[#cbd5e1] overflow-x-auto whitespace-pre-wrap leading-relaxed transition-colors">
                           {item.snippet}
                         </pre>
                       </div>
