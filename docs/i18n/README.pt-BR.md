@@ -13,15 +13,15 @@
 </div>
 
 <p align="center">
-  [English](https://github.com/dropt1mx0/DecompFlow#readme) •
-  [Русский](https://github.com/dropt1mx0/DecompFlow/blob/main/docs/i18n/README.ru.md) •
-  [Українська](https://github.com/dropt1mx0/DecompFlow/blob/main/docs/i18n/README.uk.md) •
-  [हिन्दी](https://github.com/dropt1mx0/DecompFlow/blob/main/docs/i18n/README.hi.md) •
-  [简体中文](https://github.com/dropt1mx0/DecompFlow/blob/main/docs/i18n/README.zh-CN.md) •
-  [Español](https://github.com/dropt1mx0/DecompFlow/blob/main/docs/i18n/README.es.md) •
-  [Deutsch](https://github.com/dropt1mx0/DecompFlow/blob/main/docs/i18n/README.de.md) •
-  [Português](https://github.com/dropt1mx0/DecompFlow/blob/main/docs/i18n/README.pt-BR.md) •
-  [日本語](https://github.com/dropt1mx0/DecompFlow/blob/main/docs/i18n/README.ja.md)
+  <a href="../../README.md">English</a> •
+  <a href="README.ru.md">Русский</a> •
+  <a href="README.uk.md">Українська</a> •
+  <a href="README.hi.md">हिन्दी</a> •
+  <a href="README.zh-CN.md">简体中文</a> •
+  <a href="README.es.md">Español</a> •
+  <a href="README.de.md">Deutsch</a> •
+  <a href="README.pt-BR.md"><b>Português</b></a> •
+  <a href="README.ja.md">日本語</a>
 </p>
 
 ---
