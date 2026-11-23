@@ -1,5 +1,8 @@
 appId: com.decompflow.studio
 productName: DecompFlow
+executableName: decompflow
+electronVersion: 33.2.1
+artifactName: "${productName}-${version}-${os}-${arch}.${ext}"
 directories:
   output: ../../dist-installers
 publish:
@@ -10,19 +13,28 @@ files:
   - dist/**/*
   - package.json
 linux:
+  executableName: decompflow
+  maintainer: "dropt1mx0 <dropt1m@users.noreply.github.com>"
   target:
     - AppImage
     - deb
-    - rpm
   category: Development
   synopsis: Autonomous AI Reverse Engineering & Feature Reconstruction Studio
   description: Autonomous AI Reverse Engineering, Binary Decompilation & Feature Reconstruction Studio powered by LangGraph, REA, Ghidra, and Playwright MCP.
+deb:
+  packageName: decompflow-studio
+  artifactName: "${productName}-${version}-amd64.deb"
+appImage:
+  artifactName: "${productName}-${version}.AppImage"
 win:
+  executableName: decompflow
   target:
     - nsis
     - portable
+  artifactName: "${productName}-Setup-${version}.${ext}"
 mac:
   target:
     - dmg
     - zip
   category: public.app-category.developer-tools
+  artifactName: "${productName}-${version}-mac.${ext}"

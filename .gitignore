@@ -5,6 +5,7 @@ node_modules/
 
 # Build artifacts & distributions
 dist/
+dist-installers/
 build/
 release/
 out/
