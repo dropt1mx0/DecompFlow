@@ -122,15 +122,3 @@ DecompFlow/
     ├── cli/                 # decompflow — Terminal CLI interface
     └── desktop/             # @decompflow/desktop — Electron + React + Tailwind + React Flow Studio
 ```
-
----
-
-## ⚖️ Haftungsausschluss (Disclaimer)
-
-DecompFlow ist ausschließlich für autorisierte Sicherheitsaudits, Interoperabilitätsforschung, Software-Erhaltung und Ausbildungszwecke an Systemen mit ausdrücklicher Genehmigung vorgesehen. Jeder Missbrauch zur Lizenzverletzung oder zur Erstellung von Schadsoftware ist untersagt.
-
----
-
-## 📄 Lizenz (MIT)
-
-Dieses Projekt ist unter der quelloffenen MIT-Lizenz veröffentlicht. Weitere Einzelheiten finden sich in der Datei LICENSE im Hauptverzeichnis.

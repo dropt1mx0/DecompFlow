@@ -143,13 +143,3 @@ DecompFlow/
     ├── cli/                 # decompflow — Terminal CLI interface
     └── desktop/             # @decompflow/desktop — Electron + React + Tailwind + React Flow Studio
 ```
-
----
-
-## ⚖️ Disclaimer & Responsible Use
-
-DecompFlow is built exclusively for authorized security auditing, interoperability research, legacy software preservation, debugging, and educational analysis of software you own or have explicit permission to inspect. Do not use this tool to violate software licenses, bypass access controls, or generate malicious payloads.
-
-## 📄 License
-
-Licensed under the MIT License. Third-party MCP engines and commercial decompilers (such as Ghidra, IDA Pro, Hopper, and REA) remain subject to their respective licenses.

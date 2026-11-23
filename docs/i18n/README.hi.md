@@ -122,15 +122,3 @@ DecompFlow/
     ├── cli/                 # decompflow — Terminal CLI interface
     └── desktop/             # @decompflow/desktop — Electron + React + Tailwind + React Flow Studio
 ```
-
----
-
-## ⚖️ अस्वीकरण (Disclaimer)
-
-DecompFlow का उपयोग केवल अधिकृत सुरक्षा ऑडिट, इंटरऑपरेबिलिटी अनुसंधान और शैक्षिक विश्लेषण के लिए किया जाना चाहिए। इसका उपयोग सॉफ़्टवेयर लाइसेंस के उल्लंघन या अनधिकृत शोषण के लिए वर्जित है।
-
----
-
-## 📄 लाइसेंस (MIT)
-
-DecompFlow प्रोजेक्ट ओपन-सोर्स MIT लाइसेंस के तहत जारी किया गया है। पूर्ण शर्तें रिपॉजिटरी की LICENSE फ़ाइल में उपलब्ध हैं।
