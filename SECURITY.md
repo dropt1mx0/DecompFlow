@@ -14,7 +14,7 @@ If you believe you have discovered a security vulnerability in DecompFlow (inclu
 
 Instead, please report it privately:
 - Through [GitHub Private Vulnerability Reporting](https://github.com/dropt1mx0/DecompFlow/security/advisories/new)
-- Or by email to `maksimosnach10@gmail.com`
+- Or by email to `dropt1m.sup@gmail.com`
 
 Please include:
 - A description of the vulnerability and potential impact.
