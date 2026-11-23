@@ -1,0 +1,54 @@
+name: Build & Release Desktop Installers
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Monorepo (Core, CLI, Desktop)
+        run: npm run build
+
+      - name: Package Linux (.AppImage & .deb)
+        if: matrix.os == 'ubuntu-latest'
+        run: npx electron-builder build --linux AppImage deb --project packages/desktop --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Package Windows (.exe NSIS & Portable)
+        if: matrix.os == 'windows-latest'
+        run: npx electron-builder build --win nsis portable --project packages/desktop --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Package macOS (.dmg & .zip)
+        if: matrix.os == 'macos-latest'
+        run: npx electron-builder build --mac dmg zip --project packages/desktop --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: false

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DecompFlow — Autonomous AI Reverse Engineering Studio & CLI</title>
+  <meta name="description" content="Autonomous AI Reverse Engineering Studio & CLI powered by LangGraph, REA, Ghidra & Playwright MCP. 100% local LLM ready." />
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: '#f97316',
+            'brand-glow': '#ffedd5',
+            dark: '#09090b',
+            'dark-surface': '#111217',
+            'dark-border': '#222530',
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    body {
+      background-color: #09090b;
+      color: #f4f4f5;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(249, 115, 22, 0.08) 0%, transparent 60%),
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 48px 48px, 48px 48px;
+    }
+    .glow-effect {
+      box-shadow: 0 0 50px -10px rgba(249, 115, 22, 0.25);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans antialiased selection:bg-[#f97316] selection:text-white">
+
+  <!-- Top Navigation Bar -->
+  <header class="sticky top-0 z-50 backdrop-blur-md bg-[#09090b]/80 border-b border-zinc-800/80">
+    <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="#" class="flex items-center gap-2.5 font-bold text-lg text-white hover:opacity-90 transition-opacity">
+          <span class="w-8 h-8 rounded-lg bg-[#f97316]/10 border border-[#f97316]/40 flex items-center justify-center text-[#f97316] text-base">⚡</span>
+          <span>DecompFlow</span>
+        </a>
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-zinc-900 border border-zinc-700/60 text-[11px] font-mono text-zinc-400">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          v0.1.0
+        </span>
+      </div>
+
+      <nav class="hidden md:flex items-center gap-6 text-sm text-zinc-400 font-medium">
+        <a href="#features" class="hover:text-white transition-colors">Features</a>
+        <a href="#architecture" class="hover:text-white transition-colors">Architecture</a>
+        <a href="#terminal" class="hover:text-white transition-colors">Live Cycle</a>
+        <a href="#install" class="hover:text-white transition-colors">Install</a>
+        <a href="https://github.com/dropt1mx0/DecompFlow/releases" target="_blank" class="hover:text-white transition-colors">Releases</a>
+      </nav>
+
+      <div class="flex items-center gap-3">
+        <a href="https://github.com/dropt1mx0/DecompFlow" target="_blank" class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 text-xs font-semibold text-zinc-200 hover:text-white transition-all shadow-sm">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          <span>GitHub ↗</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <main class="flex-1">
+    <section class="max-w-5xl mx-auto px-6 pt-20 pb-16 text-center flex flex-col items-center">
+      <!-- Eyebrow Pill -->
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-900/90 border border-zinc-800 text-xs font-mono text-[#f97316] mb-8 shadow-inner">
+        <span class="w-2 h-2 rounded-full bg-[#f97316]"></span>
+        <span>Multi-hop LangGraph • REA • Ghidra • Playwright MCP</span>
+      </div>
+
+      <!-- Main Headline -->
+      <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white max-w-4xl leading-[1.08] mb-6">
+        Reverse engineer anything. <br class="hidden sm:inline" />
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-white via-zinc-200 to-[#f97316]">
+          Down to the binary.
+        </span>
+      </h1>
+
+      <!-- Subtitle -->
+      <p class="text-base sm:text-xl text-zinc-400 max-w-2xl leading-relaxed mb-10 font-normal">
+        Autonomous AI Reverse Engineering Studio & high-speed CLI powered by multi-hop LangGraph orchestration. Reconstruct software architecture, extract Electron IPC bridges, and decompile native symbols with zero cloud telemetry.
+      </p>
+
+      <!-- Primary Action & OS Auto-Detection -->
+      <div class="w-full max-w-xl flex flex-col items-center gap-4 mb-8">
+        <div class="flex flex-col sm:flex-row items-center gap-3 w-full justify-center">
+          <!-- Smart Download Button -->
+          <a id="smart-download-btn" href="https://github.com/dropt1mx0/DecompFlow/releases/latest" target="_blank" class="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold text-sm flex items-center justify-center gap-2.5 transition-all shadow-lg shadow-[#f97316]/20 cursor-pointer">
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+            <span id="smart-download-text">Download Desktop Studio</span>
+          </a>
+
+          <!-- Web / CLI Quick Start Link -->
+          <a href="#install" class="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white font-medium text-sm flex items-center justify-center gap-2 transition-all cursor-pointer">
+            <svg class="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span>CLI Quick Start</span>
+          </a>
+        </div>
+
+        <!-- Cross-platform secondary links -->
+        <p class="text-xs text-zinc-500 font-mono flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
+          <span>Also available for:</span>
+          <a href="https://github.com/dropt1mx0/DecompFlow/releases/latest" class="hover:text-zinc-300 underline">Linux (.AppImage, .deb)</a>
+          <span>•</span>
+          <a href="https://github.com/dropt1mx0/DecompFlow/releases/latest" class="hover:text-zinc-300 underline">Windows (.exe NSIS, Portable)</a>
+          <span>•</span>
+          <a href="https://github.com/dropt1mx0/DecompFlow/releases/latest" class="hover:text-zinc-300 underline">macOS (.dmg, Apple Silicon / Intel)</a>
+        </p>
+      </div>
+
+      <!-- CLI Command Pill -->
+      <div id="install" class="w-full max-w-2xl bg-zinc-900/90 border border-zinc-800 rounded-2xl p-3 shadow-2xl backdrop-blur-sm text-left">
+        <div class="flex items-center justify-between pb-2.5 mb-2.5 border-b border-zinc-800/80 px-2">
+          <div class="flex items-center gap-1.5">
+            <button id="tab-npx" onclick="setCliTab('npx')" class="px-2.5 py-1 rounded-md text-xs font-mono font-medium transition-colors bg-zinc-800 text-white">npx</button>
+            <button id="tab-npm" onclick="setCliTab('npm')" class="px-2.5 py-1 rounded-md text-xs font-mono font-medium transition-colors text-zinc-400 hover:text-zinc-200">npm</button>
+            <button id="tab-source" onclick="setCliTab('source')" class="px-2.5 py-1 rounded-md text-xs font-mono font-medium transition-colors text-zinc-400 hover:text-zinc-200">source</button>
+          </div>
+          <span class="text-[11px] font-mono text-zinc-500">Requires Node >= 20.x</span>
+        </div>
+
+        <div class="flex items-center justify-between gap-3 px-3 py-2 bg-black/60 rounded-xl border border-zinc-800/60 font-mono text-xs text-zinc-200 overflow-x-auto">
+          <div class="flex items-center gap-2 select-all">
+            <span class="text-[#f97316] select-none font-bold">$</span>
+            <span id="cli-cmd-text">npx decompflow analyze ./target --skill feature-reconstruct</span>
+          </div>
+          <button onclick="copyCliCommand()" class="shrink-0 p-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 hover:text-white transition-colors cursor-pointer" title="Copy command">
+            <svg id="copy-icon" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            <svg id="check-icon" class="w-3.5 h-3.5 text-emerald-400 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Terminal & Live Cycle Simulation -->
+    <section id="terminal" class="max-w-5xl mx-auto px-6 py-12">
+      <div class="rounded-2xl bg-[#0e1015] border border-zinc-800 overflow-hidden shadow-2xl glow-effect">
+        <!-- Terminal Titlebar -->
+        <div class="h-10 px-4 bg-[#14161f] border-b border-zinc-800 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-rose-500/80 inline-block"></span>
+            <span class="w-3 h-3 rounded-full bg-amber-500/80 inline-block"></span>
+            <span class="w-3 h-3 rounded-full bg-emerald-500/80 inline-block"></span>
+            <span class="text-xs font-mono text-zinc-400 ml-2">decompflow analyze ./sample_bin — multi-hop pipeline</span>
+          </div>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-emerald-400 border border-emerald-500/20">LANGGRAPH ACTIVE</span>
+        </div>
+
+        <!-- Terminal Output -->
+        <div class="p-6 font-mono text-xs leading-relaxed space-y-3 overflow-x-auto text-zinc-300 bg-black/80">
+          <div class="text-zinc-500">// 1. Surface Index Phase (Zero Context Overflow)</div>
+          <div class="text-amber-400">[DecompFlow] [Recon:Binary] Surface Indexing (Functions, Xrefs, Strings) for: ./sample_bin</div>
+          <div class="text-zinc-400">[MCP Manager] Spawned server "ghidra" (python3 ./tools/ghidra_mcp_bridge.py)</div>
+          
+          <div class="text-zinc-500 pt-1">// 2. Hop 0 LLM Reasoning & Follow-up Extraction</div>
+          <div class="text-sky-400">[DecompFlow] [Analyze:Iteration 0/3] Inspecting function call graph...</div>
+          <div class="text-[#f97316]">[Multi-hop Loop] Enqueued 1 targeted query: ghidra.decompile_function("sub_004010a0")</div>
+          
+          <div class="text-zinc-500 pt-1">// 3. Hop 1 Targeted Symbol Decompilation (Deep Dive)</div>
+          <div class="text-purple-400">[DecompFlow] [DeepDive:Iteration 1/3] Fetching decompiled C pseudocode for symbol sub_004010a0...</div>
+          <div class="p-3 rounded-lg bg-zinc-950 border border-zinc-800 text-zinc-300">
+<span class="text-emerald-400">void sub_004010a0(char *buffer, size_t len) {</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;if (len > 0x1000) return; // Verified bounds validation<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;crypto_transform_block(buffer, len);<br/>
+<span class="text-emerald-400">}</span>
+          </div>
+
+          <div class="text-zinc-500 pt-1">// 4. Final Clean-Room TypeScript Synthesis</div>
+          <div class="text-emerald-400">[DecompFlow] [Routing] Completed 2 hops. Finalized verified evidence table and clean TypeScript output.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bento Grid: Core Capabilities -->
+    <section id="features" class="max-w-6xl mx-auto px-6 py-20 border-t border-zinc-800/80">
+      <div class="text-center mb-14">
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-3">Architected for Precision</h2>
+        <p class="text-zinc-400 text-base max-w-xl mx-auto">Combining deterministic state machines with extensible MCP protocol engines for repeatable reverse engineering.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Card 1 -->
+        <div class="p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800 hover:border-zinc-700 transition-all flex flex-col justify-between">
+          <div class="space-y-3">
+            <div class="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-[#f97316]">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            </div>
+            <h3 class="text-base font-bold text-white">Multi-Hop LangGraph</h3>
+            <p class="text-xs text-zinc-400 leading-relaxed">Two-phase reconnaissance loop avoids LLM context blowout by fetching surface indices first, then zooming into functions on demand.</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-zinc-800/80 text-[11px] font-mono text-[#f97316]">0% context overflow</div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800 hover:border-zinc-700 transition-all flex flex-col justify-between">
+          <div class="space-y-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            </div>
+            <h3 class="text-base font-bold text-white">100% Local & Private</h3>
+            <p class="text-xs text-zinc-400 leading-relaxed">Auto-detects Ollama & LM Studio in 1 click. Run Qwen-2.5-Coder or DeepSeek locally. Sensitive proprietary binaries never leave your machine.</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-zinc-800/80 text-[11px] font-mono text-emerald-400">Zero cloud telemetry</div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800 hover:border-zinc-700 transition-all flex flex-col justify-between">
+          <div class="space-y-3">
+            <div class="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            </div>
+            <h3 class="text-base font-bold text-white">Unified MCP Engines</h3>
+            <p class="text-xs text-zinc-400 leading-relaxed">Native binaries through Ghidra, Electron/ASAR and Webpack bundles via REA MCP, and live browser endpoints through Playwright.</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-zinc-800/80 text-[11px] font-mono text-sky-400">Ghidra • REA • Playwright</div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800 hover:border-zinc-700 transition-all flex flex-col justify-between">
+          <div class="space-y-3">
+            <div class="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+            </div>
+            <h3 class="text-base font-bold text-white">Evidence Code Drawer</h3>
+            <p class="text-xs text-zinc-400 leading-relaxed">Interactive code inspection drawer with line numbers, call xrefs, confidence scoring, and clean-room TypeScript code generation.</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-zinc-800/80 text-[11px] font-mono text-purple-400">Verifiable provenance</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-zinc-800/80 py-10 bg-black/60">
+    <div class="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500">
+      <div class="flex items-center gap-2">
+        <span>⚡ DecompFlow</span>
+        <span>•</span>
+        <span>Built for authorized security auditing, interoperability & software preservation.</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="https://github.com/dropt1mx0/DecompFlow/blob/main/LICENSE" target="_blank" class="hover:text-zinc-300">MIT License</a>
+        <a href="https://github.com/dropt1mx0/DecompFlow/blob/main/SECURITY.md" target="_blank" class="hover:text-zinc-300">Security</a>
+        <a href="https://github.com/dropt1mx0/DecompFlow/blob/main/DISCLAIMER.md" target="_blank" class="hover:text-zinc-300">Disclaimer</a>
+        <a href="https://github.com/dropt1mx0/DecompFlow" target="_blank" class="hover:text-zinc-300">GitHub ↗</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Interactive JavaScript: OS Detection & CLI Copy -->
+  <script>
+    // 1. OS Auto-Detection for Desktop Studio Download
+    (function detectOS() {
+      const btn = document.getElementById('smart-download-btn');
+      const text = document.getElementById('smart-download-text');
+      const ua = window.navigator.userAgent.toLowerCase();
+
+      if (ua.includes('win')) {
+        text.innerText = 'Download for Windows (.exe)';
+      } else if (ua.includes('mac')) {
+        text.innerText = 'Download for macOS (.dmg)';
+      } else if (ua.includes('linux')) {
+        text.innerText = 'Download for Linux (.AppImage)';
+      } else {
+        text.innerText = 'Download Desktop Studio';
+      }
+    })();
+
+    // 2. CLI Tab Switcher
+    const cliCommands = {
+      npx: 'npx decompflow analyze ./target --skill feature-reconstruct',
+      npm: 'npm install -g decompflow && decompflow analyze ./app.asar',
+      source: 'git clone https://github.com/dropt1mx0/DecompFlow && cd DecompFlow && npm install && npm run build'
+    };
+
+    function setCliTab(tab) {
+      document.getElementById('cli-cmd-text').innerText = cliCommands[tab];
+      ['npx', 'npm', 'source'].forEach(t => {
+        const el = document.getElementById('tab-' + t);
+        if (t === tab) {
+          el.className = 'px-2.5 py-1 rounded-md text-xs font-mono font-medium transition-colors bg-zinc-800 text-white';
+        } else {
+          el.className = 'px-2.5 py-1 rounded-md text-xs font-mono font-medium transition-colors text-zinc-400 hover:text-zinc-200';
+        }
+      });
+    }
+
+    // 3. Clipboard Copy
+    function copyCliCommand() {
+      const cmd = document.getElementById('cli-cmd-text').innerText;
+      navigator.clipboard.writeText(cmd).then(() => {
+        const copyIcon = document.getElementById('copy-icon');
+        const checkIcon = document.getElementById('check-icon');
+        copyIcon.classList.add('hidden');
+        checkIcon.classList.remove('hidden');
+        setTimeout(() => {
+          copyIcon.classList.remove('hidden');
+          checkIcon.classList.add('hidden');
+        }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

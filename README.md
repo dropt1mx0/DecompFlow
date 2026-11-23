@@ -5,10 +5,11 @@
 **Autonomous AI Reverse Engineering, Binary Decompilation & Feature Reconstruction Studio**  
 *Powered by LangGraph, Model Context Protocol (MCP), REA, Ghidra & Playwright*
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-orange.svg)](#license)
-[![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20Windows%20%7C%20macOS-blue)](#installation)
-[![MCP Compatible](https://img.shields.io/badge/MCP-Ghidra%20%7C%20REA%20%7C%20Playwright-success)](#architecture)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6)](#tech-stack)
+[![License: MIT](https://img.shields.io/badge/License-MIT-orange.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20Windows%20%7C%20macOS-blue)](#-cross-platform-packaging)
+[![MCP Compatible](https://img.shields.io/badge/MCP-Ghidra%20%7C%20REA%20%7C%20Playwright-success)](#%EF%B8%8F-architecture)
+[![Website](https://img.shields.io/badge/Website-Installation%20Site-f97316.svg)](https://dropt1mx0.github.io/DecompFlow/)
+[![Releases](https://img.shields.io/badge/Releases-v0.1.0-22c55e.svg)](https://github.com/dropt1mx0/DecompFlow/releases)
 
 </div>
 
@@ -22,6 +23,11 @@
   <a href="docs/i18n/README.de.md">Deutsch</a> •
   <a href="docs/i18n/README.pt-BR.md">Português</a> •
   <a href="docs/i18n/README.ja.md">日本語</a>
+</p>
+
+<p align="center">
+  🌐 <a href="https://dropt1mx0.github.io/DecompFlow/"><b>Official Installation Website & Documentation</b></a> • 
+  📦 <a href="https://github.com/dropt1mx0/DecompFlow/releases/latest"><b>Download Desktop Installers (.AppImage / .exe / .dmg)</b></a>
 </p>
 
 ---
