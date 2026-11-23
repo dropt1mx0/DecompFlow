@@ -13,15 +13,15 @@
 </div>
 
 <p align="center">
-  [English](../../README.md) •
-  [Русский](README.ru.md) •
-  [Українська](README.uk.md) •
-  [हिन्दी](README.hi.md) •
-  [简体中文](README.zh-CN.md) •
-  [Español](README.es.md) •
-  [Deutsch](README.de.md) •
-  [Português](README.pt-BR.md) •
-  [日本語](README.ja.md)
+  [English](https://github.com/dropt1mx0/DecompFlow#readme) •
+  [Русский](https://github.com/dropt1mx0/DecompFlow/blob/main/docs/i18n/README.ru.md) •
+  [Українська](https://github.com/dropt1mx0/DecompFlow/blob/main/docs/i18n/README.uk.md) •
+  [हिन्दी](https://github.com/dropt1mx0/DecompFlow/blob/main/docs/i18n/README.hi.md) •
+  [简体中文](https://github.com/dropt1mx0/DecompFlow/blob/main/docs/i18n/README.zh-CN.md) •
+  [Español](https://github.com/dropt1mx0/DecompFlow/blob/main/docs/i18n/README.es.md) •
+  [Deutsch](https://github.com/dropt1mx0/DecompFlow/blob/main/docs/i18n/README.de.md) •
+  [Português](https://github.com/dropt1mx0/DecompFlow/blob/main/docs/i18n/README.pt-BR.md) •
+  [日本語](https://github.com/dropt1mx0/DecompFlow/blob/main/docs/i18n/README.ja.md)
 </p>
 
 ---
