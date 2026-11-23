@@ -12,7 +12,20 @@
 
 </div>
 
+<p align="center">
+  [English](README.md) •
+  [Русский](docs/i18n/README.ru.md) •
+  [Українська](docs/i18n/README.uk.md) •
+  [हिन्दी](docs/i18n/README.hi.md) •
+  [简体中文](docs/i18n/README.zh-CN.md) •
+  [Español](docs/i18n/README.es.md) •
+  [Deutsch](docs/i18n/README.de.md) •
+  [Português](docs/i18n/README.pt-BR.md) •
+  [日本語](docs/i18n/README.ja.md)
+</p>
+
 ---
+
 
 ## 📖 Overview
 
