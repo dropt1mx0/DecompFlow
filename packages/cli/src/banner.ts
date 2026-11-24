@@ -8,11 +8,16 @@ export const ANSI = {
   dim: "\x1b[2m",
   italic: "\x1b[3m",
   underline: "\x1b[4m",
-  // Truecolor Brand Palette
-  orange: "\x1b[38;2;249;115;22m",       // #f97316 - DecompFlow Orange
+  // Brand Palette & Glow Gradients
+  orange: "\x1b[38;2;249;115;22m",       // #f97316 - DecompFlow Official Orange
+  orange214: "\x1b[38;5;214m",           // Neon amber-orange glow
+  orangeSoft: "\x1b[38;5;208m",          // Mid-gradient orange
+  orangeBody: "\x1b[38;5;202m",          // Deep torso/legs orange
   orangeGlow: "\x1b[38;2;255;154;77m",   // #ff9a4d - Glow accent
-  yellow: "\x1b[38;2;250;204;21m",       // #facc15 - Wand spark yellow
-  yellowBright: "\x1b[38;2;254;240;138m",// #fef08a - Spark star
+  yellow: "\x1b[38;2;250;204;21m",       // #facc15 - Standard yellow
+  yellowStar: "\x1b[38;5;229m",          // #fef08a - Wand star sparkle
+  yellowSpark: "\x1b[38;5;220m",         // #facc15 - Spark gold
+  wand: "\x1b[38;5;215m",                // Wand rod
   // Standard terminal colors
   cyan: "\x1b[36m",
   green: "\x1b[32m",
@@ -32,21 +37,27 @@ export function visibleLength(str: string): number {
 }
 
 /**
- * Returns formatted mascot ASCII art lines (Robot with glowing spark wand).
+ * Returns pixel-accurate mascot ASCII art lines (Mage Robot with wand and ears):
+ * - Exactly 12-14 chars wide and 13 lines high.
+ * - Distinct ears/horns, face eye-slits, narrow body, wand with star on the right.
  */
 export function getMascotLines(): string[] {
-  const { orange, orangeGlow, yellow, yellowBright, white, reset } = ANSI;
+  const { orange, orange214, orangeSoft, orangeBody, yellowStar, yellowSpark, wand, reset } = ANSI;
 
   return [
-    `    ${orange}▄▄       ▄▄${reset}       ${yellowBright}✦${reset}`,
-    `   ${orange}████     ████${reset}    ${yellow}─${yellowBright}✦${yellow}─${reset}`,
-    `  ${orange}███████████████${reset}     ${orangeGlow}│${reset}`,
-    `  ${orange}██${reset} ${white}██${reset} ${orange}███${reset} ${white}██${reset} ${orange}██${reset}     ${orangeGlow}│${reset}`,
-    `  ${orange}███████████████${reset}    ${yellow}─┴─${reset}`,
-    `  ${orange}██${reset}  ${orangeGlow}▀▀▀▀▀${reset}  ${orange}██${reset}`,
-    `   ${orange}█████████████${reset}`,
-    `     ${orange}██${reset}     ${orange}██${reset}`,
-    `    ${orange}▄██${reset}     ${orange}██▄${reset}`,
+    `            ${yellowStar}★${reset}`,
+    `  ${orange214}▄    ▄${reset}   ${yellowSpark}✦${yellowStar}*${yellowSpark}✦${reset}`,
+    `  ${orange214}█    █${reset}    ${wand}│${reset}`,
+    ` ${orange}▄██████▄${reset}   ${wand}│${reset}`,
+    `${orange}██████████${reset}  ${wand}│${reset}`,
+    `${orange}██  ██  ██${reset}  ${wand}│${reset}`,
+    `${orange}██████████${reset} ${yellowSpark}─┴─${reset}`,
+    `${orangeSoft}███ ▀▀ ███${reset}`,
+    ` ${orangeBody}████████${reset}`,
+    `  ${orangeBody}██████${reset}`,
+    `  ${orangeBody}█    █${reset}`,
+    `  ${orangeBody}█    █${reset}`,
+    ` ${orangeBody}▀▀    ▀▀${reset}`,
   ];
 }
 
@@ -87,7 +98,7 @@ export interface CliBannerOptions {
  * Prints the side-by-side Mascot & Status Header banner.
  */
 export function printCliBanner(options: CliBannerOptions = {}): void {
-  const { bold, dim, orange, orangeGlow, cyan, green, white, gray, reset } = ANSI;
+  const { bold, dim, orange, orange214, cyan, green, white, gray, reset } = ANSI;
 
   const version = options.version || "0.2.0";
   const modelDisplay = formatModelDisplayName(options.model, options.provider);
@@ -107,11 +118,15 @@ export function printCliBanner(options: CliBannerOptions = {}): void {
     `${cyan}dropt1m${gray}@${cyan}DecompFlow-Studio${reset} ${dim}──${reset} ${gray}[${os.type()} ${os.arch()}]${reset}`,
     `${gray}Model:     ${reset}${bold}${white}${modelDisplay}${reset} ${green}• ready${reset}`,
     `${gray}Workspace: ${reset}${white}${targetLabel}${reset}`,
-    `${gray}Engines:   ${reset}${orangeGlow}Tiered Orchestrator${reset} ${dim}(Capa · R2 · Ghidra · REA)${reset}`,
+    `${gray}Engines:   ${reset}${orange214}Tiered Orchestrator${reset} ${dim}(Capa · R2 · Ghidra · REA)${reset}`,
     `${gray}Profile:   ${reset}${white}${engineProfile}${reset} ${dim}(Tier 1 Fast Triage / Tier 2 Deep Decompile)${reset}`,
     `${gray}Backend:   ${reset}${white}${backend}${reset} ${dim}(Native Bridge)${reset}`,
+    `${gray}Status:    ${reset}${green}●${reset} ${white}Local & Cloud Providers Active${reset}`,
     `${dim}─────────────────────────────────────────────────────────────${reset}`,
     `${dim}Interactive TUI: Type ${reset}${bold}${orange}?${reset}${dim} or ${reset}${bold}${orange}help${reset}${dim} for shortcuts & palette${reset}`,
+    `${dim}Quickstart: ${reset}${white}analyze <path>${reset} ${dim}|${reset} ${white}triage <path>${reset} ${dim}|${reset} ${white}model <name>${reset}`,
+    `${dim}Local AI:   ${reset}${white}100% offline ready (Ollama / LM Studio / R2)${reset}`,
+    `${dim}Repository: ${reset}${cyan}https://github.com/dropt1mx0/DecompFlow${reset}`,
   ];
 
   console.log("");
@@ -143,7 +158,7 @@ export function printStatusBar(options: { model?: string; provider?: string; isR
  * Prints a clean help and shortcuts box.
  */
 export function printShortcutsHelp(): void {
-  const { bold, dim, orange, orangeGlow, cyan, white, gray, reset } = ANSI;
+  const { bold, dim, orange, cyan, white, reset } = ANSI;
 
   console.log(`
 ${bold}${orange}DecompFlow Interactive Command Palette & Hotkeys${reset}
