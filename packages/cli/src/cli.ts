@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { Command } from "commander";
 import path from "node:path";
+import fs from "node:fs";
 import {
   buildDecompFlowGraph,
   defaultMcpManager,
@@ -8,14 +9,31 @@ import {
   detectTargetType,
   EngineProfile,
   PreferredNativeBackend,
+  resolveLlmConfig,
 } from "@decompflow/core";
+import {
+  printCliBanner,
+  printStatusBar,
+  formatModelDisplayName,
+  ANSI,
+} from "./banner.js";
+import { startInteractiveSession } from "./interactive.js";
 
 const program = new Command();
 
 program
   .name("decompflow")
   .description("Autonomous AI Reverse Engineering & Software Architecture Analysis Agent powered by LangGraph, REA, and MCP")
-  .version("0.1.0");
+  .version("0.2.0");
+
+// Interactive TUI Command
+program
+  .command("interactive", { isDefault: false })
+  .alias("i")
+  .description("Launch interactive DecompFlow TUI terminal session")
+  .action(async () => {
+    await startInteractiveSession();
+  });
 
 program
   .command("analyze <target>")
@@ -36,6 +54,7 @@ program
     profile: string;
     backend: string;
   }) => {
+    const llmConfig = resolveLlmConfig();
     let mcpManager = defaultMcpManager;
     if (options.config) {
       mcpManager = new McpClientManager(options.config);
@@ -53,9 +72,17 @@ program
     const engineProfile = (options.profile as EngineProfile) || "auto";
     const preferredBackend = (options.backend as PreferredNativeBackend) || "ghidra";
 
-    console.log("===============================================================");
-    console.log("    DecompFlow AI Agent v0.1.0 (Tiered Orchestrator & REA)     ");
-    console.log("===============================================================");
+    // Print Mascot Banner with target & engine details
+    printCliBanner({
+      target,
+      workspace: process.cwd(),
+      model: llmConfig.model,
+      provider: llmConfig.provider,
+      profile: engineProfile,
+      backend: preferredBackend,
+      version: "0.2.0",
+    });
+
     console.log(`[DecompFlow] Target:        ${target}`);
     console.log(`[DecompFlow] Detected Type: ${detected}`);
     console.log(`[DecompFlow] Mode:          ${mode}`);
@@ -100,4 +127,72 @@ program
     }
   });
 
-program.parse(process.argv);
+program
+  .command("triage <target>")
+  .description("Fast binary triage via Mandiant Capa & Radare2 (<1s, zero JVM overhead)")
+  .option("-o, --out [reportPath]", "Output file path to save report")
+  .action(async (target: string, options: { out?: string | boolean }) => {
+    const llmConfig = resolveLlmConfig();
+    printCliBanner({
+      target,
+      model: llmConfig.model,
+      provider: llmConfig.provider,
+      profile: "fast-triage",
+      backend: "radare2",
+      version: "0.2.0",
+    });
+
+    const outPath = options.out
+      ? typeof options.out === "string"
+        ? options.out
+        : "./reports/decompflow_triage.md"
+      : undefined;
+
+    try {
+      const graph = buildDecompFlowGraph();
+      const result = await graph.invoke({
+        target,
+        mode: "binary",
+        activeSkill: "binary-architecture",
+        outPath,
+        iteration: 0,
+        maxIterations: 1,
+        pendingQueries: [],
+        symbolSnippets: {},
+        engineProfile: "fast-triage",
+        preferredNativeBackend: "radare2",
+        detectedCapabilities: [],
+      });
+
+      console.log("\n=================== [ TRIAGE COMPLETE ] ====================\n");
+      console.log(result.finalReport);
+      console.log("============================================================\n");
+      await defaultMcpManager.closeAll();
+      process.exit(0);
+    } catch (error) {
+      console.error("\n[DecompFlow] [FATAL] Triage failed:", error);
+      await defaultMcpManager.closeAll();
+      process.exit(1);
+    }
+  });
+
+// Handle launch without arguments -> start interactive TUI session
+const args = process.argv.slice(2);
+if (args.length === 0) {
+  startInteractiveSession();
+} else if (
+  args.length === 1 &&
+  !args[0].startsWith("-") &&
+  !["analyze", "triage", "interactive", "i", "help"].includes(args[0])
+) {
+  // If user ran `decompflow <file>` directly
+  const directPath = path.resolve(args[0]);
+  if (fs.existsSync(directPath)) {
+    process.argv = [process.argv[0], process.argv[1], "analyze", directPath];
+    program.parse(process.argv);
+  } else {
+    program.parse(process.argv);
+  }
+} else {
+  program.parse(process.argv);
+}

@@ -1,11 +1,13 @@
 {
   "name": "decompflow",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "DecompFlow CLI - Autonomous AI Reverse Engineering & Code Analysis Agent",
   "type": "module",
   "main": "dist/cli.js",
   "bin": {
-    "decompflow": "./dist/cli.js"
+    "decompflow": "./dist/cli.js",
+    "dfw": "./dist/cli.js",
+    "decomp": "./dist/cli.js"
   },
   "scripts": {
     "build": "tsc",
