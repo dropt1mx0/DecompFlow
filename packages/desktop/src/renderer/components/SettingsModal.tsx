@@ -77,6 +77,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [testingMcp, setTestingMcp] = useState(false);
   const [testResults, setTestResults] = useState<Record<string, McpTestResult>>({});
 
+  // Desktop Shortcut
+  const [creatingShortcut, setCreatingShortcut] = useState(false);
+  const [shortcutResult, setShortcutResult] = useState<{ success: boolean; path?: string; error?: string } | null>(null);
+
   // Raw configs for safe merging
   const [rawYaml, setRawYaml] = useState<any>({});
   const [rawMcp, setRawMcp] = useState<any>({});
@@ -197,6 +201,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       }
     }
     setTestingMcp(false);
+  };
+
+  const handleCreateShortcut = async () => {
+    if (!window.electronAPI?.createDesktopShortcut) return;
+    setCreatingShortcut(true);
+    setShortcutResult(null);
+    try {
+      const res = await window.electronAPI.createDesktopShortcut();
+      setShortcutResult(res);
+    } catch (err: any) {
+      setShortcutResult({ success: false, error: err.message || String(err) });
+    } finally {
+      setCreatingShortcut(false);
+    }
   };
 
   const handleSave = async () => {
@@ -418,6 +436,47 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     <span className="text-[#6b7280] shrink-0">workspace:</span>
                     <span className="text-[#cbd5e1] truncate">{systemInfo?.workspaceFile || "workspace.json"}</span>
                   </div>
+                </div>
+              </div>
+
+              {/* Desktop Integration & Shortcut Card */}
+              <div className="p-4 rounded-xl bg-[#181a22] border border-[#242834] space-y-3">
+                <span className="text-[10px] font-mono uppercase text-[#8b8f9e] tracking-wider block font-semibold flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-[#f97316]" />
+                  <span>Desktop Integration & Launcher Shortcut</span>
+                </span>
+
+                <p className="text-[11px] text-[#8b8f9e]">
+                  Create a native launcher shortcut on your Desktop and Applications Menu with the DecompFlow mascot icon.
+                </p>
+
+                <div className="flex flex-wrap items-center gap-3 pt-1">
+                  <button
+                    type="button"
+                    onClick={handleCreateShortcut}
+                    disabled={creatingShortcut}
+                    className="px-3.5 py-2 rounded-lg bg-[#242834] hover:bg-[#2e3342] text-[#f0f1f5] font-medium text-xs flex items-center gap-2 border border-[#34384a] transition-all cursor-pointer disabled:opacity-50"
+                  >
+                    {creatingShortcut ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-[#f97316]" />
+                    ) : (
+                      <Sparkles className="w-3.5 h-3.5 text-[#f97316]" />
+                    )}
+                    <span>Create Desktop Shortcut</span>
+                  </button>
+
+                  {shortcutResult?.success && (
+                    <span className="text-[11px] font-mono text-emerald-400 flex items-center gap-1.5">
+                      <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                      <span>Created: {shortcutResult.path}</span>
+                    </span>
+                  )}
+
+                  {shortcutResult && !shortcutResult.success && (
+                    <span className="text-[11px] font-mono text-rose-400">
+                      Error: {shortcutResult.error}
+                    </span>
+                  )}
                 </div>
               </div>
 

@@ -12,6 +12,7 @@ import {
 import path from "node:path";
 import fs from "node:fs";
 import os from "node:os";
+import child_process from "node:child_process";
 import { fileURLToPath } from "node:url";
 import yaml from "yaml";
 import {
@@ -76,12 +77,148 @@ function ensureWorkspaceFile() {
   }
 }
 
+function getAppIconPath(): string {
+  const candidatePaths = [
+    path.join(__dirname, "icon.png"),
+    path.join(__dirname, "../icon.png"),
+    path.join(__dirname, "../../build/icon.png"),
+    path.join(app.getAppPath(), "build/icon.png"),
+    path.join(app.getAppPath(), "dist/icon.png"),
+    path.join(app.getAppPath(), "dist/main/icon.png"),
+    path.join(process.resourcesPath, "build/icon.png"),
+    path.join(process.resourcesPath, "icon.png"),
+  ];
+
+  for (const candidate of candidatePaths) {
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
+  }
+
+  return "";
+}
+
+function createDesktopShortcut(): { success: boolean; path?: string; error?: string } {
+  try {
+    const home = os.homedir();
+    const appIcon = getAppIconPath();
+
+    // Ensure icon is copied to standard user icons location
+    const iconsDir = path.join(home, ".local", "share", "icons");
+    fs.mkdirSync(iconsDir, { recursive: true });
+    const permanentIcon = path.join(iconsDir, "decompflow.png");
+    if (appIcon && fs.existsSync(appIcon)) {
+      try {
+        fs.copyFileSync(appIcon, permanentIcon);
+      } catch (err) {
+        console.warn("[Main] Failed to copy icon to ~/.local/share/icons:", err);
+      }
+    }
+    const finalIconPath = fs.existsSync(permanentIcon) ? permanentIcon : appIcon;
+
+    if (process.platform === "linux") {
+      const isAppImage = Boolean(process.env.APPIMAGE);
+      const isDefaultApp = Boolean(process.defaultApp);
+      let execCommand: string;
+
+      if (isAppImage) {
+        execCommand = `"${process.env.APPIMAGE}" --no-sandbox %U`;
+      } else if (isDefaultApp) {
+        execCommand = `"${process.execPath}" "${path.join(app.getAppPath(), "dist/main/index.js")}" --no-sandbox %U`;
+      } else {
+        execCommand = `"${process.execPath}" --no-sandbox %U`;
+      }
+
+      const desktopFileContent = `[Desktop Entry]
+Version=1.0
+Type=Application
+Name=DecompFlow
+GenericName=Autonomous Reverse Engineering Studio
+Comment=Autonomous AI Reverse Engineering Studio & Feature Reconstruction
+Exec=${execCommand}
+Icon=${finalIconPath}
+Terminal=false
+Categories=Development;Security;Debugger;
+StartupWMClass=decompflow-studio
+`;
+
+      // 1. Applications menu
+      const appsDir = path.join(home, ".local", "share", "applications");
+      fs.mkdirSync(appsDir, { recursive: true });
+      const menuDesktopPath = path.join(appsDir, "decompflow.desktop");
+      fs.writeFileSync(menuDesktopPath, desktopFileContent, { encoding: "utf-8", mode: 0o755 });
+
+      // 2. Discover user's Desktop folder(s)
+      const desktopDirs = new Set<string>();
+      const stdDesktop = path.join(home, "Desktop");
+      const ruDesktop = path.join(home, "Рабочий стол");
+
+      if (fs.existsSync(stdDesktop)) desktopDirs.add(stdDesktop);
+      if (fs.existsSync(ruDesktop)) desktopDirs.add(ruDesktop);
+
+      const userDirsPath = path.join(home, ".config", "user-dirs.dirs");
+      if (fs.existsSync(userDirsPath)) {
+        try {
+          const content = fs.readFileSync(userDirsPath, "utf-8");
+          const match = content.match(/XDG_DESKTOP_DIR="?\$HOME\/([^"\n]+)"?/);
+          if (match && match[1]) {
+            const xdgDesktop = path.join(home, match[1]);
+            if (fs.existsSync(xdgDesktop)) {
+              desktopDirs.add(xdgDesktop);
+            }
+          }
+        } catch {
+          // ignore
+        }
+      }
+
+      if (desktopDirs.size === 0) {
+        fs.mkdirSync(stdDesktop, { recursive: true });
+        desktopDirs.add(stdDesktop);
+      }
+
+      const createdPaths: string[] = [];
+      for (const d of desktopDirs) {
+        const targetPath = path.join(d, "DecompFlow.desktop");
+        fs.writeFileSync(targetPath, desktopFileContent, { encoding: "utf-8", mode: 0o755 });
+        try {
+          child_process.exec(`gio set "${targetPath}" metadata::trusted true`);
+        } catch {
+          // ignore
+        }
+        createdPaths.push(targetPath);
+      }
+
+      return {
+        success: true,
+        path: createdPaths.join(", "),
+      };
+    } else if (process.platform === "win32") {
+      const desktopPath = path.join(home, "Desktop", "DecompFlow.lnk");
+      const targetExec = process.execPath;
+      const psScript = `$ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut('${desktopPath.replace(/'/g, "''")}'); $s.TargetPath = '${targetExec.replace(/'/g, "''")}'; $s.IconLocation = '${finalIconPath.replace(/'/g, "''")}'; $s.Save();`;
+      child_process.execSync(`powershell -NoProfile -NonInteractive -Command "${psScript}"`);
+      return { success: true, path: desktopPath };
+    } else {
+      const desktopPath = path.join(home, "Desktop", "DecompFlow.command");
+      const script = `#!/bin/bash\nopen -a "${process.execPath}"\n`;
+      fs.writeFileSync(desktopPath, script, { encoding: "utf-8", mode: 0o755 });
+      return { success: true, path: desktopPath };
+    }
+  } catch (err: any) {
+    console.error("[Main] Failed to create desktop shortcut:", err);
+    return { success: false, error: err.message || String(err) };
+  }
+}
+
 function createWindow() {
   const isMac = process.platform === "darwin";
 
   if (!isMac) {
     Menu.setApplicationMenu(null);
   }
+
+  const appIcon = getAppIconPath();
 
   mainWindow = new BrowserWindow({
     width: 1400,
@@ -92,6 +229,7 @@ function createWindow() {
     titleBarStyle: isMac ? "hiddenInset" : "default",
     trafficLightPosition: isMac ? { x: 14, y: 14 } : undefined,
     backgroundColor: "#131418",
+    icon: appIcon || undefined,
     webPreferences: {
       preload: path.join(__dirname, "../preload/index.js"),
       contextIsolation: true,
@@ -148,6 +286,11 @@ function setupIpc() {
       workspaceFile: WORKSPACE_FILE,
       systemPaths,
     };
+  });
+
+  // Desktop Shortcut Generator
+  ipcMain.handle("system:create-desktop-shortcut", async () => {
+    return createDesktopShortcut();
   });
 
   // Workspace persistence

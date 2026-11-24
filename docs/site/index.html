@@ -6,6 +6,9 @@
   <title>DecompFlow — Autonomous AI Reverse Engineering Studio & CLI</title>
   <meta name="description" content="Autonomous AI Reverse Engineering Studio & CLI powered by LangGraph, REA, Ghidra & Playwright MCP. 100% local LLM ready." />
   
+  <!-- Mascot Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' shape-rendering='crispEdges'%3E%3Crect width='24' height='24' rx='5' fill='%2309090b'/%3E%3Crect x='5' y='4' width='2' height='2' fill='%23f97316'/%3E%3Crect x='15' y='4' width='2' height='2' fill='%23f97316'/%3E%3Crect x='7' y='6' width='8' height='2' fill='%23f97316'/%3E%3Crect x='4' y='8' width='14' height='2' fill='%23f97316'/%3E%3Crect x='3' y='10' width='16' height='2' fill='%23f97316'/%3E%3Crect x='6' y='10' width='2' height='2' fill='%2309090b'/%3E%3Crect x='14' y='10' width='2' height='2' fill='%2309090b'/%3E%3Crect x='3' y='12' width='16' height='2' fill='%23f97316'/%3E%3Crect x='9' y='12' width='4' height='1' fill='%2309090b'/%3E%3Crect x='4' y='14' width='14' height='3' fill='%23f97316'/%3E%3Crect x='9' y='16' width='4' height='1' fill='%23f97316'/%3E%3Crect x='5' y='17' width='3' height='3' fill='%23f97316'/%3E%3Crect x='14' y='17' width='3' height='3' fill='%23f97316'/%3E%3Crect x='19' y='7' width='1' height='6' fill='%23fb923c'/%3E%3Crect x='20' y='5' width='2' height='2' fill='%23facc15'/%3E%3Crect x='19' y='4' width='1' height='1' fill='%23fef08a'/%3E%3Crect x='22' y='6' width='1' height='1' fill='%23fef08a'/%3E%3C/svg%3E" />
+  
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -56,9 +59,27 @@
     <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <a href="#" class="flex items-center gap-2.5 font-bold text-lg text-white hover:opacity-90 transition-opacity">
-          <span class="w-8 h-8 rounded-lg bg-[#f97316]/10 border border-[#f97316]/40 flex items-center justify-center overflow-hidden p-1">
-            <img src="assets/mascot.svg" alt="DecompFlow Mascot" class="w-full h-full object-contain" />
-          </span>
+          <div class="w-8 h-8 rounded-lg bg-[#09090b] border border-orange-500/30 flex items-center justify-center p-1 shadow-sm shrink-0">
+            <svg viewBox="0 0 24 24" class="w-full h-full" shape-rendering="crispEdges">
+              <rect x="5" y="4" width="2" height="2" fill="#f97316" />
+              <rect x="15" y="4" width="2" height="2" fill="#f97316" />
+              <rect x="7" y="6" width="8" height="2" fill="#f97316" />
+              <rect x="4" y="8" width="14" height="2" fill="#f97316" />
+              <rect x="3" y="10" width="16" height="2" fill="#f97316" />
+              <rect x="6" y="10" width="2" height="2" fill="#09090b" />
+              <rect x="14" y="10" width="2" height="2" fill="#09090b" />
+              <rect x="3" y="12" width="16" height="2" fill="#f97316" />
+              <rect x="9" y="12" width="4" height="1" fill="#09090b" />
+              <rect x="4" y="14" width="14" height="3" fill="#f97316" />
+              <rect x="9" y="16" width="4" height="1" fill="#f97316" />
+              <rect x="5" y="17" width="3" height="3" fill="#f97316" />
+              <rect x="14" y="17" width="3" height="3" fill="#f97316" />
+              <rect x="19" y="7" width="1" height="6" fill="#fb923c" />
+              <rect x="20" y="5" width="2" height="2" fill="#facc15" />
+              <rect x="19" y="4" width="1" height="1" fill="#fef08a" />
+              <rect x="22" y="6" width="1" height="1" fill="#fef08a" />
+            </svg>
+          </div>
           <span>DecompFlow</span>
         </a>
         <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-zinc-900 border border-zinc-700/60 text-[11px] font-mono text-zinc-400">
@@ -90,8 +111,26 @@
       <!-- Mascot Avatar -->
       <div class="mb-6 relative group">
         <div class="absolute -inset-1 bg-gradient-to-r from-orange-600 to-amber-500 rounded-2xl blur opacity-35 group-hover:opacity-70 transition duration-500"></div>
-        <div class="relative w-20 h-20 rounded-2xl bg-[#0e1015] border border-orange-500/30 p-2 flex items-center justify-center shadow-2xl">
-          <img src="assets/mascot.svg" alt="DecompFlow Mascot" class="w-full h-full object-contain" />
+        <div class="relative w-20 h-20 rounded-2xl bg-[#09090b] border border-orange-500/40 p-2.5 flex items-center justify-center shadow-2xl">
+          <svg viewBox="0 0 24 24" class="w-full h-full drop-shadow-[0_0_12px_rgba(249,115,22,0.6)]" shape-rendering="crispEdges">
+            <rect x="5" y="4" width="2" height="2" fill="#f97316" />
+            <rect x="15" y="4" width="2" height="2" fill="#f97316" />
+            <rect x="7" y="6" width="8" height="2" fill="#f97316" />
+            <rect x="4" y="8" width="14" height="2" fill="#f97316" />
+            <rect x="3" y="10" width="16" height="2" fill="#f97316" />
+            <rect x="6" y="10" width="2" height="2" fill="#09090b" />
+            <rect x="14" y="10" width="2" height="2" fill="#09090b" />
+            <rect x="3" y="12" width="16" height="2" fill="#f97316" />
+            <rect x="9" y="12" width="4" height="1" fill="#09090b" />
+            <rect x="4" y="14" width="14" height="3" fill="#f97316" />
+            <rect x="9" y="16" width="4" height="1" fill="#f97316" />
+            <rect x="5" y="17" width="3" height="3" fill="#f97316" />
+            <rect x="14" y="17" width="3" height="3" fill="#f97316" />
+            <rect x="19" y="7" width="1" height="6" fill="#fb923c" />
+            <rect x="20" y="5" width="2" height="2" fill="#facc15" />
+            <rect x="19" y="4" width="1" height="1" fill="#fef08a" />
+            <rect x="22" y="6" width="1" height="1" fill="#fef08a" />
+          </svg>
         </div>
       </div>
 
@@ -266,8 +305,28 @@
   <!-- Footer -->
   <footer class="border-t border-zinc-800/80 py-10 bg-black/60">
     <div class="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500">
-      <div class="flex items-center gap-2">
-        <img src="assets/mascot.svg" alt="DecompFlow Mascot" class="w-4 h-4 object-contain inline-block" />
+      <div class="flex items-center gap-2.5">
+        <div class="w-5 h-5 rounded-md bg-[#09090b] border border-orange-500/30 flex items-center justify-center p-0.5 shrink-0">
+          <svg viewBox="0 0 24 24" class="w-full h-full" shape-rendering="crispEdges">
+            <rect x="5" y="4" width="2" height="2" fill="#f97316" />
+            <rect x="15" y="4" width="2" height="2" fill="#f97316" />
+            <rect x="7" y="6" width="8" height="2" fill="#f97316" />
+            <rect x="4" y="8" width="14" height="2" fill="#f97316" />
+            <rect x="3" y="10" width="16" height="2" fill="#f97316" />
+            <rect x="6" y="10" width="2" height="2" fill="#09090b" />
+            <rect x="14" y="10" width="2" height="2" fill="#09090b" />
+            <rect x="3" y="12" width="16" height="2" fill="#f97316" />
+            <rect x="9" y="12" width="4" height="1" fill="#09090b" />
+            <rect x="4" y="14" width="14" height="3" fill="#f97316" />
+            <rect x="9" y="16" width="4" height="1" fill="#f97316" />
+            <rect x="5" y="17" width="3" height="3" fill="#f97316" />
+            <rect x="14" y="17" width="3" height="3" fill="#f97316" />
+            <rect x="19" y="7" width="1" height="6" fill="#fb923c" />
+            <rect x="20" y="5" width="2" height="2" fill="#facc15" />
+            <rect x="19" y="4" width="1" height="1" fill="#fef08a" />
+            <rect x="22" y="6" width="1" height="1" fill="#fef08a" />
+          </svg>
+        </div>
         <span class="font-semibold text-zinc-300">DecompFlow</span>
         <span>•</span>
         <span>Built for authorized security auditing, interoperability & software preservation.</span>

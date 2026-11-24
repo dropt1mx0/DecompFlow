@@ -124,6 +124,7 @@ export interface ElectronAPI {
   detectLocalModels: () => Promise<LocalLlmDetectionResult>;
   testMcpConnections: () => Promise<Record<string, McpTestResult>>;
   getSystemInfo: () => Promise<SystemInfo>;
+  createDesktopShortcut: () => Promise<{ success: boolean; path?: string; error?: string }>;
   onThemeUpdated: (callback: (theme: "dark" | "light") => void) => () => void;
   openExternal: (url: string) => Promise<{ success: boolean }>;
   runAnalysis: (payload: AnalysisPayload) => Promise<{ success: boolean; data?: any; error?: string }>;

@@ -30,6 +30,7 @@ export interface ElectronAPI {
   }>;
   testMcpConnections: () => Promise<Record<string, { success: boolean; latencyMs?: number; error?: string }>>;
   getSystemInfo: () => Promise<any>;
+  createDesktopShortcut: () => Promise<{ success: boolean; path?: string; error?: string }>;
   onThemeUpdated: (callback: (theme: "dark" | "light") => void) => () => void;
   openExternal: (url: string) => Promise<{ success: boolean }>;
   runAnalysis: (payload: AnalysisPayload) => Promise<{ success: boolean; data?: any; error?: string }>;
@@ -50,6 +51,7 @@ const api: ElectronAPI = {
   detectLocalModels: () => ipcRenderer.invoke("llm:detect-local"),
   testMcpConnections: () => ipcRenderer.invoke("mcp:testConnections"),
   getSystemInfo: () => ipcRenderer.invoke("system:get-info"),
+  createDesktopShortcut: () => ipcRenderer.invoke("system:create-desktop-shortcut"),
   onThemeUpdated: (callback: (theme: "dark" | "light") => void) => {
     const handler = (_: any, theme: "dark" | "light") => callback(theme);
     ipcRenderer.on("system:theme-updated", handler);
