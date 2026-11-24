@@ -10,6 +10,7 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { CustomNode } from "./CustomNode";
+import { CustomEdge } from "./CustomEdge";
 import { TargetMode, NodeExecutionStatus, EngineProfile } from "../types";
 
 interface FlowGraphProps {
@@ -21,6 +22,11 @@ interface FlowGraphProps {
 
 const nodeTypes = {
   custom: CustomNode,
+};
+
+const edgeTypes = {
+  custom: CustomEdge,
+  default: CustomEdge,
 };
 
 export const FlowGraph: React.FC<FlowGraphProps> = ({
@@ -166,114 +172,192 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
     const isWeb = mode === "web";
     const isSource = mode === "source";
 
+    const defaultStroke = "rgba(255, 255, 255, 0.22)";
+    const defaultMarker = {
+      type: MarkerType.ArrowClosed,
+      color: "rgba(255, 255, 255, 0.35)",
+      width: 14,
+      height: 14,
+    };
+
+    const isReaActive = activeNode === "rea_recon" || completedNodes.includes("rea_recon");
+    const isMobileActive = activeNode === "mobile_recon" || completedNodes.includes("mobile_recon");
+
     return [
       {
         id: "e-start-router",
         source: "__start__",
         target: "router",
+        type: "custom",
         animated: activeNode === "__start__" || activeNode === "router",
-        style: { stroke: "#64748b", strokeWidth: 2 },
-        markerEnd: { type: MarkerType.ArrowClosed, color: "#64748b" },
+        style: {
+          stroke: activeNode === "__start__" || activeNode === "router" ? "rgba(255, 255, 255, 0.65)" : defaultStroke,
+          strokeWidth: activeNode === "__start__" || activeNode === "router" ? 1.5 : 1.2,
+          vectorEffect: "non-scaling-stroke",
+        },
+        markerEnd: activeNode === "__start__" || activeNode === "router"
+          ? { type: MarkerType.ArrowClosed, color: "rgba(255, 255, 255, 0.65)", width: 14, height: 14 }
+          : defaultMarker,
       },
       {
         id: "e-router-binary",
         source: "router",
         target: "binary_recon",
+        type: "custom",
         animated: isBinary && (activeNode === "router" || activeNode === "binary_recon"),
         style: {
-          stroke: isBinary ? "#f59e0b" : "#33384a",
-          strokeWidth: isBinary ? 2.5 : 1,
-          opacity: isBinary ? 1 : 0.4,
+          stroke: isBinary ? "rgba(245, 158, 11, 0.9)" : "rgba(255, 255, 255, 0.08)",
+          strokeWidth: isBinary ? 1.5 : 1.2,
+          vectorEffect: "non-scaling-stroke",
         },
-        markerEnd: { type: MarkerType.ArrowClosed, color: isBinary ? "#f59e0b" : "#33384a" },
+        markerEnd: isBinary
+          ? { type: MarkerType.ArrowClosed, color: "rgba(245, 158, 11, 0.9)", width: 14, height: 14 }
+          : { ...defaultMarker, color: "rgba(255, 255, 255, 0.12)" },
       },
       {
         id: "e-router-mobile",
         source: "router",
         target: "mobile_recon",
-        animated: activeNode === "mobile_recon" || completedNodes.includes("mobile_recon"),
+        type: "custom",
+        animated: isMobileActive,
         style: {
-          stroke: activeNode === "mobile_recon" || completedNodes.includes("mobile_recon") ? "#10b981" : "#33384a",
-          strokeWidth: 2,
-          opacity: 0.8,
+          stroke: isMobileActive ? "rgba(16, 185, 129, 0.9)" : "rgba(255, 255, 255, 0.08)",
+          strokeWidth: isMobileActive ? 1.5 : 1.2,
+          vectorEffect: "non-scaling-stroke",
         },
-        markerEnd: { type: MarkerType.ArrowClosed, color: "#10b981" },
+        markerEnd: isMobileActive
+          ? { type: MarkerType.ArrowClosed, color: "rgba(16, 185, 129, 0.9)", width: 14, height: 14 }
+          : { ...defaultMarker, color: "rgba(255, 255, 255, 0.12)" },
       },
       {
         id: "e-router-rea",
         source: "router",
         target: "rea_recon",
-        animated: activeNode === "router" || activeNode === "rea_recon",
+        type: "custom",
+        animated: isReaActive,
         style: {
-          stroke: activeNode === "rea_recon" || completedNodes.includes("rea_recon") ? "#f97316" : "#33384a",
-          strokeWidth: 2,
-          opacity: 0.8,
+          stroke: isReaActive ? "rgba(249, 115, 22, 0.9)" : "rgba(255, 255, 255, 0.08)",
+          strokeWidth: isReaActive ? 1.5 : 1.2,
+          vectorEffect: "non-scaling-stroke",
         },
-        markerEnd: { type: MarkerType.ArrowClosed, color: "#f97316" },
+        markerEnd: isReaActive
+          ? { type: MarkerType.ArrowClosed, color: "rgba(249, 115, 22, 0.9)", width: 14, height: 14 }
+          : { ...defaultMarker, color: "rgba(255, 255, 255, 0.12)" },
       },
       {
         id: "e-router-web",
         source: "router",
         target: "web_recon",
+        type: "custom",
         animated: isWeb && (activeNode === "router" || activeNode === "web_recon"),
         style: {
-          stroke: isWeb ? "#38bdf8" : "#33384a",
-          strokeWidth: isWeb ? 2.5 : 1,
-          opacity: isWeb ? 1 : 0.4,
+          stroke: isWeb ? "rgba(56, 189, 248, 0.9)" : "rgba(255, 255, 255, 0.08)",
+          strokeWidth: isWeb ? 1.5 : 1.2,
+          vectorEffect: "non-scaling-stroke",
         },
-        markerEnd: { type: MarkerType.ArrowClosed, color: isWeb ? "#38bdf8" : "#33384a" },
+        markerEnd: isWeb
+          ? { type: MarkerType.ArrowClosed, color: "rgba(56, 189, 248, 0.9)", width: 14, height: 14 }
+          : { ...defaultMarker, color: "rgba(255, 255, 255, 0.12)" },
       },
       {
         id: "e-router-source",
         source: "router",
         target: "source_recon",
+        type: "custom",
         animated: isSource && (activeNode === "router" || activeNode === "source_recon"),
         style: {
-          stroke: isSource ? "#22c55e" : "#33384a",
-          strokeWidth: isSource ? 2.5 : 1,
-          opacity: isSource ? 1 : 0.4,
+          stroke: isSource ? "rgba(34, 197, 94, 0.9)" : "rgba(255, 255, 255, 0.08)",
+          strokeWidth: isSource ? 1.5 : 1.2,
+          vectorEffect: "non-scaling-stroke",
         },
-        markerEnd: { type: MarkerType.ArrowClosed, color: isSource ? "#22c55e" : "#33384a" },
+        markerEnd: isSource
+          ? { type: MarkerType.ArrowClosed, color: "rgba(34, 197, 94, 0.9)", width: 14, height: 14 }
+          : { ...defaultMarker, color: "rgba(255, 255, 255, 0.12)" },
       },
       {
         id: "e-binary-analyze",
         source: "binary_recon",
         target: "analyze",
+        type: "custom",
         animated: activeNode === "analyze" && completedNodes.includes("binary_recon"),
-        style: { stroke: "#64748b", strokeWidth: 1.5 },
-        markerEnd: { type: MarkerType.ArrowClosed, color: "#64748b" },
+        style: {
+          stroke: activeNode === "analyze" && completedNodes.includes("binary_recon")
+            ? "rgba(245, 158, 11, 0.85)"
+            : defaultStroke,
+          strokeWidth: activeNode === "analyze" && completedNodes.includes("binary_recon") ? 1.5 : 1.2,
+          vectorEffect: "non-scaling-stroke",
+        },
+        markerEnd: activeNode === "analyze" && completedNodes.includes("binary_recon")
+          ? { type: MarkerType.ArrowClosed, color: "rgba(245, 158, 11, 0.85)", width: 14, height: 14 }
+          : defaultMarker,
       },
       {
         id: "e-mobile-analyze",
         source: "mobile_recon",
         target: "analyze",
+        type: "custom",
         animated: activeNode === "analyze" && completedNodes.includes("mobile_recon"),
-        style: { stroke: "#10b981", strokeWidth: 1.5 },
-        markerEnd: { type: MarkerType.ArrowClosed, color: "#10b981" },
+        style: {
+          stroke: activeNode === "analyze" && completedNodes.includes("mobile_recon")
+            ? "rgba(16, 185, 129, 0.85)"
+            : defaultStroke,
+          strokeWidth: activeNode === "analyze" && completedNodes.includes("mobile_recon") ? 1.5 : 1.2,
+          vectorEffect: "non-scaling-stroke",
+        },
+        markerEnd: activeNode === "analyze" && completedNodes.includes("mobile_recon")
+          ? { type: MarkerType.ArrowClosed, color: "rgba(16, 185, 129, 0.85)", width: 14, height: 14 }
+          : defaultMarker,
       },
       {
         id: "e-rea-analyze",
         source: "rea_recon",
         target: "analyze",
+        type: "custom",
         animated: activeNode === "analyze" && completedNodes.includes("rea_recon"),
-        style: { stroke: "#f97316", strokeWidth: 1.5 },
-        markerEnd: { type: MarkerType.ArrowClosed, color: "#f97316" },
+        style: {
+          stroke: activeNode === "analyze" && completedNodes.includes("rea_recon")
+            ? "rgba(249, 115, 22, 0.85)"
+            : defaultStroke,
+          strokeWidth: activeNode === "analyze" && completedNodes.includes("rea_recon") ? 1.5 : 1.2,
+          vectorEffect: "non-scaling-stroke",
+        },
+        markerEnd: activeNode === "analyze" && completedNodes.includes("rea_recon")
+          ? { type: MarkerType.ArrowClosed, color: "rgba(249, 115, 22, 0.85)", width: 14, height: 14 }
+          : defaultMarker,
       },
       {
         id: "e-web-analyze",
         source: "web_recon",
         target: "analyze",
+        type: "custom",
         animated: activeNode === "analyze" && completedNodes.includes("web_recon"),
-        style: { stroke: "#64748b", strokeWidth: 1.5 },
-        markerEnd: { type: MarkerType.ArrowClosed, color: "#64748b" },
+        style: {
+          stroke: activeNode === "analyze" && completedNodes.includes("web_recon")
+            ? "rgba(56, 189, 248, 0.85)"
+            : defaultStroke,
+          strokeWidth: activeNode === "analyze" && completedNodes.includes("web_recon") ? 1.5 : 1.2,
+          vectorEffect: "non-scaling-stroke",
+        },
+        markerEnd: activeNode === "analyze" && completedNodes.includes("web_recon")
+          ? { type: MarkerType.ArrowClosed, color: "rgba(56, 189, 248, 0.85)", width: 14, height: 14 }
+          : defaultMarker,
       },
       {
         id: "e-source-analyze",
         source: "source_recon",
         target: "analyze",
+        type: "custom",
         animated: activeNode === "analyze" && completedNodes.includes("source_recon"),
-        style: { stroke: "#64748b", strokeWidth: 1.5 },
-        markerEnd: { type: MarkerType.ArrowClosed, color: "#64748b" },
+        style: {
+          stroke: activeNode === "analyze" && completedNodes.includes("source_recon")
+            ? "rgba(34, 197, 94, 0.85)"
+            : defaultStroke,
+          strokeWidth: activeNode === "analyze" && completedNodes.includes("source_recon") ? 1.5 : 1.2,
+          vectorEffect: "non-scaling-stroke",
+        },
+        markerEnd: activeNode === "analyze" && completedNodes.includes("source_recon")
+          ? { type: MarkerType.ArrowClosed, color: "rgba(34, 197, 94, 0.85)", width: 14, height: 14 }
+          : defaultMarker,
       },
       {
         id: "e-analyze-deepdive",
@@ -281,32 +365,53 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
         target: "deep_dive",
         sourceHandle: "source-right",
         targetHandle: "target-left",
+        type: "custom",
         animated: activeNode === "deep_dive",
         style: {
-          stroke: activeNode === "deep_dive" || completedNodes.includes("deep_dive") ? "#f97316" : "#33384a",
-          strokeWidth: 2,
+          stroke: activeNode === "deep_dive" || completedNodes.includes("deep_dive")
+            ? "rgba(249, 115, 22, 0.9)"
+            : defaultStroke,
+          strokeWidth: activeNode === "deep_dive" || completedNodes.includes("deep_dive") ? 1.5 : 1.2,
+          vectorEffect: "non-scaling-stroke",
         },
-        markerEnd: { type: MarkerType.ArrowClosed, color: "#f97316" },
+        markerEnd: activeNode === "deep_dive" || completedNodes.includes("deep_dive")
+          ? { type: MarkerType.ArrowClosed, color: "rgba(249, 115, 22, 0.9)", width: 14, height: 14 }
+          : defaultMarker,
       },
       {
         id: "e-deepdive-analyze",
         source: "deep_dive",
         target: "analyze",
+        type: "custom",
         animated: activeNode === "analyze" && completedNodes.includes("deep_dive"),
         style: {
-          stroke: completedNodes.includes("deep_dive") ? "#f97316" : "#33384a",
-          strokeWidth: 1.5,
+          stroke: completedNodes.includes("deep_dive")
+            ? "rgba(249, 115, 22, 0.9)"
+            : defaultStroke,
+          strokeWidth: 1.2,
           strokeDasharray: "4 4",
+          vectorEffect: "non-scaling-stroke",
         },
-        markerEnd: { type: MarkerType.ArrowClosed, color: "#f97316" },
+        markerEnd: completedNodes.includes("deep_dive")
+          ? { type: MarkerType.ArrowClosed, color: "rgba(249, 115, 22, 0.9)", width: 14, height: 14 }
+          : defaultMarker,
       },
       {
         id: "e-analyze-report",
         source: "analyze",
         target: "report",
+        type: "custom",
         animated: activeNode === "report" || completedNodes.includes("analyze"),
-        style: { stroke: "#64748b", strokeWidth: 2 },
-        markerEnd: { type: MarkerType.ArrowClosed, color: "#64748b" },
+        style: {
+          stroke: activeNode === "report" || completedNodes.includes("analyze")
+            ? "rgba(34, 197, 94, 0.85)"
+            : defaultStroke,
+          strokeWidth: activeNode === "report" || completedNodes.includes("analyze") ? 1.5 : 1.2,
+          vectorEffect: "non-scaling-stroke",
+        },
+        markerEnd: activeNode === "report" || completedNodes.includes("analyze")
+          ? { type: MarkerType.ArrowClosed, color: "rgba(34, 197, 94, 0.85)", width: 14, height: 14 }
+          : defaultMarker,
       },
     ];
   }, [mode, activeNode, completedNodes]);
@@ -317,6 +422,10 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
+        defaultEdgeOptions={{
+          type: "custom",
+        }}
         fitView
         fitViewOptions={{ padding: 0.3 }}
         minZoom={0.2}
