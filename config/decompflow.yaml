@@ -1,23 +1,19 @@
 llm:
-  provider: "openai" # Options: openai, deepseek, qwen, nvidia, meta, ollama, lmstudio, custom
-  model: "gpt-4o"
+  provider: deepseek
+  model: deepseek-chat
   temperature: 0.1
   max_tokens: 4096
-  base_url: null
   api_keys:
     openai: ""
     deepseek: ""
     qwen: ""
     nvidia: ""
     meta: ""
-
 limits:
   max_functions_to_decompile: 20
   request_timeout_ms: 60000
-
 native_decompiler:
-  preferred: "ghidra" # Options: ghidra, radare2, ida, binja
-
+  preferred: ghidra
 output:
-  format: "markdown"
+  format: markdown
   detailed_diagrams: true

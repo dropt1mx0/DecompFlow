@@ -53,19 +53,19 @@ export const CustomNode: React.FC<{ data: NodeData; isConnectable?: boolean }> =
   const getStatusStyles = () => {
     switch (data.status) {
       case "running":
-        return "border-[#f97316] bg-[#1a1410] shadow-lg shadow-[#f97316]/30 animate-pulse-glow ring-2 ring-[#f97316]/50";
+        return "border-[#f97316] bg-[#1a1410] ring-2 ring-[#f97316]/70";
       case "completed":
-        return "border-[#22c55e]/80 bg-[#121c15] shadow-md shadow-[#22c55e]/10";
+        return "border-[#22c55e] bg-[#121c15]";
       case "error":
-        return "border-rose-500 bg-[#1e1316] shadow-md shadow-rose-500/20";
+        return "border-rose-500 bg-[#1e1316]";
       default:
-        return "border-[#232734] bg-[#14161f] hover:border-[#38bdf8]/40";
+        return "border-[#2a2f42] bg-[#14161f] hover:border-[#38bdf8]";
     }
   };
 
   return (
     <div
-      className={`relative px-3.5 py-3 rounded-xl border backdrop-blur-md w-[240px] transition-all duration-300 shadow-lg ${getStatusStyles()}`}
+      className={`relative px-3.5 py-3 rounded-xl border w-[240px] transition-colors duration-150 ${getStatusStyles()}`}
     >
       <Handle
         type="target"

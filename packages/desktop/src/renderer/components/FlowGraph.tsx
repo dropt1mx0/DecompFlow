@@ -172,12 +172,19 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
     const isWeb = mode === "web";
     const isSource = mode === "source";
 
-    const defaultStroke = "rgba(255, 255, 255, 0.32)";
+    const defaultStroke = "#64748b";
+    const inactiveStroke = "#252836";
     const defaultMarker = {
       type: MarkerType.ArrowClosed,
-      color: "rgba(255, 255, 255, 0.45)",
+      color: "#64748b",
       width: 14,
       height: 14,
+    };
+    const inactiveMarker = {
+      type: MarkerType.ArrowClosed,
+      color: "#252836",
+      width: 12,
+      height: 12,
     };
 
     const isReaActive = activeNode === "rea_recon" || completedNodes.includes("rea_recon");
@@ -191,12 +198,11 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
         type: "custom",
         animated: activeNode === "__start__" || activeNode === "router",
         style: {
-          stroke: activeNode === "__start__" || activeNode === "router" ? "rgba(255, 255, 255, 0.65)" : defaultStroke,
-          strokeWidth: activeNode === "__start__" || activeNode === "router" ? 1.5 : 1.2,
-          vectorEffect: "non-scaling-stroke",
+          stroke: activeNode === "__start__" || activeNode === "router" ? "#38bdf8" : defaultStroke,
+          strokeWidth: activeNode === "__start__" || activeNode === "router" ? 2.2 : 1.8,
         },
         markerEnd: activeNode === "__start__" || activeNode === "router"
-          ? { type: MarkerType.ArrowClosed, color: "rgba(255, 255, 255, 0.65)", width: 14, height: 14 }
+          ? { type: MarkerType.ArrowClosed, color: "#38bdf8", width: 14, height: 14 }
           : defaultMarker,
       },
       {
@@ -206,13 +212,12 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
         type: "custom",
         animated: isBinary && (activeNode === "router" || activeNode === "binary_recon"),
         style: {
-          stroke: isBinary ? "rgba(245, 158, 11, 0.9)" : "rgba(255, 255, 255, 0.08)",
-          strokeWidth: isBinary ? 1.5 : 1.2,
-          vectorEffect: "non-scaling-stroke",
+          stroke: isBinary ? "#f59e0b" : inactiveStroke,
+          strokeWidth: isBinary ? 2.2 : 1.5,
         },
         markerEnd: isBinary
-          ? { type: MarkerType.ArrowClosed, color: "rgba(245, 158, 11, 0.9)", width: 14, height: 14 }
-          : { ...defaultMarker, color: "rgba(255, 255, 255, 0.12)" },
+          ? { type: MarkerType.ArrowClosed, color: "#f59e0b", width: 14, height: 14 }
+          : inactiveMarker,
       },
       {
         id: "e-router-mobile",
@@ -221,13 +226,12 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
         type: "custom",
         animated: isMobileActive,
         style: {
-          stroke: isMobileActive ? "rgba(16, 185, 129, 0.9)" : "rgba(255, 255, 255, 0.08)",
-          strokeWidth: isMobileActive ? 1.5 : 1.2,
-          vectorEffect: "non-scaling-stroke",
+          stroke: isMobileActive ? "#10b981" : inactiveStroke,
+          strokeWidth: isMobileActive ? 2.2 : 1.5,
         },
         markerEnd: isMobileActive
-          ? { type: MarkerType.ArrowClosed, color: "rgba(16, 185, 129, 0.9)", width: 14, height: 14 }
-          : { ...defaultMarker, color: "rgba(255, 255, 255, 0.12)" },
+          ? { type: MarkerType.ArrowClosed, color: "#10b981", width: 14, height: 14 }
+          : inactiveMarker,
       },
       {
         id: "e-router-rea",
@@ -236,13 +240,12 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
         type: "custom",
         animated: isReaActive,
         style: {
-          stroke: isReaActive ? "rgba(249, 115, 22, 0.9)" : "rgba(255, 255, 255, 0.08)",
-          strokeWidth: isReaActive ? 1.5 : 1.2,
-          vectorEffect: "non-scaling-stroke",
+          stroke: isReaActive ? "#f97316" : inactiveStroke,
+          strokeWidth: isReaActive ? 2.2 : 1.5,
         },
         markerEnd: isReaActive
-          ? { type: MarkerType.ArrowClosed, color: "rgba(249, 115, 22, 0.9)", width: 14, height: 14 }
-          : { ...defaultMarker, color: "rgba(255, 255, 255, 0.12)" },
+          ? { type: MarkerType.ArrowClosed, color: "#f97316", width: 14, height: 14 }
+          : inactiveMarker,
       },
       {
         id: "e-router-web",
@@ -251,13 +254,12 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
         type: "custom",
         animated: isWeb && (activeNode === "router" || activeNode === "web_recon"),
         style: {
-          stroke: isWeb ? "rgba(56, 189, 248, 0.9)" : "rgba(255, 255, 255, 0.08)",
-          strokeWidth: isWeb ? 1.5 : 1.2,
-          vectorEffect: "non-scaling-stroke",
+          stroke: isWeb ? "#38bdf8" : inactiveStroke,
+          strokeWidth: isWeb ? 2.2 : 1.5,
         },
         markerEnd: isWeb
-          ? { type: MarkerType.ArrowClosed, color: "rgba(56, 189, 248, 0.9)", width: 14, height: 14 }
-          : { ...defaultMarker, color: "rgba(255, 255, 255, 0.12)" },
+          ? { type: MarkerType.ArrowClosed, color: "#38bdf8", width: 14, height: 14 }
+          : inactiveMarker,
       },
       {
         id: "e-router-source",
@@ -266,13 +268,12 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
         type: "custom",
         animated: isSource && (activeNode === "router" || activeNode === "source_recon"),
         style: {
-          stroke: isSource ? "rgba(34, 197, 94, 0.9)" : "rgba(255, 255, 255, 0.08)",
-          strokeWidth: isSource ? 1.5 : 1.2,
-          vectorEffect: "non-scaling-stroke",
+          stroke: isSource ? "#22c55e" : inactiveStroke,
+          strokeWidth: isSource ? 2.2 : 1.5,
         },
         markerEnd: isSource
-          ? { type: MarkerType.ArrowClosed, color: "rgba(34, 197, 94, 0.9)", width: 14, height: 14 }
-          : { ...defaultMarker, color: "rgba(255, 255, 255, 0.12)" },
+          ? { type: MarkerType.ArrowClosed, color: "#22c55e", width: 14, height: 14 }
+          : inactiveMarker,
       },
       {
         id: "e-binary-analyze",
@@ -282,13 +283,12 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
         animated: activeNode === "analyze" && completedNodes.includes("binary_recon"),
         style: {
           stroke: activeNode === "analyze" && completedNodes.includes("binary_recon")
-            ? "rgba(245, 158, 11, 0.85)"
+            ? "#f59e0b"
             : defaultStroke,
-          strokeWidth: activeNode === "analyze" && completedNodes.includes("binary_recon") ? 1.5 : 1.2,
-          vectorEffect: "non-scaling-stroke",
+          strokeWidth: activeNode === "analyze" && completedNodes.includes("binary_recon") ? 2.2 : 1.8,
         },
         markerEnd: activeNode === "analyze" && completedNodes.includes("binary_recon")
-          ? { type: MarkerType.ArrowClosed, color: "rgba(245, 158, 11, 0.85)", width: 14, height: 14 }
+          ? { type: MarkerType.ArrowClosed, color: "#f59e0b", width: 14, height: 14 }
           : defaultMarker,
       },
       {
@@ -299,13 +299,12 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
         animated: activeNode === "analyze" && completedNodes.includes("mobile_recon"),
         style: {
           stroke: activeNode === "analyze" && completedNodes.includes("mobile_recon")
-            ? "rgba(16, 185, 129, 0.85)"
+            ? "#10b981"
             : defaultStroke,
-          strokeWidth: activeNode === "analyze" && completedNodes.includes("mobile_recon") ? 1.5 : 1.2,
-          vectorEffect: "non-scaling-stroke",
+          strokeWidth: activeNode === "analyze" && completedNodes.includes("mobile_recon") ? 2.2 : 1.8,
         },
         markerEnd: activeNode === "analyze" && completedNodes.includes("mobile_recon")
-          ? { type: MarkerType.ArrowClosed, color: "rgba(16, 185, 129, 0.85)", width: 14, height: 14 }
+          ? { type: MarkerType.ArrowClosed, color: "#10b981", width: 14, height: 14 }
           : defaultMarker,
       },
       {
@@ -316,13 +315,12 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
         animated: activeNode === "analyze" && completedNodes.includes("rea_recon"),
         style: {
           stroke: activeNode === "analyze" && completedNodes.includes("rea_recon")
-            ? "rgba(249, 115, 22, 0.85)"
+            ? "#f97316"
             : defaultStroke,
-          strokeWidth: activeNode === "analyze" && completedNodes.includes("rea_recon") ? 1.5 : 1.2,
-          vectorEffect: "non-scaling-stroke",
+          strokeWidth: activeNode === "analyze" && completedNodes.includes("rea_recon") ? 2.2 : 1.8,
         },
         markerEnd: activeNode === "analyze" && completedNodes.includes("rea_recon")
-          ? { type: MarkerType.ArrowClosed, color: "rgba(249, 115, 22, 0.85)", width: 14, height: 14 }
+          ? { type: MarkerType.ArrowClosed, color: "#f97316", width: 14, height: 14 }
           : defaultMarker,
       },
       {
@@ -333,13 +331,12 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
         animated: activeNode === "analyze" && completedNodes.includes("web_recon"),
         style: {
           stroke: activeNode === "analyze" && completedNodes.includes("web_recon")
-            ? "rgba(56, 189, 248, 0.85)"
+            ? "#38bdf8"
             : defaultStroke,
-          strokeWidth: activeNode === "analyze" && completedNodes.includes("web_recon") ? 1.5 : 1.2,
-          vectorEffect: "non-scaling-stroke",
+          strokeWidth: activeNode === "analyze" && completedNodes.includes("web_recon") ? 2.2 : 1.8,
         },
         markerEnd: activeNode === "analyze" && completedNodes.includes("web_recon")
-          ? { type: MarkerType.ArrowClosed, color: "rgba(56, 189, 248, 0.85)", width: 14, height: 14 }
+          ? { type: MarkerType.ArrowClosed, color: "#38bdf8", width: 14, height: 14 }
           : defaultMarker,
       },
       {
@@ -350,13 +347,12 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
         animated: activeNode === "analyze" && completedNodes.includes("source_recon"),
         style: {
           stroke: activeNode === "analyze" && completedNodes.includes("source_recon")
-            ? "rgba(34, 197, 94, 0.85)"
+            ? "#22c55e"
             : defaultStroke,
-          strokeWidth: activeNode === "analyze" && completedNodes.includes("source_recon") ? 1.5 : 1.2,
-          vectorEffect: "non-scaling-stroke",
+          strokeWidth: activeNode === "analyze" && completedNodes.includes("source_recon") ? 2.2 : 1.8,
         },
         markerEnd: activeNode === "analyze" && completedNodes.includes("source_recon")
-          ? { type: MarkerType.ArrowClosed, color: "rgba(34, 197, 94, 0.85)", width: 14, height: 14 }
+          ? { type: MarkerType.ArrowClosed, color: "#22c55e", width: 14, height: 14 }
           : defaultMarker,
       },
       {
@@ -369,13 +365,12 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
         animated: activeNode === "deep_dive",
         style: {
           stroke: activeNode === "deep_dive" || completedNodes.includes("deep_dive")
-            ? "rgba(249, 115, 22, 0.9)"
+            ? "#f97316"
             : defaultStroke,
-          strokeWidth: activeNode === "deep_dive" || completedNodes.includes("deep_dive") ? 1.5 : 1.2,
-          vectorEffect: "non-scaling-stroke",
+          strokeWidth: activeNode === "deep_dive" || completedNodes.includes("deep_dive") ? 2.2 : 1.8,
         },
         markerEnd: activeNode === "deep_dive" || completedNodes.includes("deep_dive")
-          ? { type: MarkerType.ArrowClosed, color: "rgba(249, 115, 22, 0.9)", width: 14, height: 14 }
+          ? { type: MarkerType.ArrowClosed, color: "#f97316", width: 14, height: 14 }
           : defaultMarker,
       },
       {
@@ -386,14 +381,13 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
         animated: activeNode === "analyze" && completedNodes.includes("deep_dive"),
         style: {
           stroke: completedNodes.includes("deep_dive")
-            ? "rgba(249, 115, 22, 0.9)"
+            ? "#f97316"
             : defaultStroke,
-          strokeWidth: 1.2,
-          strokeDasharray: "4 4",
-          vectorEffect: "non-scaling-stroke",
+          strokeWidth: 1.8,
+          strokeDasharray: "5 4",
         },
         markerEnd: completedNodes.includes("deep_dive")
-          ? { type: MarkerType.ArrowClosed, color: "rgba(249, 115, 22, 0.9)", width: 14, height: 14 }
+          ? { type: MarkerType.ArrowClosed, color: "#f97316", width: 14, height: 14 }
           : defaultMarker,
       },
       {
@@ -404,13 +398,12 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
         animated: activeNode === "report" || completedNodes.includes("analyze"),
         style: {
           stroke: activeNode === "report" || completedNodes.includes("analyze")
-            ? "rgba(34, 197, 94, 0.85)"
+            ? "#22c55e"
             : defaultStroke,
-          strokeWidth: activeNode === "report" || completedNodes.includes("analyze") ? 1.5 : 1.2,
-          vectorEffect: "non-scaling-stroke",
+          strokeWidth: activeNode === "report" || completedNodes.includes("analyze") ? 2.2 : 1.8,
         },
         markerEnd: activeNode === "report" || completedNodes.includes("analyze")
-          ? { type: MarkerType.ArrowClosed, color: "rgba(34, 197, 94, 0.85)", width: 14, height: 14 }
+          ? { type: MarkerType.ArrowClosed, color: "#22c55e", width: 14, height: 14 }
           : defaultMarker,
       },
     ];
@@ -427,9 +420,9 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
           type: "custom",
         }}
         fitView
-        fitViewOptions={{ padding: 0.3 }}
+        fitViewOptions={{ padding: 0.2 }}
         minZoom={0.2}
-        maxZoom={1.8}
+        maxZoom={1.5}
         proOptions={{ hideAttribution: true }}
       >
         <Background color="#1e2230" gap={24} size={1} />

@@ -28,25 +28,9 @@
   background: #363a48;
 }
 
-/* Pulsing neon glow for active nodes */
-@keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 16px rgba(56, 189, 248, 0.4), inset 0 0 8px rgba(56, 189, 248, 0.2);
-    border-color: rgba(56, 189, 248, 0.8);
-  }
-  50% {
-    box-shadow: 0 0 28px rgba(56, 189, 248, 0.75), inset 0 0 14px rgba(56, 189, 248, 0.4);
-    border-color: rgba(56, 189, 248, 1);
-  }
-}
-
-.animate-pulse-glow {
-  animation: pulse-glow 2s infinite ease-in-out;
-}
-
 /* React Flow Canvas overrides */
 .react-flow__background {
-  background-color: #131418 !important;
+  background-color: #0d0f15 !important;
 }
 
 .react-flow__controls {
@@ -69,11 +53,14 @@
   fill: #38bdf8 !important;
 }
 
-/* React Flow Edges & Canvas - Ultra-crisp vector rendering with zoom compensation */
+/* React Flow Edges & Canvas - 100% crisp, zero blur */
 .react-flow__viewport {
-  transform-style: flat;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+  transform-origin: 0 0;
+  will-change: auto !important;
+}
+
+.react-flow__node {
+  will-change: auto !important;
 }
 
 .react-flow__edges {
@@ -82,41 +69,35 @@
 
 .react-flow__edge-path {
   shape-rendering: geometricPrecision !important;
-  vector-effect: non-scaling-stroke !important;
-  transition: stroke 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke 0.15s ease, stroke-width 0.15s ease;
 }
 
 /* Hover effect on edge */
 .react-flow__edge:hover .react-flow__edge-path {
-  stroke: rgba(255, 255, 255, 0.8) !important;
-  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.5));
+  stroke: #ffffff !important;
+  stroke-width: 2.4px !important;
 }
 
 /* Selected or active edge */
 .react-flow__edge.selected .react-flow__edge-path,
 .react-flow__edge:focus .react-flow__edge-path {
-  stroke: rgba(255, 255, 255, 0.9) !important;
-  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.6));
+  stroke: #ffffff !important;
+  stroke-width: 2.4px !important;
 }
 
 /* Hover on edge markers */
 .react-flow__edge:hover .react-flow__arrowhead path,
 .react-flow__edge:hover marker path {
-  fill: rgba(255, 255, 255, 0.8) !important;
-  stroke: rgba(255, 255, 255, 0.8) !important;
-}
-
-/* Arrowhead markers non-scaling vector-effect */
-.react-flow__arrowhead path,
-marker path {
-  shape-rendering: geometricPrecision !important;
-  vector-effect: non-scaling-stroke !important;
+  fill: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 /* Animated active edge dash animation */
 @keyframes flow-edge-dash {
   from {
-    stroke-dashoffset: 20;
+    stroke-dashoffset: 24;
   }
   to {
     stroke-dashoffset: 0;
@@ -124,6 +105,6 @@ marker path {
 }
 
 .react-flow__edge.animated .react-flow__edge-path {
-  stroke-dasharray: 5 4;
+  stroke-dasharray: 6 5;
   animation: flow-edge-dash 1.2s linear infinite;
 }
