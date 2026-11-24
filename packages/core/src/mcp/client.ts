@@ -246,7 +246,7 @@ export class McpClientManager {
     const client = new Client(
       {
         name: "decompflow-client",
-        version: "0.1.0",
+        version: "0.2.0",
       },
       {
         capabilities: {},

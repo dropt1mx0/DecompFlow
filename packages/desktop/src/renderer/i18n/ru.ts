@@ -18,7 +18,7 @@ export const ru = {
     ready: "готов",
     success: "Успешно",
     error: "Ошибка",
-    version: "v0.1.0",
+    version: "v0.2.0",
     language: "Язык",
     english: "English",
     russian: "Русский",

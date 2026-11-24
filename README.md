@@ -9,7 +9,7 @@
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20Windows%20%7C%20macOS-blue)](#-cross-platform-packaging)
 [![MCP Compatible](https://img.shields.io/badge/MCP-Ghidra%20%7C%20REA%20%7C%20Playwright-success)](#%EF%B8%8F-architecture)
 [![Website](https://img.shields.io/badge/Website-Installation%20Site-f97316.svg)](https://dropt1mx0.github.io/DecompFlow/)
-[![Releases](https://img.shields.io/badge/Releases-v0.1.0-22c55e.svg)](https://github.com/dropt1mx0/DecompFlow/releases)
+[![Releases](https://img.shields.io/badge/Releases-v0.2.0-22c55e.svg)](https://github.com/dropt1mx0/DecompFlow/releases)
 
 </div>
 

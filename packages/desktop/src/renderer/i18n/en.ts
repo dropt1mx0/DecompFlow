@@ -18,7 +18,7 @@ export const en = {
     ready: "ready",
     success: "Success",
     error: "Error",
-    version: "v0.1.0",
+    version: "v0.2.0",
     language: "Language",
     english: "English",
     russian: "Русский",

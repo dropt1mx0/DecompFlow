@@ -335,7 +335,7 @@ def main():
                     "capabilities": {"tools": {}},
                     "serverInfo": {
                         "name": "r2-capa-mcp-bridge",
-                        "version": "0.1.0"
+                        "version": "0.2.0"
                     }
                 }
             })

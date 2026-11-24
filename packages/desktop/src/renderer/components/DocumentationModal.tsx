@@ -74,7 +74,7 @@ export const DocumentationModal: React.FC<DocumentationModalProps> = ({ isOpen, 
               <div className="flex items-center gap-2">
                 <h3 className="text-sm font-bold text-[#f0f1f5]">{l.docs.title}</h3>
                 <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-[#f97316]/15 text-[#f97316] border border-[#f97316]/30">
-                  v0.1.0
+                  v0.2.0
                 </span>
               </div>
               <p className="text-[11px] text-[#6b7280]">
