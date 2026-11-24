@@ -11,8 +11,8 @@
     "build:renderer": "vite build",
     "build:main": "esbuild src/main/index.ts --bundle --platform=node --format=esm --outfile=dist/main/index.js --external:electron --external:@decompflow/core --banner:js=\"import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);\"",
     "build:preload": "esbuild src/preload/index.ts --bundle --platform=node --format=cjs --outfile=dist/preload/index.js --external:electron",
-    "copy:assets": "node -e \"const fs=require('fs'); fs.mkdirSync('dist/main',{recursive:true}); fs.copyFileSync('build/icon.png','dist/icon.png'); fs.copyFileSync('build/icon.png','dist/main/icon.png');\"",
-    "build": "npm run build:renderer && npm run build:main && npm run build:preload && npm run copy:assets",
+    "copy:assets": "node scripts/copy-assets.js",
+    "build": "npm run copy:assets && npm run build:renderer && npm run build:main && npm run build:preload",
     "dev:renderer": "vite",
     "dev": "npm run build:main && npm run build:preload && npm run copy:assets && electron dist/main/index.js --no-sandbox --no-zygote --disable-gpu",
     "start": "electron dist/main/index.js --no-sandbox --no-zygote --disable-gpu"

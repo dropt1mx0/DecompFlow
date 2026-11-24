@@ -123,10 +123,13 @@ function getAppIconPath(): string {
   const candidatePaths = [
     path.join(__dirname, "icon.png"),
     path.join(__dirname, "../icon.png"),
+    path.join(__dirname, "../../resources/icon.png"),
     path.join(__dirname, "../../build/icon.png"),
+    path.join(app.getAppPath(), "resources/icon.png"),
     path.join(app.getAppPath(), "build/icon.png"),
     path.join(app.getAppPath(), "dist/icon.png"),
     path.join(app.getAppPath(), "dist/main/icon.png"),
+    path.join(process.resourcesPath, "resources/icon.png"),
     path.join(process.resourcesPath, "build/icon.png"),
     path.join(process.resourcesPath, "icon.png"),
   ];
@@ -144,7 +147,7 @@ function createDesktopShortcut(): { success: boolean; path?: string; error?: str
   try {
     const home = os.homedir();
     const projectRoot = findProjectRoot() || "/home/dropt1m/DecompFlow";
-    const appIcon = getAppIconPath() || path.join(projectRoot, "packages/desktop/build/icon.png");
+    const appIcon = getAppIconPath() || path.join(projectRoot, "packages/desktop/resources/icon.png");
 
     if (process.platform === "linux") {
       // 1. Create executable wrapper launcher script

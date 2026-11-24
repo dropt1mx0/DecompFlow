@@ -12,6 +12,10 @@ out/
 packages/*/dist/
 packages/*/build/
 packages/*/release/
+!packages/desktop/build/
+!packages/desktop/build/**
+!packages/desktop/resources/
+!packages/desktop/resources/**
 
 # Logs & temp files
 logs/
