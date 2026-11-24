@@ -1,5 +1,15 @@
 import { Annotation } from "@langchain/langgraph";
 
+export type EngineProfile = "auto" | "fast-triage" | "deep-decompile";
+export type PreferredNativeBackend = "ghidra" | "radare2" | "ida" | "binja";
+
+export interface DetectedCapability {
+  capability: string;
+  namespace: string;
+  address: string;
+  confidence: string;
+}
+
 export interface EvidenceItem {
   source: string;
   location: string;
@@ -35,6 +45,9 @@ export const DecompFlowState = Annotation.Root({
   maxIterations: Annotation<number>,    // Лимит итераций (по умолчанию 3)
   pendingQueries: Annotation<PendingQuery[]>, // Очередь точечных запросов к MCP
   symbolSnippets: Annotation<Record<string, string>>, // Кеш декомпилированных функций/файлов
+  engineProfile: Annotation<EngineProfile | undefined>, // ⚡ Fast | 🔬 Deep | 📱 Auto
+  preferredNativeBackend: Annotation<PreferredNativeBackend | undefined>, // ghidra | radare2 | ida | binja
+  detectedCapabilities: Annotation<DetectedCapability[] | undefined>, // Capa triage capabilities
 });
 
 export type DecompFlowStateType = typeof DecompFlowState.State;

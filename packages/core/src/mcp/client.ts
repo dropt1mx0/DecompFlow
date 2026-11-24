@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { SystemEnvManager } from "../utils/system.js";
@@ -27,7 +28,7 @@ export interface ToolCallResult {
   [key: string]: unknown;
 }
 
-export type DetectedTargetType = "electron_bundle" | "binary" | "web" | "source";
+export type DetectedTargetType = "electron_bundle" | "binary" | "mobile" | "web" | "source";
 
 export function detectTargetType(target: string): DetectedTargetType {
   const trimmed = (target || "").trim();
@@ -48,9 +49,15 @@ export function detectTargetType(target: string): DetectedTargetType {
     return "electron_bundle";
   }
 
+  // Mobile Android / Java packages
+  const mobileExtensions = [".apk", ".dex", ".jar", ".aab"];
+  if (mobileExtensions.some((ext) => lower.endsWith(ext))) {
+    return "mobile";
+  }
+
   // Binary extensions
   const binaryExtensions = [
-    ".exe", ".elf", ".so", ".dylib", ".dll", ".apk", ".bin", ".out", ".node"
+    ".exe", ".elf", ".so", ".dylib", ".dll", ".bin", ".out", ".node"
   ];
   if (binaryExtensions.some((ext) => lower.endsWith(ext))) {
     return "binary";
@@ -113,6 +120,7 @@ export function detectTargetType(target: string): DetectedTargetType {
 }
 
 export function findProjectRoot(startDir: string = process.cwd()): string {
+  // First check startDir and its parents
   let curr = path.resolve(startDir);
   while (curr !== path.dirname(curr)) {
     if (
@@ -123,14 +131,43 @@ export function findProjectRoot(startDir: string = process.cwd()): string {
     }
     curr = path.dirname(curr);
   }
+
+  // Second check module directory and its parents (relative to client.js / dist / src)
+  try {
+    const modDir = path.dirname(fileURLToPath(import.meta.url));
+    let modCurr = modDir;
+    while (modCurr !== path.dirname(modCurr)) {
+      if (
+        fs.existsSync(path.join(modCurr, "config/mcp-servers.json")) ||
+        fs.existsSync(path.join(modCurr, "skills"))
+      ) {
+        return modCurr;
+      }
+      modCurr = path.dirname(modCurr);
+    }
+  } catch {}
+
+  // Fallback to /home/dropt1m/DecompFlow if exists
+  if (fs.existsSync("/home/dropt1m/DecompFlow/config/mcp-servers.json")) {
+    return "/home/dropt1m/DecompFlow";
+  }
+
   return process.cwd();
+}
+
+interface ActiveClientEntry {
+  client: Client;
+  transport: StdioClientTransport;
+  lastUsed: number;
+  idleTimer?: NodeJS.Timeout;
 }
 
 export class McpClientManager {
   private configPath: string;
   private projectRoot: string;
   private config: McpConfigFile | null = null;
-  private activeClients = new Map<string, { client: Client; transport: StdioClientTransport }>();
+  private activeClients = new Map<string, ActiveClientEntry>();
+  public idleTimeoutMs: number = 120000; // 2 minutes auto-unload idle timer
 
   constructor(customConfigPath?: string) {
     SystemEnvManager.ensurePathEnv();
@@ -165,9 +202,27 @@ export class McpClientManager {
     }
   }
 
+  public scheduleIdleTimeout(serverName: string, entry?: ActiveClientEntry) {
+    const targetEntry = entry || this.activeClients.get(serverName);
+    if (!targetEntry) return;
+    if (targetEntry.idleTimer) {
+      clearTimeout(targetEntry.idleTimer);
+    }
+    targetEntry.idleTimer = setTimeout(() => {
+      console.log(`[MCP Manager] Server "${serverName}" idle for ${this.idleTimeoutMs / 1000}s, unloading process to free memory...`);
+      this.closeServer(serverName);
+    }, this.idleTimeoutMs);
+    if (targetEntry.idleTimer.unref) {
+      targetEntry.idleTimer.unref();
+    }
+  }
+
   public async getClient(serverName: string): Promise<Client> {
     if (this.activeClients.has(serverName)) {
-      return this.activeClients.get(serverName)!.client;
+      const entry = this.activeClients.get(serverName)!;
+      entry.lastUsed = Date.now();
+      this.scheduleIdleTimeout(serverName, entry);
+      return entry.client;
     }
 
     const config = this.loadConfig();
@@ -186,7 +241,7 @@ export class McpClientManager {
     }
 
     const normalized = SystemEnvManager.normalizeCommand(serverCfg.command, serverCfg.args || []);
-    console.log(`[MCP Manager] Spawning server "${serverName}": ${normalized.command} ${normalized.args.join(" ")}`);
+    console.log(`[MCP Manager] Lazy-spawning server "${serverName}": ${normalized.command} ${normalized.args.join(" ")}`);
 
     const client = new Client(
       {
@@ -218,7 +273,9 @@ export class McpClientManager {
 
     try {
       await client.connect(transport);
-      this.activeClients.set(serverName, { client, transport });
+      const entry: ActiveClientEntry = { client, transport, lastUsed: Date.now() };
+      this.scheduleIdleTimeout(serverName, entry);
+      this.activeClients.set(serverName, entry);
       return client;
     } catch (error) {
       try {
@@ -271,15 +328,26 @@ export class McpClientManager {
     return results;
   }
 
-  public async closeAll(): Promise<void> {
-    for (const [name, entry] of this.activeClients.entries()) {
-      try {
-        await entry.transport.close();
-      } catch (err) {
-        console.warn(`[MCP Manager] Error closing transport for server "${name}":`, err);
-      }
+  public async closeServer(serverName: string): Promise<void> {
+    const entry = this.activeClients.get(serverName);
+    if (!entry) return;
+    if (entry.idleTimer) {
+      clearTimeout(entry.idleTimer);
     }
-    this.activeClients.clear();
+    this.activeClients.delete(serverName);
+    try {
+      await entry.transport.close();
+      console.log(`[MCP Manager] Closed and released process for server "${serverName}"`);
+    } catch (err) {
+      console.warn(`[MCP Manager] Error closing transport for server "${serverName}":`, err);
+    }
+  }
+
+  public async closeAll(): Promise<void> {
+    const names = Array.from(this.activeClients.keys());
+    for (const name of names) {
+      await this.closeServer(name);
+    }
   }
 }
 

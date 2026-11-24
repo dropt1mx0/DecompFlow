@@ -1,7 +1,13 @@
 import { StateGraph, END } from "@langchain/langgraph";
-import { DecompFlowState, DecompFlowStateType } from "./state.js";
+import {
+  DecompFlowState,
+  DecompFlowStateType,
+  EngineProfile,
+  PreferredNativeBackend,
+} from "./state.js";
 import {
   binaryReconNode,
+  mobileReconNode,
   reaReconNode,
   webReconNode,
   sourceReconNode,
@@ -9,10 +15,13 @@ import {
   deepDiveNode,
   reportNode,
 } from "./nodes.js";
-import { detectTargetType } from "../mcp/client.js";
+import { detectTargetType, defaultMcpManager } from "../mcp/client.js";
 
 async function routeTarget(state: DecompFlowStateType) {
   const detected = detectTargetType(state.target);
+  if (detected === "mobile") {
+    return "mobile_recon";
+  }
   if (detected === "electron_bundle") {
     return "rea_recon";
   }
@@ -41,6 +50,7 @@ function shouldContinueDeepDive(state: DecompFlowStateType) {
 export function buildDecompFlowGraph() {
   const graph = new StateGraph(DecompFlowState)
     .addNode("binary_recon", binaryReconNode)
+    .addNode("mobile_recon", mobileReconNode)
     .addNode("rea_recon", reaReconNode)
     .addNode("web_recon", webReconNode)
     .addNode("source_recon", sourceReconNode)
@@ -49,11 +59,13 @@ export function buildDecompFlowGraph() {
     .addNode("report", reportNode)
     .addConditionalEdges("__start__", routeTarget, {
       binary_recon: "binary_recon",
+      mobile_recon: "mobile_recon",
       rea_recon: "rea_recon",
       web_recon: "web_recon",
       source_recon: "source_recon",
     })
     .addEdge("binary_recon", "analyze")
+    .addEdge("mobile_recon", "analyze")
     .addEdge("rea_recon", "analyze")
     .addEdge("web_recon", "analyze")
     .addEdge("source_recon", "analyze")
@@ -82,6 +94,8 @@ export async function runAnalysisWithProgress(
     messages?: Array<{ role: "user" | "assistant"; content: string }>;
     outPath?: string;
     maxIterations?: number;
+    engineProfile?: EngineProfile;
+    preferredNativeBackend?: PreferredNativeBackend;
   },
   onProgress?: (event: AnalysisProgressEvent) => void
 ): Promise<DecompFlowStateType> {
@@ -102,20 +116,31 @@ export async function runAnalysisWithProgress(
     maxIterations: initialState.maxIterations || 3,
     pendingQueries: [],
     symbolSnippets: {},
+    engineProfile: initialState.engineProfile || "auto",
+    preferredNativeBackend: initialState.preferredNativeBackend || "ghidra",
+    detectedCapabilities: [],
   };
 
-  const stream = await compiledGraph.stream(state, { streamMode: "updates" });
-  for await (const chunk of stream) {
-    for (const [nodeName, nodeOutput] of Object.entries(chunk)) {
-      if (onProgress) {
-        onProgress({
-          node: nodeName,
-          status: "completed",
-          data: nodeOutput,
-        });
+  try {
+    const stream = await compiledGraph.stream(state, { streamMode: "updates" });
+    for await (const chunk of stream) {
+      for (const [nodeName, nodeOutput] of Object.entries(chunk)) {
+        if (onProgress) {
+          onProgress({
+            node: nodeName,
+            status: "completed",
+            data: nodeOutput,
+          });
+        }
+        Object.assign(state, nodeOutput);
       }
-      Object.assign(state, nodeOutput);
     }
+  } finally {
+    // Zero-overhead architecture: trigger auto idle timeouts or cleanup
+    defaultMcpManager.scheduleIdleTimeout("capa-r2");
+    defaultMcpManager.scheduleIdleTimeout("jadx");
+    defaultMcpManager.scheduleIdleTimeout("ghidra");
+    defaultMcpManager.scheduleIdleTimeout("rea");
   }
 
   return state as DecompFlowStateType;

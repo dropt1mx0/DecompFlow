@@ -112,17 +112,19 @@ export const ChatStream: React.FC<ChatStreamProps> = ({
                   {
                     id: "recon",
                     label:
-                      msg.mode === "binary"
-                        ? "Ghidra / REA MCP"
+                      (msg.completedNodes || []).includes("mobile_recon") || msg.activeNode === "mobile_recon"
+                        ? "Jadx Mobile Engine"
+                        : msg.mode === "binary"
+                        ? "Capa + r2 Triage"
                         : msg.mode === "web"
                         ? "Playwright MCP"
                         : (msg.completedNodes || []).includes("rea_recon")
                         ? "REA ASAR Engine"
                         : "Source AST",
                     done: (msg.completedNodes || []).some((n) =>
-                      ["binary_recon", "rea_recon", "web_recon", "source_recon"].includes(n)
+                      ["binary_recon", "mobile_recon", "rea_recon", "web_recon", "source_recon"].includes(n)
                     ),
-                    active: ["binary_recon", "rea_recon", "web_recon", "source_recon"].includes(
+                    active: ["binary_recon", "mobile_recon", "rea_recon", "web_recon", "source_recon"].includes(
                       msg.activeNode || ""
                     ),
                   },
@@ -185,6 +187,54 @@ export const ChatStream: React.FC<ChatStreamProps> = ({
                       <div key={idx} className="flex items-start gap-2 text-xs text-[#f0f1f5] leading-relaxed">
                         <span className="text-[#38bdf8] mt-0.5">•</span>
                         <span>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Detected Binary Capabilities (Capa Triage) */}
+              {msg.detectedCapabilities && msg.detectedCapabilities.length > 0 && (
+                <div className="bg-[#131418] border border-[#232630] rounded-xl p-3.5 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase text-[#f97316] tracking-wider font-semibold">
+                      <span>🛡️</span>
+                      <span>Detected Binary Capabilities (Capa Triage)</span>
+                    </div>
+                    <span className="text-[10px] text-[#565a69] font-mono">
+                      Fast Triage (&lt; 1s)
+                    </span>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    {msg.detectedCapabilities.map((cap, cIdx) => (
+                      <div
+                        key={cIdx}
+                        onClick={() => {
+                          if (onSelectEvidence) {
+                            onSelectEvidence({
+                              source: cap.namespace,
+                              location: cap.address,
+                              snippet: `Identified ${cap.capability} at ${cap.address} (Namespace: ${cap.namespace}, Confidence: ${cap.confidence})`,
+                              confidence: cap.confidence || "VERIFIED",
+                            });
+                          }
+                        }}
+                        className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-[#181a24] hover:bg-[#202434] border border-[#262c3e] hover:border-[#f97316]/50 transition-all cursor-pointer group shadow-sm text-xs"
+                        title={`Click to inspect ${cap.address} in Drawer`}
+                      >
+                        <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-[#10131a] text-[#38bdf8] border border-[#242e44]">
+                          {cap.namespace.split("/").pop() || cap.namespace}
+                        </span>
+                        <span className="font-medium text-[#f0f1f5] group-hover:text-white">
+                          {cap.capability}
+                        </span>
+                        <span className="text-[10px] font-mono text-[#f97316] group-hover:underline">
+                          @{cap.address}
+                        </span>
+                        <span className="text-[9px] font-mono px-1 rounded bg-[#22c55e]/20 text-[#22c55e]">
+                          {cap.confidence}
+                        </span>
                       </div>
                     ))}
                   </div>

@@ -19,13 +19,15 @@ import {
   Sparkles,
   User,
 } from "lucide-react";
-import { McpTestResult, SystemInfo } from "../types";
+import { McpTestResult, SystemInfo, PreferredNativeBackend } from "../types";
 
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
   username?: string;
   onSaveUsername?: (username: string) => void;
+  preferredBackend?: PreferredNativeBackend;
+  onSavePreferredBackend?: (backend: PreferredNativeBackend) => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -33,6 +35,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onClose,
   username,
   onSaveUsername,
+  preferredBackend = "ghidra",
+  onSavePreferredBackend,
 }) => {
   const [activeTab, setActiveTab] = useState<"system" | "llm" | "mcp">("system");
   const [loading, setLoading] = useState(true);
@@ -42,6 +46,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   // User Profile
   const [usernameInput, setUsernameInput] = useState<string>(
     username || localStorage.getItem("decompflow_username") || "dropt1m"
+  );
+
+  // Native Decompiler Backend
+  const [preferredDecompiler, setPreferredDecompiler] = useState<PreferredNativeBackend>(
+    preferredBackend ||
+      (localStorage.getItem("decompflow_preferred_backend") as PreferredNativeBackend) ||
+      "ghidra"
   );
 
   // System Info
@@ -220,6 +231,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const handleSave = async () => {
     setSaving(true);
     try {
+      localStorage.setItem("decompflow_preferred_backend", preferredDecompiler);
+      if (onSavePreferredBackend) {
+        onSavePreferredBackend(preferredDecompiler);
+      }
       const updatedYaml = {
         ...rawYaml,
         llm: {
@@ -579,6 +594,74 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     <span className="text-[#8b8f9e]">REA Engine Availability:</span>
                     <span className="text-[#f97316]">{systemInfo?.systemPaths?.reaAvailable ? "Ready (npx on-demand / local)" : "Available via npx"}</span>
                   </div>
+                  <div className="flex items-center justify-between p-2 rounded-lg bg-[#11131a] border border-[#202330]">
+                    <span className="text-[#8b8f9e]">Capa (Capability Detector):</span>
+                    <span className="text-[#22c55e] truncate max-w-[320px]">{systemInfo?.systemPaths?.capaPath || "Detected via PATH / Heuristic fallback"}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2 rounded-lg bg-[#11131a] border border-[#202330]">
+                    <span className="text-[#8b8f9e]">Radare2 / Rizin (Fast Mode):</span>
+                    <span className="text-[#22c55e] truncate max-w-[320px]">{systemInfo?.systemPaths?.r2Path || "Detected via PATH"}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2 rounded-lg bg-[#11131a] border border-[#202330]">
+                    <span className="text-[#8b8f9e]">Jadx (Android / Java APK):</span>
+                    <span className="text-[#38bdf8] truncate max-w-[320px]">{systemInfo?.systemPaths?.jadxPath || "Detected via PATH / ZIP DEX Parser"}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2 rounded-lg bg-[#11131a] border border-[#202330]">
+                    <span className="text-[#8b8f9e]">IDA Pro MCP (:13337):</span>
+                    <span className={systemInfo?.systemPaths?.idaProMcp ? "text-[#22c55e] font-bold" : "text-[#8b8f9e]"}>
+                      {systemInfo?.systemPaths?.idaProMcp ? "🟢 Online (Port 13337 Open)" : "⚪ Offline (127.0.0.1:13337)"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between p-2 rounded-lg bg-[#11131a] border border-[#202330]">
+                    <span className="text-[#8b8f9e]">Binary Ninja MCP (:13338):</span>
+                    <span className={systemInfo?.systemPaths?.binjaMcp ? "text-[#22c55e] font-bold" : "text-[#8b8f9e]"}>
+                      {systemInfo?.systemPaths?.binjaMcp ? "🟢 Online (Port 13338 Open)" : "⚪ Offline (127.0.0.1:13338)"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Preferred Native Decompiler Backend */}
+              <div className="p-4 rounded-xl bg-[#181a22] border border-[#242834] space-y-3">
+                <span className="text-[10px] font-mono uppercase text-[#8b8f9e] tracking-wider block font-semibold flex items-center gap-1.5">
+                  <Cpu className="w-3.5 h-3.5 text-[#f97316]" />
+                  <span>Preferred Native Decompiler Backend</span>
+                </span>
+                <p className="text-[11px] text-[#8b8f9e]">
+                  Active decompiler engine for targeted function deep dives (sub_XXXX) on native binaries.
+                </p>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {[
+                    { id: "ghidra", label: "Ghidra", desc: "JVM Headless", tag: "Heavy / Full AST" },
+                    { id: "radare2", label: "Radare2 / Rizin", desc: "r2 pdc/pdg", tag: "Sub-second Fast" },
+                    { id: "ida", label: "IDA Pro (External)", desc: "127.0.0.1:13337", tag: "Hex-Rays Bridge" },
+                    { id: "binja", label: "Binary Ninja (External)", desc: "127.0.0.1:13338", tag: "HLIL/BNIL Bridge" },
+                  ].map((dec) => (
+                    <button
+                      key={dec.id}
+                      type="button"
+                      onClick={() => setPreferredDecompiler(dec.id as PreferredNativeBackend)}
+                      className={`p-3 rounded-lg border text-left flex flex-col justify-between transition-all cursor-pointer ${
+                        preferredDecompiler === dec.id
+                          ? "border-[#f97316] bg-[#241a14] text-[#f0f1f5]"
+                          : "border-[#252836] bg-[#11131a] text-[#8b8f9e] hover:border-[#384055] hover:text-[#f0f1f5]"
+                      }`}
+                    >
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-semibold text-xs">{dec.label}</span>
+                          {preferredDecompiler === dec.id && (
+                            <span className="w-2 h-2 rounded-full bg-[#f97316]" />
+                          )}
+                        </div>
+                        <span className="text-[10px] text-[#6b7280] block font-mono">{dec.desc}</span>
+                      </div>
+                      <span className="text-[9px] uppercase tracking-wider font-mono text-[#f97316] mt-2 block">
+                        {dec.tag}
+                      </span>
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>

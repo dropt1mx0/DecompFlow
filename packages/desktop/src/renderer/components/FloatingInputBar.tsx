@@ -14,7 +14,7 @@ import {
   ShieldCheck,
   RefreshCw,
 } from "lucide-react";
-import { TargetMode } from "../types";
+import { TargetMode, EngineProfile } from "../types";
 
 interface FloatingInputBarProps {
   promptText: string;
@@ -25,6 +25,8 @@ interface FloatingInputBarProps {
   setMode: (mode: TargetMode) => void;
   skill: string;
   setSkill: (skill: string) => void;
+  engineProfile?: EngineProfile;
+  setEngineProfile?: (profile: EngineProfile) => void;
   onSend: () => void;
   onStop?: () => void;
   isRunning: boolean;
@@ -44,6 +46,8 @@ export const FloatingInputBar: React.FC<FloatingInputBarProps> = ({
   setMode,
   skill,
   setSkill,
+  engineProfile = "auto",
+  setEngineProfile,
   onSend,
   onStop,
   isRunning,
@@ -56,6 +60,7 @@ export const FloatingInputBar: React.FC<FloatingInputBarProps> = ({
   const [skillMenuOpen, setSkillMenuOpen] = useState(false);
   const [modeMenuOpen, setModeMenuOpen] = useState(false);
   const [modelMenuOpen, setModelMenuOpen] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
 
   // Active Model and Local LLM State
@@ -129,6 +134,8 @@ export const FloatingInputBar: React.FC<FloatingInputBarProps> = ({
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setSkillMenuOpen(false);
         setModeMenuOpen(false);
+        setModelMenuOpen(false);
+        setProfileMenuOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -441,6 +448,69 @@ export const FloatingInputBar: React.FC<FloatingInputBarProps> = ({
                       Configure endpoints in Settings →
                     </button>
                   )}
+                </div>
+              )}
+            </div>
+
+            {/* Engine Speed Profile Selector Pill */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => {
+                  setProfileMenuOpen(!profileMenuOpen);
+                  setModelMenuOpen(false);
+                  setSkillMenuOpen(false);
+                  setModeMenuOpen(false);
+                }}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
+                  engineProfile === "fast-triage"
+                    ? "bg-[#271b12] border-[#f97316]/60 text-[#f97316]"
+                    : engineProfile === "deep-decompile"
+                    ? "bg-[#211a2f] border-purple-500/60 text-purple-300"
+                    : "bg-[#20232c] hover:bg-[#282c38] text-[#8b8f9e] hover:text-[#f0f1f5] border-[#2d313e]"
+                }`}
+                title="Engine Profile: Fast Triage vs. Deep Decompilation"
+              >
+                <span>
+                  {engineProfile === "fast-triage"
+                    ? "⚡ Fast"
+                    : engineProfile === "deep-decompile"
+                    ? "🔬 Deep"
+                    : "📱 Auto"}
+                </span>
+                <ChevronDown className="w-3 h-3 text-[#565a69]" />
+              </button>
+
+              {profileMenuOpen && (
+                <div className="absolute bottom-full left-0 mb-2 w-60 bg-[#181a20] border border-[#2d313e] rounded-xl shadow-2xl p-1.5 z-50 flex flex-col gap-1 animate-in fade-in slide-in-from-bottom-2 duration-150">
+                  <div className="text-[10px] uppercase font-mono tracking-wider text-[#565a69] px-2 py-0.5">
+                    Engine Speed Profile
+                  </div>
+                  {[
+                    { id: "fast-triage", label: "⚡ Fast (Capa + r2)", desc: "< 1s triage, < 80MB RAM" },
+                    { id: "deep-decompile", label: "🔬 Deep (Capa + Ghidra/IDA)", desc: "Targeted full decompilation" },
+                    { id: "auto", label: "📱 Auto-Route", desc: "Smart target match (Jadx/REA/Ghidra)" },
+                  ].map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => {
+                        if (setEngineProfile) setEngineProfile(p.id as EngineProfile);
+                        setProfileMenuOpen(false);
+                      }}
+                      className={`text-left px-2.5 py-1.5 rounded-lg text-xs transition-colors flex flex-col cursor-pointer ${
+                        engineProfile === p.id
+                          ? "bg-[#282c38] text-[#f97316] font-medium"
+                          : "text-[#8b8f9e] hover:bg-[#20232c] hover:text-[#f0f1f5]"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span>{p.label}</span>
+                        {engineProfile === p.id && <span className="w-1.5 h-1.5 rounded-full bg-[#f97316]" />}
+                      </div>
+                      <span className="text-[10px] text-[#565a69] mt-0.5">{p.desc}</span>
+                    </button>
+                  ))}
                 </div>
               )}
             </div>

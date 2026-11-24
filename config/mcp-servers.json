@@ -1,22 +1,55 @@
 {
   "mcpServers": {
-    "rea": {
-      "command": "npx",
-      "args": ["-y", "rea-agents@latest", "mcp"],
+    "capa-r2": {
+      "command": "python3",
+      "args": ["./tools/r2_capa_mcp_bridge.py"],
       "transport": "stdio",
-      "enabled": true
+      "enabled": true,
+      "lazy": true
+    },
+    "jadx": {
+      "command": "python3",
+      "args": ["./tools/jadx_mcp_bridge.py"],
+      "transport": "stdio",
+      "enabled": true,
+      "lazy": true
     },
     "ghidra": {
       "command": "python3",
       "args": ["./tools/ghidra_mcp_bridge.py"],
       "transport": "stdio",
-      "enabled": true
+      "enabled": true,
+      "lazy": true
+    },
+    "ida-external": {
+      "command": "python3",
+      "args": ["./tools/r2_capa_mcp_bridge.py", "--proxy-ida"],
+      "transport": "stdio",
+      "enabled": true,
+      "lazy": true,
+      "url": "http://127.0.0.1:13337"
+    },
+    "binja-external": {
+      "command": "python3",
+      "args": ["./tools/r2_capa_mcp_bridge.py", "--proxy-binja"],
+      "transport": "stdio",
+      "enabled": true,
+      "lazy": true,
+      "url": "http://127.0.0.1:13338"
+    },
+    "rea": {
+      "command": "npx",
+      "args": ["-y", "rea-agents@latest", "mcp"],
+      "transport": "stdio",
+      "enabled": true,
+      "lazy": true
     },
     "playwright": {
       "command": "npx",
       "args": ["-y", "@playwright/mcp"],
       "transport": "stdio",
-      "enabled": true
+      "enabled": true,
+      "lazy": true
     }
   }
 }

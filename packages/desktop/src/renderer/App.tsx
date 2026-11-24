@@ -8,7 +8,16 @@ import { FlowGraph } from "./components/FlowGraph";
 import { ReportViewer } from "./components/ReportViewer";
 import { SettingsModal } from "./components/SettingsModal";
 import { EvidenceCodeDrawer } from "./components/EvidenceCodeDrawer";
-import { TargetMode, ProjectItem, SessionItem, WorkspaceData, EvidenceItem } from "./types";
+import {
+  TargetMode,
+  ProjectItem,
+  SessionItem,
+  WorkspaceData,
+  EvidenceItem,
+  EngineProfile,
+  PreferredNativeBackend,
+  DetectedCapability,
+} from "./types";
 import { UploadCloud } from "lucide-react";
 
 export const App: React.FC = () => {
@@ -56,6 +65,13 @@ export const App: React.FC = () => {
   const [completedNodes, setCompletedNodes] = useState<string[]>([]);
   const [finalReport, setFinalReport] = useState<string | null>(null);
   const [messages, setMessages] = useState<MessageItem[]>([]);
+
+  // Engine Profile & Preferred Backend
+  const [engineProfile, setEngineProfile] = useState<EngineProfile>("auto");
+  const [preferredBackend, setPreferredBackend] = useState<PreferredNativeBackend>(
+    () => (localStorage.getItem("decompflow_preferred_backend") as PreferredNativeBackend) || "ghidra"
+  );
+  const [detectedCapabilities, setDetectedCapabilities] = useState<DetectedCapability[]>([]);
 
   // 1. Load initial workspace from IPC / localStorage
   useEffect(() => {
@@ -148,6 +164,7 @@ export const App: React.FC = () => {
       setSkill(sess.skill || "repo-onboarding");
       setMessages(sess.messages || []);
       setFinalReport(sess.finalReport || null);
+      setDetectedCapabilities(sess.detectedCapabilities || []);
       setActiveView("chat");
       saveWorkspaceState(projects, activeProjectId, sessionId);
     }
@@ -200,6 +217,7 @@ export const App: React.FC = () => {
     setPromptText("");
     setMessages([]);
     setFinalReport(null);
+    setDetectedCapabilities([]);
     setActiveNode(null);
     setCompletedNodes([]);
     setActiveView("chat");
@@ -304,12 +322,15 @@ export const App: React.FC = () => {
     if (!activeSessionId) return;
     setMessages([]);
     setFinalReport(null);
+    setDetectedCapabilities([]);
     const updated = projects.map((p) => {
       if (p.id === activeProjectId) {
         return {
           ...p,
           sessions: p.sessions.map((s) =>
-            s.id === activeSessionId ? { ...s, messages: [], finalReport: null, hasReport: false } : s
+            s.id === activeSessionId
+              ? { ...s, messages: [], finalReport: null, hasReport: false, detectedCapabilities: [] }
+              : s
           ),
         };
       }
@@ -476,7 +497,10 @@ export const App: React.FC = () => {
     setPromptText("");
     setCompletedNodes(["__start__", "router"]);
     const isAsarOrJs = runTarget.endsWith(".asar") || runTarget.endsWith(".js") || runTarget.includes("resources");
-    const initialReconNode = isAsarOrJs
+    const isMobile = runTarget.endsWith(".apk") || runTarget.endsWith(".dex") || runTarget.endsWith(".jar") || runTarget.endsWith(".aab");
+    const initialReconNode = isMobile
+      ? "mobile_recon"
+      : isAsarOrJs
       ? "rea_recon"
       : mode === "binary"
       ? "binary_recon"
@@ -502,10 +526,14 @@ export const App: React.FC = () => {
       id: agentMsgId,
       sender: "agent",
       text: `Ingesting target and connecting via Model Context Protocol (${
-        initialReconNode === "rea_recon"
+        initialReconNode === "mobile_recon"
+          ? "Jadx Mobile Engine"
+          : initialReconNode === "rea_recon"
           ? "REA MCP Engine"
           : mode === "binary"
-          ? "Ghidra / REA MCP"
+          ? engineProfile === "fast-triage"
+            ? "Capa + Radare2 Fast Triage"
+            : "Capa + Ghidra Engine"
           : mode === "web"
           ? "Playwright MCP"
           : "Source AST"
@@ -527,6 +555,8 @@ export const App: React.FC = () => {
           mode,
           skill,
           userPrompt: userText,
+          engineProfile,
+          preferredNativeBackend: preferredBackend,
           messages: messages.map((m) => ({
             role: m.sender === "user" ? ("user" as const) : ("assistant" as const),
             content: m.text,
@@ -538,8 +568,10 @@ export const App: React.FC = () => {
           const findings = response.data.findings || [];
           const evidence = response.data.evidence || [];
           const reconstructedCode = response.data.reconstructedCode;
+          const caps = response.data.detectedCapabilities || [];
 
           setFinalReport(reportText);
+          setDetectedCapabilities(caps);
           setCompletedNodes(["__start__", "router", initialReconNode, "analyze", "report"]);
           setActiveNode(null);
 
@@ -554,6 +586,7 @@ export const App: React.FC = () => {
                 findings,
                 evidence,
                 reconstructedCode,
+                detectedCapabilities: caps,
               };
             }
             return m;
@@ -580,6 +613,7 @@ export const App: React.FC = () => {
                       finalReport: reportText,
                       evidence,
                       reconstructedCode,
+                      detectedCapabilities: caps,
                     };
                   }
                   return s;
@@ -764,6 +798,8 @@ export const App: React.FC = () => {
                   setMode={setMode}
                   skill={skill}
                   setSkill={setSkill}
+                  engineProfile={engineProfile}
+                  setEngineProfile={setEngineProfile}
                   onSend={handleLaunch}
                   onStop={handleStopAnalysis}
                   isRunning={isRunning}
@@ -783,6 +819,7 @@ export const App: React.FC = () => {
                   mode={mode}
                   activeNode={activeNode}
                   completedNodes={completedNodes}
+                  engineProfile={engineProfile}
                 />
               </div>
             )}
@@ -794,6 +831,7 @@ export const App: React.FC = () => {
                   reportMarkdown={finalReport}
                   onSave={handleSaveReport}
                   onSelectEvidence={handleSelectEvidence}
+                  detectedCapabilities={detectedCapabilities}
                 />
               </div>
             )}
@@ -815,6 +853,8 @@ export const App: React.FC = () => {
         onClose={() => setSettingsOpen(false)}
         username={username}
         onSaveUsername={setUsername}
+        preferredBackend={preferredBackend}
+        onSavePreferredBackend={setPreferredBackend}
       />
     </div>
   );

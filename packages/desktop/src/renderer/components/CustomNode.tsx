@@ -13,6 +13,8 @@ import {
   AlertCircle,
   Package,
   RefreshCw,
+  Shield,
+  Smartphone,
 } from "lucide-react";
 import { NodeData } from "../types";
 
@@ -27,7 +29,10 @@ export const CustomNode: React.FC<{ data: NodeData; isConnectable?: boolean }> =
       case "router":
         return <GitFork className="w-5 h-5 text-indigo-400" />;
       case "ghidra":
-        return <Cpu className="w-5 h-5 text-amber-400" />;
+      case "capa":
+        return <Shield className="w-5 h-5 text-amber-400" />;
+      case "jadx":
+        return <Smartphone className="w-5 h-5 text-emerald-400" />;
       case "rea":
         return <Package className="w-5 h-5 text-[#f97316]" />;
       case "playwright":
@@ -40,6 +45,8 @@ export const CustomNode: React.FC<{ data: NodeData; isConnectable?: boolean }> =
         return <FileText className="w-5 h-5 text-rose-400" />;
       case "deep_dive":
         return <RefreshCw className={`w-5 h-5 text-[#f97316] ${data.status === "running" ? "animate-spin" : ""}`} />;
+      default:
+        return <Cpu className="w-5 h-5 text-[#f97316]" />;
     }
   };
 

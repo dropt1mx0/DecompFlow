@@ -537,6 +537,8 @@ function setupIpc() {
           userPrompt: payload.userPrompt,
           messages: payload.messages,
           outPath: payload.outPath,
+          engineProfile: payload.engineProfile,
+          preferredNativeBackend: payload.preferredNativeBackend,
         },
         (progressEvent) => {
           if (currentAbortController?.signal.aborted) {

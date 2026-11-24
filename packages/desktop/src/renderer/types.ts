@@ -1,6 +1,16 @@
 export type TargetMode = "binary" | "web" | "source";
 
+export type EngineProfile = "auto" | "fast-triage" | "deep-decompile";
+export type PreferredNativeBackend = "ghidra" | "radare2" | "ida" | "binja";
+
 export type NodeExecutionStatus = "idle" | "running" | "completed" | "error";
+
+export interface DetectedCapability {
+  capability: string;
+  namespace: string;
+  address: string;
+  confidence: string;
+}
 
 export interface EvidenceItem {
   source: string;
@@ -12,7 +22,7 @@ export interface EvidenceItem {
 export interface NodeData {
   label: string;
   sublabel: string;
-  iconName: "trigger" | "router" | "ghidra" | "rea" | "playwright" | "source" | "llm" | "report" | "deep_dive";
+  iconName: "trigger" | "router" | "ghidra" | "rea" | "playwright" | "source" | "llm" | "report" | "deep_dive" | "capa" | "jadx";
   status: NodeExecutionStatus;
   details?: any;
 }
@@ -31,6 +41,7 @@ export interface MessageItem {
   findings?: string[];
   evidence?: EvidenceItem[];
   reconstructedCode?: string;
+  detectedCapabilities?: DetectedCapability[];
 }
 
 export interface SessionItem {
@@ -45,6 +56,7 @@ export interface SessionItem {
   finalReport?: string | null;
   evidence?: EvidenceItem[];
   reconstructedCode?: string;
+  detectedCapabilities?: DetectedCapability[];
 }
 
 export interface ProjectItem {
@@ -68,6 +80,8 @@ export interface AnalysisPayload {
   userPrompt?: string;
   messages?: Array<{ role: "user" | "assistant"; content: string }>;
   outPath?: string;
+  engineProfile?: EngineProfile;
+  preferredNativeBackend?: PreferredNativeBackend;
 }
 
 export interface AnalysisProgressEvent {
@@ -109,6 +123,11 @@ export interface SystemInfo {
     javaPath: string | null;
     ghidraPath: string | null;
     reaAvailable: boolean;
+    capaPath?: string | null;
+    r2Path?: string | null;
+    jadxPath?: string | null;
+    idaProMcp?: boolean;
+    binjaMcp?: boolean;
   };
 }
 

@@ -1,18 +1,20 @@
 import React, { useEffect, useRef, useState } from "react";
 import mermaid from "mermaid";
 import { Download, Copy, Check, FileText, Code2, ShieldCheck } from "lucide-react";
-import { EvidenceItem } from "../types";
+import { EvidenceItem, DetectedCapability } from "../types";
 
 interface ReportViewerProps {
   reportMarkdown: string | null;
   onSave?: () => void;
   onSelectEvidence?: (item: EvidenceItem) => void;
+  detectedCapabilities?: DetectedCapability[];
 }
 
 export const ReportViewer: React.FC<ReportViewerProps> = ({
   reportMarkdown,
   onSave,
   onSelectEvidence,
+  detectedCapabilities,
 }) => {
   const [copied, setCopied] = useState(false);
   const [copiedSnippetId, setCopiedSnippetId] = useState<string | null>(null);
@@ -195,6 +197,83 @@ export const ReportViewer: React.FC<ReportViewerProps> = ({
 
       if (inCodeBlock) {
         codeLines.push(line);
+        continue;
+      }
+
+      // Skip markdown header if rendered by custom badge block
+      if (line.includes("## 🛡️ Detected Binary Capabilities")) {
+        flushText();
+        continue;
+      }
+
+      // Check if table header for Capa Triage Capabilities
+      if (line.includes("| Capability | Namespace | Target Address | Confidence |")) {
+        flushText();
+        const tableLines = [line];
+        let j = i + 1;
+        while (j < lines.length && lines[j].trim().startsWith("|")) {
+          tableLines.push(lines[j]);
+          j++;
+        }
+        i = j - 1;
+
+        const rows = tableLines.slice(2).map((r) =>
+          r
+            .split("|")
+            .map((c) => c.trim())
+            .filter((c, idx, arr) => idx > 0 && idx < arr.length - 1)
+        );
+
+        const caps = rows.map((row) => ({
+          capability: row[0]?.replace(/\*\*/g, "").trim() || "",
+          namespace: row[1]?.replace(/`/g, "").trim() || "",
+          address: row[2]?.replace(/`/g, "").trim() || "",
+          confidence: row[3]?.replace(/\*\*/g, "").trim() || "VERIFIED",
+        }));
+
+        parts.push(
+          <div key={`capa-table-${parts.length}`} className="my-5 rounded-xl bg-[#141824] border border-[#232d44] p-4 shadow-xl">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-base">🛡️</span>
+              <span className="text-xs font-bold text-[#f0f1f5]">Detected Binary Capabilities (Capa Triage)</span>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#f97316]/20 text-[#f97316] border border-[#f97316]/30 font-semibold">
+                Fast Triage &lt; 1s
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-2.5">
+              {caps.map((cap, cIdx) => (
+                <div
+                  key={cIdx}
+                  onClick={() => {
+                    if (onSelectEvidence) {
+                      onSelectEvidence({
+                        source: cap.namespace,
+                        location: cap.address,
+                        snippet: `Identified ${cap.capability} at ${cap.address} (Namespace: ${cap.namespace}, Confidence: ${cap.confidence})`,
+                        confidence: cap.confidence || "VERIFIED",
+                      });
+                    }
+                  }}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#1a2030] hover:bg-[#222b40] border border-[#2b3752] hover:border-[#f97316]/60 transition-all cursor-pointer group shadow-sm text-xs"
+                  title={`Click to inspect ${cap.address} in Drawer`}
+                >
+                  <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-[#10131a] text-[#38bdf8] border border-[#242e44]">
+                    {cap.namespace.split("/").pop() || cap.namespace}
+                  </span>
+                  <span className="font-semibold text-[#f0f1f5] group-hover:text-white">
+                    {cap.capability}
+                  </span>
+                  <span className="text-[11px] font-mono text-[#f97316] group-hover:underline">
+                    @{cap.address}
+                  </span>
+                  <span className="text-[9px] font-mono px-1 rounded bg-[#22c55e]/20 text-[#22c55e]">
+                    {cap.confidence}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
         continue;
       }
 

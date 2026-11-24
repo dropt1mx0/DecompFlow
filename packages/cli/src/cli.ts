@@ -6,6 +6,8 @@ import {
   defaultMcpManager,
   McpClientManager,
   detectTargetType,
+  EngineProfile,
+  PreferredNativeBackend,
 } from "@decompflow/core";
 
 const program = new Command();
@@ -23,14 +25,24 @@ program
   .option("-p, --prompt <prompt>", "Specific user query, feature description, or instruction to reverse engineer")
   .option("-o, --out [reportPath]", "Output file path to save the generated Markdown report (default: ./reports/decompflow_report.md)")
   .option("-c, --config <configPath>", "Path to custom mcp-servers.json configuration")
-  .action(async (target: string, options: { mode?: "binary" | "web" | "source"; skill: string; prompt?: string; out?: string | boolean; config?: string }) => {
+  .option("--profile <profile>", "Engine execution profile: auto | fast-triage | deep-decompile", "auto")
+  .option("--backend <backend>", "Preferred native decompiler backend: ghidra | radare2 | ida | binja", "ghidra")
+  .action(async (target: string, options: {
+    mode?: "binary" | "web" | "source";
+    skill: string;
+    prompt?: string;
+    out?: string | boolean;
+    config?: string;
+    profile: string;
+    backend: string;
+  }) => {
     let mcpManager = defaultMcpManager;
     if (options.config) {
       mcpManager = new McpClientManager(options.config);
     }
 
     const detected = detectTargetType(target);
-    const mode = options.mode || (detected === "electron_bundle" ? "source" : detected);
+    const mode = options.mode || (detected === "electron_bundle" ? "source" : detected === "mobile" ? "binary" : detected);
 
     const outPath = options.out
       ? typeof options.out === "string"
@@ -38,13 +50,18 @@ program
         : "./reports/decompflow_report.md"
       : undefined;
 
+    const engineProfile = (options.profile as EngineProfile) || "auto";
+    const preferredBackend = (options.backend as PreferredNativeBackend) || "ghidra";
+
     console.log("===============================================================");
-    console.log("          DecompFlow AI Agent v0.1.0 (with REA Engine)          ");
+    console.log("    DecompFlow AI Agent v0.1.0 (Tiered Orchestrator & REA)     ");
     console.log("===============================================================");
     console.log(`[DecompFlow] Target:        ${target}`);
     console.log(`[DecompFlow] Detected Type: ${detected}`);
     console.log(`[DecompFlow] Mode:          ${mode}`);
     console.log(`[DecompFlow] Skill:         ${options.skill}`);
+    console.log(`[DecompFlow] Profile:       ${engineProfile}`);
+    console.log(`[DecompFlow] Native Backend:${preferredBackend}`);
     if (options.prompt) {
       console.log(`[DecompFlow] Query/Feature: ${options.prompt}`);
     }
@@ -65,6 +82,9 @@ program
         maxIterations: 3,
         pendingQueries: [],
         symbolSnippets: {},
+        engineProfile,
+        preferredNativeBackend: preferredBackend,
+        detectedCapabilities: [],
       });
 
       console.log("\n=================== [ ANALYSIS COMPLETE ] ====================\n");

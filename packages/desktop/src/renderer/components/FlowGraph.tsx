@@ -10,12 +10,13 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { CustomNode } from "./CustomNode";
-import { TargetMode, NodeExecutionStatus } from "../types";
+import { TargetMode, NodeExecutionStatus, EngineProfile } from "../types";
 
 interface FlowGraphProps {
   mode: TargetMode;
   activeNode: string | null;
   completedNodes: string[];
+  engineProfile?: EngineProfile;
 }
 
 const nodeTypes = {
@@ -26,6 +27,7 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
   mode,
   activeNode,
   completedNodes,
+  engineProfile = "auto",
 }) => {
   const getNodeStatus = (nodeId: string): NodeExecutionStatus => {
     if (activeNode === nodeId) return "running";
@@ -35,6 +37,7 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
 
   const nodes: Node[] = useMemo(() => {
     const isBinaryActive = activeNode === "binary_recon";
+    const isMobileActive = activeNode === "mobile_recon";
     const isReaActive = activeNode === "rea_recon";
     const isWebActive = activeNode === "web_recon";
     const isSourceActive = activeNode === "source_recon";
@@ -43,7 +46,7 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
       {
         id: "__start__",
         type: "custom",
-        position: { x: 390, y: 30 },
+        position: { x: 440, y: 30 },
         data: {
           label: "Trigger / Input Target",
           sublabel: "Target ingestion & auto-detect",
@@ -54,7 +57,7 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
       {
         id: "router",
         type: "custom",
-        position: { x: 390, y: 150 },
+        position: { x: 440, y: 150 },
         data: {
           label: "Switch Router",
           sublabel: `Auto-route: ${mode} / target format`,
@@ -65,18 +68,29 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
       {
         id: "binary_recon",
         type: "custom",
-        position: { x: 20, y: 290 },
+        position: { x: 0, y: 290 },
         data: {
-          label: "Ghidra / REA Binary",
-          sublabel: isBinaryActive ? "Running Native Decompilation..." : "Decompilation & Native Xrefs",
-          iconName: "ghidra",
+          label: engineProfile === "fast-triage" ? "Tier 1: Capa + r2 Triage" : "Capa + Heavy Decompile",
+          sublabel: isBinaryActive ? "Fast Triage & Capability Scan..." : "Mandiant Capa & r2 Fast Index",
+          iconName: "capa",
           status: getNodeStatus("binary_recon"),
+        },
+      },
+      {
+        id: "mobile_recon",
+        type: "custom",
+        position: { x: 220, y: 290 },
+        data: {
+          label: "Mobile: Jadx APK Engine",
+          sublabel: isMobileActive ? "Parsing Manifest & DEX..." : "Android APK & DEX Classes",
+          iconName: "jadx",
+          status: getNodeStatus("mobile_recon"),
         },
       },
       {
         id: "rea_recon",
         type: "custom",
-        position: { x: 265, y: 290 },
+        position: { x: 440, y: 290 },
         data: {
           label: "REA MCP Engine",
           sublabel: isReaActive ? "Active: Inspecting ASAR/JS..." : "Electron, ASAR & JS Bundles",
@@ -87,7 +101,7 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
       {
         id: "web_recon",
         type: "custom",
-        position: { x: 510, y: 290 },
+        position: { x: 660, y: 290 },
         data: {
           label: "Playwright MCP Recon",
           sublabel: isWebActive ? "Active: Browser Crawling..." : "DOM, Bundle & API Mapping",
@@ -98,7 +112,7 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
       {
         id: "source_recon",
         type: "custom",
-        position: { x: 755, y: 290 },
+        position: { x: 880, y: 290 },
         data: {
           label: "Source AST Recon",
           sublabel: isSourceActive ? "Active: Scanning AST..." : "Directory & Module Analysis",
@@ -109,7 +123,7 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
       {
         id: "analyze",
         type: "custom",
-        position: { x: 390, y: 440 },
+        position: { x: 440, y: 440 },
         data: {
           label: "LLM Reasoning Node",
           sublabel: "Applies Markdown Skill & Evidence",
@@ -120,7 +134,7 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
       {
         id: "deep_dive",
         type: "custom",
-        position: { x: 700, y: 440 },
+        position: { x: 750, y: 440 },
         data: {
           label: "Deep Dive Loop",
           sublabel:
@@ -128,7 +142,7 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
               ? "Targeted Symbol Decompilation..."
               : completedNodes.includes("deep_dive")
               ? "Multi-hop Evidence Refined"
-              : "Targeted MCP Fetch (Ghidra/REA)",
+              : "Targeted MCP Fetch (Ghidra/r2/Jadx)",
           iconName: "deep_dive",
           status: getNodeStatus("deep_dive"),
         },
@@ -136,7 +150,7 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
       {
         id: "report",
         type: "custom",
-        position: { x: 390, y: 570 },
+        position: { x: 440, y: 570 },
         data: {
           label: "Report Generator",
           sublabel: "Evidence Table & Reconstructed Code",
@@ -145,7 +159,7 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
         },
       },
     ];
-  }, [mode, activeNode, completedNodes]);
+  }, [mode, activeNode, completedNodes, engineProfile]);
 
   const edges: Edge[] = useMemo(() => {
     const isBinary = mode === "binary";
@@ -172,6 +186,18 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
           opacity: isBinary ? 1 : 0.4,
         },
         markerEnd: { type: MarkerType.ArrowClosed, color: isBinary ? "#f59e0b" : "#33384a" },
+      },
+      {
+        id: "e-router-mobile",
+        source: "router",
+        target: "mobile_recon",
+        animated: activeNode === "mobile_recon" || completedNodes.includes("mobile_recon"),
+        style: {
+          stroke: activeNode === "mobile_recon" || completedNodes.includes("mobile_recon") ? "#10b981" : "#33384a",
+          strokeWidth: 2,
+          opacity: 0.8,
+        },
+        markerEnd: { type: MarkerType.ArrowClosed, color: "#10b981" },
       },
       {
         id: "e-router-rea",
@@ -216,6 +242,14 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
         animated: activeNode === "analyze" && completedNodes.includes("binary_recon"),
         style: { stroke: "#64748b", strokeWidth: 1.5 },
         markerEnd: { type: MarkerType.ArrowClosed, color: "#64748b" },
+      },
+      {
+        id: "e-mobile-analyze",
+        source: "mobile_recon",
+        target: "analyze",
+        animated: activeNode === "analyze" && completedNodes.includes("mobile_recon"),
+        style: { stroke: "#10b981", strokeWidth: 1.5 },
+        markerEnd: { type: MarkerType.ArrowClosed, color: "#10b981" },
       },
       {
         id: "e-rea-analyze",

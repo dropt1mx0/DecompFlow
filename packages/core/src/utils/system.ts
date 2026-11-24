@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
+import net from "node:net";
 import { execSync } from "node:child_process";
 
 export interface SystemPathsInfo {
@@ -8,6 +9,11 @@ export interface SystemPathsInfo {
   pythonPath: string | null;
   javaPath: string | null;
   ghidraPath: string | null;
+  capaPath: string | null;
+  r2Path: string | null;
+  jadxPath: string | null;
+  idaProMcp: boolean;
+  binjaMcp: boolean;
   reaAvailable: boolean;
 }
 
@@ -129,7 +135,30 @@ export class SystemEnvManager {
   }
 
   /**
-   * Auto-scans system for installed runtimes and decompilers.
+   * Fast non-blocking TCP socket check to test local external MCP endpoints.
+   */
+  public static checkPort(host: string, port: number, timeoutMs = 350): Promise<boolean> {
+    return new Promise((resolve) => {
+      const socket = new net.Socket();
+      socket.setTimeout(timeoutMs);
+      socket.once("connect", () => {
+        socket.destroy();
+        resolve(true);
+      });
+      socket.once("timeout", () => {
+        socket.destroy();
+        resolve(false);
+      });
+      socket.once("error", () => {
+        socket.destroy();
+        resolve(false);
+      });
+      socket.connect(port, host);
+    });
+  }
+
+  /**
+   * Auto-scans system for installed runtimes, decompilers and external tool bridges.
    */
   public static async detectSystemBinaries(): Promise<SystemPathsInfo> {
     this.ensurePathEnv();
@@ -150,6 +179,25 @@ export class SystemEnvManager {
       findInPath("python") ||
       null;
     const javaPath = findInPath(this.isWindows ? "java.exe" : "java");
+
+    // Tier 1 Fast Triage Tools: Capa & Radare2/Rizin
+    const capaPath = findInPath(this.isWindows ? "capa.exe" : "capa");
+    const r2Path =
+      findInPath(this.isWindows ? "r2.exe" : "r2") ||
+      findInPath(this.isWindows ? "rizin.exe" : "rizin") ||
+      null;
+
+    // Mobile Decompiler: Jadx
+    const jadxPath =
+      findInPath(this.isWindows ? "jadx.bat" : "jadx") ||
+      findInPath(this.isWindows ? "jadx-gui.bat" : "jadx-gui") ||
+      null;
+
+    // Check external MCP endpoints: IDA Pro (:13337) and Binary Ninja (:13338)
+    const [idaProMcp, binjaMcp] = await Promise.all([
+      this.checkPort("127.0.0.1", 13337),
+      this.checkPort("127.0.0.1", 13338),
+    ]);
 
     // Scan for Ghidra installations
     let ghidraPath: string | null = null;
@@ -200,6 +248,11 @@ export class SystemEnvManager {
       pythonPath,
       javaPath,
       ghidraPath,
+      capaPath,
+      r2Path,
+      jadxPath,
+      idaProMcp,
+      binjaMcp,
       reaAvailable,
     };
   }
