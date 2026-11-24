@@ -25,6 +25,14 @@ import {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Ensure application identity and window grouping in Linux/GNOME Dock
+app.setName("decompflow");
+app.setDesktopName("decompflow.desktop");
+if (process.platform === "linux") {
+  app.commandLine.appendSwitch("class", "decompflow");
+  app.commandLine.appendSwitch("name", "decompflow");
+}
+
 // Ensure full PATH environment for GUI-mode executables (Node, Python, Java, etc.)
 SystemEnvManager.ensurePathEnv();
 
@@ -101,76 +109,83 @@ function getAppIconPath(): string {
 function createDesktopShortcut(): { success: boolean; path?: string; error?: string } {
   try {
     const home = os.homedir();
-    const appIcon = getAppIconPath();
-
-    // Ensure icon is copied to standard user icons location
-    const iconsDir = path.join(home, ".local", "share", "icons");
-    fs.mkdirSync(iconsDir, { recursive: true });
-    const permanentIcon = path.join(iconsDir, "decompflow.png");
-    if (appIcon && fs.existsSync(appIcon)) {
-      try {
-        fs.copyFileSync(appIcon, permanentIcon);
-      } catch (err) {
-        console.warn("[Main] Failed to copy icon to ~/.local/share/icons:", err);
-      }
-    }
-    const finalIconPath = fs.existsSync(permanentIcon) ? permanentIcon : appIcon;
+    const projectRoot = findProjectRoot() || "/home/dropt1m/DecompFlow";
+    const appIcon = getAppIconPath() || path.join(projectRoot, "packages/desktop/build/icon.png");
 
     if (process.platform === "linux") {
+      // 1. Create executable wrapper launcher script
+      const launcherScript = path.join(projectRoot, "launch-decompflow.sh");
       const isAppImage = Boolean(process.env.APPIMAGE);
-      const isDefaultApp = Boolean(process.defaultApp);
-      let execCommand: string;
+      let launcherContent = `#!/usr/bin/env bash\ncd "${projectRoot}" || exit 1\n`;
 
       if (isAppImage) {
-        execCommand = `"${process.env.APPIMAGE}" --no-sandbox %U`;
-      } else if (isDefaultApp) {
-        execCommand = `"${process.execPath}" "${path.join(app.getAppPath(), "dist/main/index.js")}" --no-sandbox %U`;
+        launcherContent += `exec "${process.env.APPIMAGE}" --no-sandbox --no-zygote --disable-gpu "$@"\n`;
       } else {
-        execCommand = `"${process.execPath}" --no-sandbox %U`;
+        const localElectron = path.join(projectRoot, "node_modules/electron/dist/electron");
+        const electronBin = fs.existsSync(localElectron) ? localElectron : process.execPath;
+        const mainJs = path.join(projectRoot, "packages/desktop/dist/main/index.js");
+        launcherContent += `exec "${electronBin}" "${mainJs}" --no-sandbox --no-zygote --disable-gpu "$@"\n`;
       }
 
+      fs.writeFileSync(launcherScript, launcherContent, { encoding: "utf-8", mode: 0o755 });
+      try { fs.chmodSync(launcherScript, 0o755); } catch {}
+
+      // 2. Copy mascot icon to standard system user icon directories
+      const hicolorDir = path.join(home, ".local/share/icons/hicolor/512x512/apps");
+      fs.mkdirSync(hicolorDir, { recursive: true });
+      const hicolorIcon = path.join(hicolorDir, "decompflow.png");
+
+      const userIconsDir = path.join(home, ".local/share/icons");
+      fs.mkdirSync(userIconsDir, { recursive: true });
+      const userIcon = path.join(userIconsDir, "decompflow.png");
+
+      if (fs.existsSync(appIcon)) {
+        try {
+          fs.copyFileSync(appIcon, hicolorIcon);
+          fs.copyFileSync(appIcon, userIcon);
+        } catch (err) {
+          console.warn("[Main] Failed copying icons to ~/.local/share/icons:", err);
+        }
+      }
+
+      const finalIconPath = fs.existsSync(appIcon) ? appIcon : hicolorIcon;
+
+      // 3. Desktop Entry Content according to FreeDesktop spec
       const desktopFileContent = `[Desktop Entry]
 Version=1.0
 Type=Application
-Name=DecompFlow
-GenericName=Autonomous Reverse Engineering Studio
-Comment=Autonomous AI Reverse Engineering Studio & Feature Reconstruction
-Exec=${execCommand}
+Name=DecompFlow Studio
+Comment=Autonomous AI Reverse Engineering Studio
+Exec=${launcherScript}
 Icon=${finalIconPath}
 Terminal=false
-Categories=Development;Security;Debugger;
-StartupWMClass=decompflow-studio
+Categories=Development;Utility;
+StartupNotify=true
+StartupWMClass=decompflow
 `;
 
-      // 1. Applications menu
-      const appsDir = path.join(home, ".local", "share", "applications");
+      // 4. Write to ~/.local/share/applications (Application Menu / GNOME Search)
+      const appsDir = path.join(home, ".local/share/applications");
       fs.mkdirSync(appsDir, { recursive: true });
       const menuDesktopPath = path.join(appsDir, "decompflow.desktop");
       fs.writeFileSync(menuDesktopPath, desktopFileContent, { encoding: "utf-8", mode: 0o755 });
+      try { fs.chmodSync(menuDesktopPath, 0o755); } catch {}
 
-      // 2. Discover user's Desktop folder(s)
+      // 5. Discover user desktop directories
       const desktopDirs = new Set<string>();
+      try {
+        const xdgDesktop = child_process.execSync("xdg-user-dir DESKTOP", { encoding: "utf-8" }).trim();
+        if (xdgDesktop && fs.existsSync(xdgDesktop)) {
+          desktopDirs.add(xdgDesktop);
+        }
+      } catch {
+        // ignore
+      }
+
       const stdDesktop = path.join(home, "Desktop");
       const ruDesktop = path.join(home, "Рабочий стол");
-
       if (fs.existsSync(stdDesktop)) desktopDirs.add(stdDesktop);
       if (fs.existsSync(ruDesktop)) desktopDirs.add(ruDesktop);
-
-      const userDirsPath = path.join(home, ".config", "user-dirs.dirs");
-      if (fs.existsSync(userDirsPath)) {
-        try {
-          const content = fs.readFileSync(userDirsPath, "utf-8");
-          const match = content.match(/XDG_DESKTOP_DIR="?\$HOME\/([^"\n]+)"?/);
-          if (match && match[1]) {
-            const xdgDesktop = path.join(home, match[1]);
-            if (fs.existsSync(xdgDesktop)) {
-              desktopDirs.add(xdgDesktop);
-            }
-          }
-        } catch {
-          // ignore
-        }
-      }
 
       if (desktopDirs.size === 0) {
         fs.mkdirSync(stdDesktop, { recursive: true });
@@ -179,15 +194,32 @@ StartupWMClass=decompflow-studio
 
       const createdPaths: string[] = [];
       for (const d of desktopDirs) {
-        const targetPath = path.join(d, "DecompFlow.desktop");
+        // Clean up legacy DecompFlow.desktop if present
+        const legacyPath = path.join(d, "DecompFlow.desktop");
+        if (fs.existsSync(legacyPath)) {
+          try { fs.unlinkSync(legacyPath); } catch {}
+        }
+
+        const targetPath = path.join(d, "decompflow.desktop");
         fs.writeFileSync(targetPath, desktopFileContent, { encoding: "utf-8", mode: 0o755 });
+        try { fs.chmodSync(targetPath, 0o755); } catch {}
+
         try {
-          child_process.exec(`gio set "${targetPath}" metadata::trusted true`);
+          // Trust desktop file on GNOME to avoid 'Untrusted .desktop file' dialog
+          child_process.execSync(`gio set "${targetPath}" metadata::trusted true`);
         } catch {
           // ignore
         }
         createdPaths.push(targetPath);
       }
+
+      // 6. Update system desktop and icon databases
+      try {
+        child_process.execSync("update-desktop-database ~/.local/share/applications || true");
+      } catch {}
+      try {
+        child_process.execSync("gtk-update-icon-cache -f -t ~/.local/share/icons/hicolor || true");
+      } catch {}
 
       return {
         success: true,
@@ -196,7 +228,7 @@ StartupWMClass=decompflow-studio
     } else if (process.platform === "win32") {
       const desktopPath = path.join(home, "Desktop", "DecompFlow.lnk");
       const targetExec = process.execPath;
-      const psScript = `$ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut('${desktopPath.replace(/'/g, "''")}'); $s.TargetPath = '${targetExec.replace(/'/g, "''")}'; $s.IconLocation = '${finalIconPath.replace(/'/g, "''")}'; $s.Save();`;
+      const psScript = `$ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut('${desktopPath.replace(/'/g, "''")}'); $s.TargetPath = '${targetExec.replace(/'/g, "''")}'; $s.IconLocation = '${appIcon.replace(/'/g, "''")}'; $s.Save();`;
       child_process.execSync(`powershell -NoProfile -NonInteractive -Command "${psScript}"`);
       return { success: true, path: desktopPath };
     } else {
@@ -558,6 +590,14 @@ app.whenReady().then(() => {
   ensureWorkspaceFile();
   setupIpc();
   createWindow();
+
+  if (process.platform === "linux") {
+    try {
+      createDesktopShortcut();
+    } catch (err) {
+      console.warn("[Main] Failed to auto-create desktop shortcut on Linux:", err);
+    }
+  }
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
