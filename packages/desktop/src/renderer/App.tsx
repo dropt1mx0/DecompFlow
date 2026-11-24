@@ -20,8 +20,10 @@ import {
   DetectedCapability,
 } from "./types";
 import { UploadCloud } from "lucide-react";
+import { useI18n } from "./i18n";
 
 export const App: React.FC = () => {
+  const { l } = useI18n();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeView, setActiveView] = useState<"chat" | "graph" | "report">("chat");
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -758,8 +760,8 @@ export const App: React.FC = () => {
       {globalDragOver && (
         <div className="absolute inset-0 z-50 bg-[#0f172a]/85 backdrop-blur-md flex flex-col items-center justify-center gap-3 border-2 border-dashed border-[#38bdf8] pointer-events-none">
           <UploadCloud className="w-12 h-12 text-[#38bdf8] animate-bounce" />
-          <h2 className="text-base font-bold text-[#f0f1f5]">Drop binary or codebase folder here</h2>
-          <p className="text-xs text-[#8b8f9e]">Target will be automatically configured for analysis</p>
+          <h2 className="text-base font-bold text-[#f0f1f5]">{l.hero.dropPrompt}</h2>
+          <p className="text-xs text-[#8b8f9e]">{l.hero.dropSubtitle}</p>
         </div>
       )}
 

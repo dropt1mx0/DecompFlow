@@ -15,6 +15,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { TargetMode, EngineProfile } from "../types";
+import { useI18n } from "../i18n";
 
 interface FloatingInputBarProps {
   promptText: string;
@@ -57,6 +58,7 @@ export const FloatingInputBar: React.FC<FloatingInputBarProps> = ({
   onClearTarget,
   onOpenSettings,
 }) => {
+  const { language, l } = useI18n();
   const [skillMenuOpen, setSkillMenuOpen] = useState(false);
   const [modeMenuOpen, setModeMenuOpen] = useState(false);
   const [modelMenuOpen, setModelMenuOpen] = useState(false);
@@ -276,10 +278,14 @@ export const FloatingInputBar: React.FC<FloatingInputBarProps> = ({
             onKeyDown={handleKeyDown}
             placeholder={
               mode === "web"
-                ? "Enter target URL (e.g. https://example.com) or inspection task..."
+                ? language === "ru"
+                  ? "Укажите URL (напр. https://example.com) или задачу аудита API..."
+                  : "Enter target URL (e.g. https://example.com) or inspection task..."
                 : mode === "binary"
-                ? "Ask to decompile functions, map xrefs, or reconstruct binary architecture..."
-                : "Ask to audit security, analyze repository architecture, or clean up code..."
+                ? language === "ru"
+                  ? "Запросите декомпиляцию функций, карту xrefs или аудит бинарника..."
+                  : "Ask to decompile functions, map xrefs, or reconstruct binary architecture..."
+                : l.input.placeholder
             }
             className="w-full bg-transparent text-sm text-[#f0f1f5] placeholder-[#565a69] resize-none border-none outline-none font-sans leading-relaxed min-h-[28px] max-h-36"
           />
@@ -571,7 +577,7 @@ export const FloatingInputBar: React.FC<FloatingInputBarProps> = ({
                 type="button"
                 onClick={onStop}
                 className="w-7 h-7 rounded-full bg-rose-500 hover:bg-rose-600 text-white flex items-center justify-center transition-transform active:scale-90 shadow-md shadow-rose-500/30 cursor-pointer"
-                title="Stop Analysis Execution"
+                title={l.input.stopTooltip}
               >
                 <Square className="w-3 h-3 fill-current" />
               </button>
@@ -585,7 +591,7 @@ export const FloatingInputBar: React.FC<FloatingInputBarProps> = ({
                     ? "bg-[#f0f1f5] hover:bg-white text-[#131418] shadow-md shadow-white/20 active:scale-90 cursor-pointer"
                     : "bg-[#262933] text-[#565a69] cursor-not-allowed"
                 }`}
-                title="Launch DecompFlow Analysis (Enter)"
+                title={l.input.sendTooltip}
               >
                 <ArrowUp className="w-4 h-4 stroke-[2.5]" />
               </button>

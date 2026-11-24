@@ -14,6 +14,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { MessageItem, EvidenceItem } from "../types";
+import { useI18n } from "../i18n";
 
 interface ChatStreamProps {
   messages: MessageItem[];
@@ -30,6 +31,7 @@ export const ChatStream: React.FC<ChatStreamProps> = ({
   onOpenReport,
   onSelectEvidence,
 }) => {
+  const { language, l } = useI18n();
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const handleCopyCode = (id: string, code: string) => {
@@ -336,12 +338,12 @@ export const ChatStream: React.FC<ChatStreamProps> = ({
                       {copiedId === msg.id ? (
                         <>
                           <Check className="w-3 h-3 text-[#22c55e]" />
-                          <span className="text-[#22c55e]">Copied!</span>
+                          <span className="text-[#22c55e]">{l.common.copied}</span>
                         </>
                       ) : (
                         <>
                           <Copy className="w-3 h-3 text-[#8b8f9e]" />
-                          <span>Copy Code</span>
+                          <span>{l.common.copy}</span>
                         </>
                       )}
                     </button>
@@ -358,14 +360,18 @@ export const ChatStream: React.FC<ChatStreamProps> = ({
                 <div className="pt-2 flex items-center justify-between border-t border-[#232630]">
                   <div className="flex items-center gap-2 text-xs text-[#22c55e] font-medium">
                     <CheckCircle2 className="w-4 h-4" />
-                    <span>Architectural report & Mermaid diagrams compiled</span>
+                    <span>
+                      {language === "ru"
+                        ? "Архитектурный отчет и диаграммы сформированы"
+                        : "Architectural report & Mermaid diagrams compiled"}
+                    </span>
                   </div>
 
                   <button
                     onClick={onOpenReport}
                     className="px-3.5 py-1.5 rounded-xl bg-[#22c55e]/15 hover:bg-[#22c55e]/25 text-[#22c55e] border border-[#22c55e]/30 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm active:scale-95 cursor-pointer"
                   >
-                    <span>Read Report</span>
+                    <span>{l.chat.openReport}</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>

@@ -19,7 +19,9 @@ import {
   Sparkles,
   User,
   AlertCircle,
+  Globe,
 } from "lucide-react";
+import { useI18n } from "../i18n";
 import { McpTestResult, SystemInfo, PreferredNativeBackend } from "../types";
 
 interface ProviderMeta {
@@ -141,6 +143,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   preferredBackend = "ghidra",
   onSavePreferredBackend,
 }) => {
+  const { language, setLanguage, l } = useI18n();
   const [activeTab, setActiveTab] = useState<"system" | "llm" | "mcp">("system");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -488,19 +491,29 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <Laptop className="w-4 h-4 text-[#f97316]" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-[#f0f1f5]">DecompFlow Studio Settings</h3>
+              <h3 className="text-sm font-bold text-[#f0f1f5]">{l.settings.title}</h3>
               <p className="text-[11px] text-[#6b7280]">
-                Native OS Configuration & Runtime Integration
+                {l.settings.subtitle}
               </p>
             </div>
           </div>
 
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-[#6b7280] hover:text-[#f0f1f5] hover:bg-[#1f222c] transition-colors cursor-pointer"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setLanguage(language === "en" ? "ru" : "en")}
+              className="px-2.5 py-1 rounded-lg bg-[#1a1d27] hover:bg-[#232736] text-xs font-mono font-bold text-[#38bdf8] border border-[#272b3b] transition-colors cursor-pointer"
+              title={l.breadcrumbs.switchLanguage}
+            >
+              {language.toUpperCase()}
+            </button>
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-lg text-[#6b7280] hover:text-[#f0f1f5] hover:bg-[#1f222c] transition-colors cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* Tab Navigation */}
@@ -514,7 +527,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             }`}
           >
             <Laptop className="w-3.5 h-3.5" />
-            <span>System & Environment</span>
+            <span>{l.settings.tabSystem}</span>
           </button>
 
           <button
@@ -526,7 +539,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             }`}
           >
             <Key className="w-3.5 h-3.5" />
-            <span>LLM Reasoning</span>
+            <span>{l.settings.tabLlm}</span>
           </button>
 
           <button
@@ -538,7 +551,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             }`}
           >
             <Server className="w-3.5 h-3.5" />
-            <span>Model Context Protocol (MCP)</span>
+            <span>{l.settings.tabMcp}</span>
           </button>
         </div>
 
@@ -556,11 +569,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <div className="p-4 rounded-xl bg-[#181a22] border border-[#242834] space-y-3">
                 <span className="text-[10px] font-mono uppercase text-[#8b8f9e] tracking-wider block font-semibold flex items-center gap-1.5">
                   <User className="w-3.5 h-3.5 text-[#f97316]" />
-                  <span>User Profile & Workspace Identity</span>
+                  <span>{l.settings.usernameLabel}</span>
                 </span>
 
                 <div className="space-y-1.5">
-                  <label className="text-[11px] text-[#cbd5e1] font-medium block">Username / Analyst Handle</label>
+                  <label className="text-[11px] text-[#cbd5e1] font-medium block">{l.settings.usernameLabel}</label>
                   <input
                     type="text"
                     value={usernameInput}
@@ -569,8 +582,56 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     className="w-full bg-[#11131a] border border-[#262a38] rounded-lg px-3 py-2 text-xs text-[#f0f1f5] font-mono focus:outline-none focus:border-[#f97316]"
                   />
                   <span className="text-[10px] text-[#6b7280] block">
-                    Saved in your local profile session and displayed in the sidebar profile badge.
+                    {l.settings.usernameDesc}
                   </span>
+                </div>
+              </div>
+
+              {/* Language Selection Card */}
+              <div className="p-4 rounded-xl bg-[#181a22] border border-[#242834] space-y-3">
+                <span className="text-[10px] font-mono uppercase text-[#8b8f9e] tracking-wider block font-semibold flex items-center gap-1.5">
+                  <Globe className="w-3.5 h-3.5 text-[#38bdf8]" />
+                  <span>{l.settings.languageLabel}</span>
+                </span>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setLanguage("en")}
+                    className={`p-2.5 rounded-xl border flex items-center justify-between transition-all cursor-pointer ${
+                      language === "en"
+                        ? "bg-[#162032] border-[#38bdf8] text-[#f0f1f5]"
+                        : "bg-[#11131a] border-[#262a38] text-[#8b8f9e] hover:text-[#f0f1f5]"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm">🇬🇧</span>
+                      <div className="text-left">
+                        <span className="font-semibold block text-xs">English</span>
+                        <span className="text-[10px] text-[#6b7280]">Default interface</span>
+                      </div>
+                    </div>
+                    {language === "en" && <CheckCircle2 className="w-4 h-4 text-[#38bdf8]" />}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setLanguage("ru")}
+                    className={`p-2.5 rounded-xl border flex items-center justify-between transition-all cursor-pointer ${
+                      language === "ru"
+                        ? "bg-[#251d19] border-[#f97316] text-[#f0f1f5]"
+                        : "bg-[#11131a] border-[#262a38] text-[#8b8f9e] hover:text-[#f0f1f5]"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm">🇷🇺</span>
+                      <div className="text-left">
+                        <span className="font-semibold block text-xs">Русский</span>
+                        <span className="text-[10px] text-[#6b7280]">Профессиональный реверс</span>
+                      </div>
+                    </div>
+                    {language === "ru" && <CheckCircle2 className="w-4 h-4 text-[#f97316]" />}
+                  </button>
                 </div>
               </div>
 
@@ -1252,7 +1313,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               onClick={onClose}
               className="px-3.5 py-1.5 rounded-lg bg-[#181a20] hover:bg-[#20232c] text-xs font-medium text-[#8b8f9e] hover:text-[#f0f1f5] border border-[#262933] transition-colors cursor-pointer"
             >
-              Cancel
+              {l.common.cancel}
             </button>
 
             <button
@@ -1263,17 +1324,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               {saving ? (
                 <>
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>Saving...</span>
+                  <span>{l.common.saving}</span>
                 </>
               ) : savedSuccess ? (
                 <>
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Saved!</span>
+                  <span>{l.common.saved}</span>
                 </>
               ) : (
                 <>
                   <Save className="w-3.5 h-3.5" />
-                  <span>Save Config</span>
+                  <span>{l.settings.saveSettingsBtn}</span>
                 </>
               )}
             </button>

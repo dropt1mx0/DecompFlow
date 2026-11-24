@@ -15,7 +15,9 @@ import {
   X,
   FileCode,
   BookOpen,
+  Languages,
 } from "lucide-react";
+import { useI18n } from "../i18n";
 
 interface BreadcrumbsBarProps {
   sidebarOpen: boolean;
@@ -56,6 +58,7 @@ export const BreadcrumbsBar: React.FC<BreadcrumbsBarProps> = ({
   onClearChat,
   onDeleteSession,
 }) => {
+  const { language, setLanguage, l } = useI18n();
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -71,7 +74,7 @@ export const BreadcrumbsBar: React.FC<BreadcrumbsBarProps> = ({
 
   const targetBasename = target
     ? target.split("/").filter(Boolean).pop() || target
-    : "No target selected";
+    : l.breadcrumbs.noTargetSelected;
 
   const handleOpenGithub = () => {
     if (window.electronAPI) {
@@ -102,7 +105,7 @@ export const BreadcrumbsBar: React.FC<BreadcrumbsBarProps> = ({
         <button
           onClick={onToggleSidebar}
           className="p-1.5 rounded-lg text-[#8b8f9e] hover:text-[#f0f1f5] hover:bg-[#181a20] transition-colors shrink-0 cursor-pointer"
-          title={sidebarOpen ? "Collapse Sidebar" : "Expand Sidebar"}
+          title={sidebarOpen ? l.breadcrumbs.collapseSidebar : l.breadcrumbs.expandSidebar}
         >
           <PanelLeft className="w-4 h-4" />
         </button>
@@ -112,7 +115,7 @@ export const BreadcrumbsBar: React.FC<BreadcrumbsBarProps> = ({
           <span className="font-semibold text-[#f0f1f5] truncate">{projectName}</span>
           <ChevronRight className="w-3.5 h-3.5 text-[#565a69] shrink-0" />
           <span className="text-[#8b8f9e] font-medium truncate max-w-[220px]">
-            {sessionTitle || "New chat"}
+            {sessionTitle || l.breadcrumbs.newChat}
           </span>
         </div>
       </div>
@@ -128,7 +131,7 @@ export const BreadcrumbsBar: React.FC<BreadcrumbsBarProps> = ({
           }`}
         >
           <MessageSquare className="w-3.5 h-3.5" />
-          <span>Chat</span>
+          <span>{l.breadcrumbs.chat}</span>
         </button>
 
         <button
@@ -140,7 +143,7 @@ export const BreadcrumbsBar: React.FC<BreadcrumbsBarProps> = ({
           }`}
         >
           <Layers className="w-3.5 h-3.5" />
-          <span>Visual Graph</span>
+          <span>{l.breadcrumbs.visualGraph}</span>
           {isRunning && <span className="w-1.5 h-1.5 rounded-full bg-[#38bdf8] animate-ping" />}
         </button>
 
@@ -155,27 +158,37 @@ export const BreadcrumbsBar: React.FC<BreadcrumbsBarProps> = ({
           }`}
         >
           <FileText className="w-3.5 h-3.5" />
-          <span>Report</span>
+          <span>{l.breadcrumbs.report}</span>
           {hasReport && <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />}
         </button>
       </div>
 
       {/* Right: Actions & Pills */}
       <div className="flex items-center gap-2 relative titlebar-no-drag" ref={menuRef}>
+        {/* Language Switcher Button */}
+        <button
+          onClick={() => setLanguage(language === "en" ? "ru" : "en")}
+          className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-[#181a20] hover:bg-[#20232b] text-xs text-[#8b8f9e] hover:text-[#38bdf8] border border-[#232630] transition-colors cursor-pointer font-mono"
+          title={l.breadcrumbs.switchLanguage}
+        >
+          <Languages className="w-3.5 h-3.5 text-[#38bdf8]" />
+          <span className="font-bold uppercase text-[11px]">{language}</span>
+        </button>
+
         {/* GitHub Button */}
         <button
           onClick={handleOpenGithub}
           className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#181a20] hover:bg-[#20232b] text-xs text-[#8b8f9e] hover:text-[#f0f1f5] border border-[#232630] transition-colors cursor-pointer"
         >
           <Github className="w-3.5 h-3.5 text-[#8b8f9e]" />
-          <span>GitHub</span>
+          <span>{l.breadcrumbs.github}</span>
         </button>
 
         {/* Real Target Folder/File Pill */}
         <div className="flex items-center bg-[#181a20] border border-[#232630] rounded-lg text-xs font-mono group">
           <button
             onClick={onSelectTarget}
-            title={target ? `Target: ${target} (Click to change)` : "Click to select binary or source"}
+            title={target ? `Target: ${target}` : l.breadcrumbs.targetPrompt}
             className="flex items-center gap-1.5 px-2.5 py-1 text-[#8b8f9e] hover:text-[#f0f1f5] transition-colors cursor-pointer"
           >
             <Folder className="w-3.5 h-3.5 text-[#38bdf8]" />
@@ -184,7 +197,7 @@ export const BreadcrumbsBar: React.FC<BreadcrumbsBarProps> = ({
           {target && (
             <button
               onClick={onClearTarget}
-              title="Clear target"
+              title={l.breadcrumbs.clearTarget}
               className="px-1.5 py-1 text-[#565a69] hover:text-rose-400 transition-colors"
             >
               <X className="w-3 h-3" />
@@ -200,7 +213,7 @@ export const BreadcrumbsBar: React.FC<BreadcrumbsBarProps> = ({
             }`}
           />
           <span className={isRunning ? "text-[#f0f1f5] font-medium" : "text-[#f97316] font-medium"}>
-            {isRunning ? "Orchestrating..." : "dropt1m"}
+            {isRunning ? l.breadcrumbs.orchestrating : "dropt1m"}
           </span>
         </div>
 
@@ -223,7 +236,7 @@ export const BreadcrumbsBar: React.FC<BreadcrumbsBarProps> = ({
                 className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-[#8b8f9e] hover:bg-[#20232c] hover:text-[#f0f1f5] text-left transition-colors cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5 text-[#38bdf8]" />
-                <span>New Chat</span>
+                <span>{l.breadcrumbs.newChat}</span>
               </button>
 
               {hasReport && onSaveReport && (
@@ -235,7 +248,7 @@ export const BreadcrumbsBar: React.FC<BreadcrumbsBarProps> = ({
                   className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-[#8b8f9e] hover:bg-[#20232c] hover:text-[#22c55e] text-left transition-colors cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5 text-[#22c55e]" />
-                  <span>Export Report (.md)</span>
+                  <span>{l.breadcrumbs.exportReport}</span>
                 </button>
               )}
 
@@ -247,7 +260,7 @@ export const BreadcrumbsBar: React.FC<BreadcrumbsBarProps> = ({
                 className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-[#8b8f9e] hover:bg-[#20232c] hover:text-[#f0f1f5] text-left transition-colors cursor-pointer"
               >
                 <Settings className="w-3.5 h-3.5" />
-                <span>Settings</span>
+                <span>{l.breadcrumbs.settings}</span>
               </button>
 
               {onOpenDocumentation && (
@@ -259,7 +272,7 @@ export const BreadcrumbsBar: React.FC<BreadcrumbsBarProps> = ({
                   className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-[#8b8f9e] hover:bg-[#20232c] hover:text-[#38bdf8] text-left transition-colors cursor-pointer"
                 >
                   <BookOpen className="w-3.5 h-3.5 text-[#38bdf8]" />
-                  <span>Docs & Guide</span>
+                  <span>{l.breadcrumbs.docsAndGuide}</span>
                 </button>
               )}
 
@@ -272,7 +285,7 @@ export const BreadcrumbsBar: React.FC<BreadcrumbsBarProps> = ({
                   className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-[#8b8f9e] hover:bg-[#20232c] hover:text-amber-400 text-left transition-colors border-t border-[#232630] mt-0.5 cursor-pointer"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
-                  <span>Clear Chat</span>
+                  <span>{l.breadcrumbs.clearChat}</span>
                 </button>
               )}
 
@@ -285,7 +298,7 @@ export const BreadcrumbsBar: React.FC<BreadcrumbsBarProps> = ({
                   className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-rose-400 hover:bg-rose-950/30 text-left transition-colors cursor-pointer"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
-                  <span>Delete Session</span>
+                  <span>{l.breadcrumbs.deleteSession}</span>
                 </button>
               )}
             </div>

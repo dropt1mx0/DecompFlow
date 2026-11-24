@@ -14,6 +14,7 @@ import {
   BookOpen,
   HelpCircle,
 } from "lucide-react";
+import { useI18n } from "../i18n";
 import { PixelMascot } from "./PixelMascot";
 import { ProjectItem, SessionItem } from "../types";
 
@@ -61,6 +62,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenSettings,
   onOpenDocumentation,
 }) => {
+  const { l } = useI18n();
   const [searchQuery, setSearchQuery] = useState("");
   const [collapsedProjects, setCollapsedProjects] = useState<Record<string, boolean>>({});
 
@@ -132,8 +134,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="flex items-center gap-2.5">
             <PixelMascot size={22} glow={false} />
             <div className="flex flex-col">
-              <span className="text-xs font-bold text-[#f0f1f5] tracking-tight">DecompFlow</span>
-              <span className="text-[11px] text-[#565a69]">Autonomous Studio</span>
+              <span className="text-xs font-bold text-[#f0f1f5] tracking-tight">{l.sidebar.brandName}</span>
+              <span className="text-[11px] text-[#565a69]">{l.sidebar.brandSubtitle}</span>
             </div>
           </div>
           <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#181a20] text-[#8b8f9e] border border-[#262933] font-medium">
@@ -150,7 +152,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={`Search (${kShortcut})`}
+              placeholder={`${l.common.or === "or" ? "Search chats & targets..." : "Поиск по чатам и целям..."} (${kShortcut})`}
               className="bg-transparent border-none outline-none w-full text-xs text-[#f0f1f5] placeholder-[#565a69]"
             />
             <span className="text-[10px] font-mono text-[#565a69] px-1 py-0.2 rounded bg-[#1c1e26] border border-[#282b35] shrink-0 ml-1">
@@ -166,7 +168,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         >
           <div className="flex items-center gap-2">
             <Plus className="w-3.5 h-3.5 text-[#38bdf8] group-hover:scale-110 transition-transform" />
-            <span className="font-semibold text-xs">New chat</span>
+            <span className="font-semibold text-xs">{l.sidebar.newChat}</span>
           </div>
           <span className="text-[10px] font-mono text-[#565a69] px-1 py-0.2 rounded bg-[#1c1e26] border border-[#282b35]">
             {nShortcut}
@@ -393,7 +395,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className="flex items-center gap-2 px-2.5 py-2 mt-2 rounded-xl text-xs text-[#8b8f9e] hover:text-[#f0f1f5] hover:bg-[#181a20] border border-dashed border-[#232630] hover:border-[#38bdf8]/50 transition-all cursor-pointer"
           >
             <FolderPlus className="w-3.5 h-3.5 text-[#38bdf8]" />
-            <span className="font-medium">+ New project</span>
+            <span className="font-medium">{l.sidebar.newProject}</span>
           </button>
         </div>
       </div>
@@ -401,7 +403,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Bottom Profile Footer */}
       <div className="p-3 border-t border-[#1c1e26] flex flex-col gap-2">
         <div className="text-[11px] text-[#565a69] px-2 font-mono">
-          {totalSessions} chats in workspace
+          {totalSessions} {l.sidebar.chatsInWorkspace}
         </div>
 
         {/* User Card */}
@@ -415,9 +417,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
             <div className="flex flex-col">
               <span className="text-xs font-semibold text-[#f0f1f5] truncate max-w-[120px]">
-                {username || "Guest"}
+                {username || l.sidebar.guestUser}
               </span>
-              <span className="text-[10px] text-[#565a69]">Local workspace</span>
+              <span className="text-[10px] text-[#565a69]">{l.sidebar.localWorkspace}</span>
             </div>
           </div>
           <Settings className="w-4 h-4 text-[#565a69] group-hover:text-[#8b8f9e] transition-colors" />
@@ -428,7 +430,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <button
             onClick={onOpenDocumentation}
             className="flex items-center justify-between px-2.5 py-2 rounded-xl text-[#8b8f9e] hover:text-[#f0f1f5] hover:bg-[#181a20] transition-all cursor-pointer group border border-transparent hover:border-[#232630]"
-            title="Open Documentation & Guide"
+            title={l.sidebar.documentationGuide}
           >
             <div className="flex items-center gap-2.5">
               <div className="w-7 h-7 rounded-lg bg-[#181a20] border border-[#262933] flex items-center justify-center text-[#38bdf8] group-hover:border-[#38bdf8]/40 transition-colors">
@@ -436,9 +438,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
               <div className="flex flex-col text-left">
                 <span className="text-xs font-medium text-[#cbd5e1] group-hover:text-[#f0f1f5]">
-                  Documentation & Guide
+                  {l.sidebar.documentationGuide}
                 </span>
-                <span className="text-[10px] text-[#565a69]">Manual & Architecture</span>
+                <span className="text-[10px] text-[#565a69]">{l.sidebar.manualArchitecture}</span>
               </div>
             </div>
             <HelpCircle className="w-3.5 h-3.5 text-[#565a69] group-hover:text-[#8b8f9e] transition-colors" />

@@ -13,6 +13,7 @@ import {
   GitBranch,
 } from "lucide-react";
 import { EvidenceItem } from "../types";
+import { useI18n } from "../i18n";
 
 interface EvidenceCodeDrawerProps {
   isOpen: boolean;
@@ -29,6 +30,7 @@ export const EvidenceCodeDrawer: React.FC<EvidenceCodeDrawerProps> = ({
   expandedCode,
   onDeepDive,
 }) => {
+  const { language, l } = useI18n();
   const [copied, setCopied] = useState(false);
 
   if (!isOpen || !evidence) return null;
@@ -44,7 +46,11 @@ export const EvidenceCodeDrawer: React.FC<EvidenceCodeDrawerProps> = ({
 
   const handleDeepDiveClick = () => {
     if (onDeepDive) {
-      onDeepDive(`Детально разбери внутреннюю логику, структуры данных и xrefs для ${evidence.location}`);
+      const prompt =
+        language === "ru"
+          ? `Детально разбери внутреннюю логику, структуры данных и перекрестные ссылки (xrefs) для ${evidence.location}`
+          : `Deeply analyze internal logic, data structures, and cross-references for ${evidence.location}`;
+      onDeepDive(prompt);
       onClose();
     }
   };
@@ -91,7 +97,7 @@ export const EvidenceCodeDrawer: React.FC<EvidenceCodeDrawerProps> = ({
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <h3 className="text-sm font-semibold text-[#f0f1f5] truncate">
-                  Code & Evidence Inspector
+                  {l.evidence.inspectorTitle}
                 </h3>
                 <span
                   className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase font-mono ${
@@ -100,7 +106,7 @@ export const EvidenceCodeDrawer: React.FC<EvidenceCodeDrawerProps> = ({
                       : "bg-[#f59e0b]/15 text-[#f59e0b] border border-[#f59e0b]/30"
                   }`}
                 >
-                  {evidence.confidence}
+                  {evidence.confidence === "VERIFIED" ? l.evidence.verifiedBadge : l.evidence.inferredBadge}
                 </span>
               </div>
               <p className="text-[11px] font-mono text-[#38bdf8] truncate mt-0.5">
@@ -113,7 +119,7 @@ export const EvidenceCodeDrawer: React.FC<EvidenceCodeDrawerProps> = ({
             <button
               onClick={handleCopy}
               className="p-1.5 rounded-lg text-[#8b8f9e] hover:text-[#f0f1f5] hover:bg-[#20232e] border border-transparent hover:border-[#2d3142] transition-colors cursor-pointer"
-              title="Copy snippet"
+              title={l.evidence.copySnippetTooltip}
             >
               {copied ? <Check className="w-4 h-4 text-[#22c55e]" /> : <Copy className="w-4 h-4" />}
             </button>
@@ -131,17 +137,17 @@ export const EvidenceCodeDrawer: React.FC<EvidenceCodeDrawerProps> = ({
           {/* Metadata Card */}
           <div className="p-3.5 rounded-xl bg-[#141620] border border-[#242838] space-y-2">
             <span className="text-[10px] font-mono uppercase text-[#8b8f9e] tracking-wider font-semibold block">
-              Provenance & Metadata
+              {l.evidence.provenanceTitle}
             </span>
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="p-2 rounded-lg bg-[#0e1015] border border-[#1e212b]">
-                <span className="text-[#64748b] block text-[10px]">Source Target:</span>
+                <span className="text-[#64748b] block text-[10px]">{l.evidence.sourceTarget}</span>
                 <span className="font-mono text-[#cbd5e1] truncate block text-[11px] mt-0.5" title={evidence.source}>
                   {evidence.source}
                 </span>
               </div>
               <div className="p-2 rounded-lg bg-[#0e1015] border border-[#1e212b]">
-                <span className="text-[#64748b] block text-[10px]">Symbol / Location:</span>
+                <span className="text-[#64748b] block text-[10px]">{l.evidence.symbolLocation}</span>
                 <span className="font-mono text-[#38bdf8] truncate block text-[11px] mt-0.5" title={evidence.location}>
                   {evidence.location}
                 </span>
@@ -157,10 +163,10 @@ export const EvidenceCodeDrawer: React.FC<EvidenceCodeDrawerProps> = ({
                 <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80 inline-block" />
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80 inline-block" />
                 <span className="ml-2 text-[11px] text-[#94a3b8]">
-                  {isBinarySymbol ? "Decompiled C Pseudocode (Ghidra)" : "Extracted JavaScript / IPC Handler"}
+                  {isBinarySymbol ? l.evidence.decompiledC : l.evidence.extractedJs}
                 </span>
               </div>
-              <span className="text-[10px] text-[#555a6d]">{lines.length} lines</span>
+              <span className="text-[10px] text-[#555a6d]">{lines.length} {l.evidence.linesCount}</span>
             </div>
 
             <div className="p-4 font-mono text-xs overflow-x-auto leading-relaxed max-h-[380px] overflow-y-auto">
@@ -192,13 +198,13 @@ export const EvidenceCodeDrawer: React.FC<EvidenceCodeDrawerProps> = ({
           <div className="p-4 rounded-xl bg-[#141620] border border-[#242838] space-y-3">
             <div className="flex items-center gap-2 text-xs font-semibold text-[#f0f1f5]">
               <GitBranch className="w-4 h-4 text-[#f97316]" />
-              <span>Cross References & Call Hierarchy</span>
+              <span>{l.evidence.xrefsTitle}</span>
             </div>
 
             <div className="space-y-2">
               <div>
                 <span className="text-[10px] font-mono uppercase text-[#64748b] tracking-wider block mb-1">
-                  Called By (Xrefs To):
+                  {l.evidence.xrefsTo}
                 </span>
                 <div className="flex flex-wrap gap-1.5">
                   {xrefsTo.map((ref, i) => (
@@ -215,7 +221,7 @@ export const EvidenceCodeDrawer: React.FC<EvidenceCodeDrawerProps> = ({
 
               <div className="pt-2 border-t border-[#1f2230]">
                 <span className="text-[10px] font-mono uppercase text-[#64748b] tracking-wider block mb-1">
-                  Calls Out To (Callees):
+                  {l.evidence.xrefsFrom}
                 </span>
                 <div className="flex flex-wrap gap-1.5">
                   {xrefsFrom.map((ref, i) => (
@@ -245,7 +251,7 @@ export const EvidenceCodeDrawer: React.FC<EvidenceCodeDrawerProps> = ({
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#f97316] to-[#ea580c] hover:from-[#ea580c] hover:to-[#c2410c] text-white text-xs font-semibold shadow-lg shadow-[#f97316]/25 transition-all cursor-pointer"
           >
             <Sparkles className="w-3.5 h-3.5 text-white animate-spin-slow" />
-            <span>Deep Dive this Symbol</span>
+            <span>{l.evidence.deepDiveBtn}</span>
           </button>
         </div>
       </div>

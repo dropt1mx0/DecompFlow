@@ -21,7 +21,9 @@ import {
   Package,
   Sparkles,
   Command,
+  Languages,
 } from "lucide-react";
+import { useI18n } from "../i18n";
 
 interface DocumentationModalProps {
   isOpen: boolean;
@@ -31,6 +33,7 @@ interface DocumentationModalProps {
 type DocTab = "overview" | "engines" | "guide" | "shortcuts";
 
 export const DocumentationModal: React.FC<DocumentationModalProps> = ({ isOpen, onClose }) => {
+  const { language, setLanguage, l } = useI18n();
   const [activeTab, setActiveTab] = useState<DocTab>("overview");
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
@@ -69,24 +72,33 @@ export const DocumentationModal: React.FC<DocumentationModalProps> = ({ isOpen, 
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-sm font-bold text-[#f0f1f5]">DecompFlow Knowledge Base & Guide</h3>
+                <h3 className="text-sm font-bold text-[#f0f1f5]">{l.docs.title}</h3>
                 <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-[#f97316]/15 text-[#f97316] border border-[#f97316]/30">
                   v0.1.0
                 </span>
               </div>
               <p className="text-[11px] text-[#6b7280]">
-                Architecture, Tiered Orchestration, MCP Engines & Autonomous Reverse Engineering
+                {l.docs.subtitle}
               </p>
             </div>
           </div>
 
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-[#6b7280] hover:text-[#f0f1f5] hover:bg-[#1c202a] transition-colors cursor-pointer"
-            title="Close (Esc)"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setLanguage(language === "en" ? "ru" : "en")}
+              className="px-2.5 py-1 rounded-lg bg-[#181a22] hover:bg-[#20232e] text-xs font-mono font-bold text-[#38bdf8] border border-[#272b3b] transition-colors cursor-pointer"
+              title={l.breadcrumbs.switchLanguage}
+            >
+              {language.toUpperCase()}
+            </button>
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-lg text-[#6b7280] hover:text-[#f0f1f5] hover:bg-[#1c202a] transition-colors cursor-pointer"
+              title="Close (Esc)"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* Tab Navigation */}
@@ -100,7 +112,7 @@ export const DocumentationModal: React.FC<DocumentationModalProps> = ({ isOpen, 
             }`}
           >
             <Workflow className="w-3.5 h-3.5" />
-            <span>Overview & Philosophy</span>
+            <span>{l.docs.tabOverview}</span>
           </button>
 
           <button
@@ -112,7 +124,7 @@ export const DocumentationModal: React.FC<DocumentationModalProps> = ({ isOpen, 
             }`}
           >
             <Boxes className="w-3.5 h-3.5" />
-            <span>MCP Engines & Pro Tooling</span>
+            <span>{l.docs.tabEngines}</span>
           </button>
 
           <button
@@ -124,7 +136,7 @@ export const DocumentationModal: React.FC<DocumentationModalProps> = ({ isOpen, 
             }`}
           >
             <Compass className="w-3.5 h-3.5" />
-            <span>Step-by-Step Guide</span>
+            <span>{l.docs.tabGuide}</span>
           </button>
 
           <button
@@ -136,7 +148,7 @@ export const DocumentationModal: React.FC<DocumentationModalProps> = ({ isOpen, 
             }`}
           >
             <Terminal className="w-3.5 h-3.5" />
-            <span>Shortcuts & CLI</span>
+            <span>{l.docs.tabShortcuts}</span>
           </button>
         </div>
 
@@ -152,13 +164,10 @@ export const DocumentationModal: React.FC<DocumentationModalProps> = ({ isOpen, 
                 </div>
                 <div className="space-y-1">
                   <h4 className="text-sm font-bold text-[#f0f1f5]">
-                    Autonomous AI Reverse Engineering Studio
+                    {l.docs.heroTitle}
                   </h4>
                   <p className="text-xs text-[#94a3b8] leading-relaxed">
-                    DecompFlow объединяет силу современных языковых моделей (LLM) с промышленными
-                    инструментами декомпиляции через протокол <strong>Model Context Protocol (MCP)</strong>.
-                    Вместо слепого угадывания агент строит циклический граф доказательств, верифицирует
-                    каждое утверждение реальными сниппетами кода и сохраняет полную приватность.
+                    {l.docs.heroDesc}
                   </p>
                 </div>
               </div>
@@ -168,33 +177,30 @@ export const DocumentationModal: React.FC<DocumentationModalProps> = ({ isOpen, 
                 <div className="p-4 rounded-xl bg-[#14161f] border border-[#222533] space-y-2">
                   <div className="flex items-center gap-2 text-[#38bdf8]">
                     <Workflow className="w-4 h-4" />
-                    <h5 className="text-xs font-bold uppercase tracking-wider">LangGraph Core</h5>
+                    <h5 className="text-xs font-bold uppercase tracking-wider">{l.docs.langGraphTitle}</h5>
                   </div>
                   <p className="text-xs text-[#94a3b8]">
-                    Управление жизненным циклом анализа через стейт-машину LangGraph. Каждый шаг (Recon,
-                    Decompile, Synthesize, Verify) выполняется детерминированным узлом графа с валидацией состояния.
+                    {l.docs.langGraphDesc}
                   </p>
                 </div>
 
                 <div className="p-4 rounded-xl bg-[#14161f] border border-[#222533] space-y-2">
                   <div className="flex items-center gap-2 text-[#22c55e]">
                     <Zap className="w-4 h-4" />
-                    <h5 className="text-xs font-bold uppercase tracking-wider">Tiered Orchestration</h5>
+                    <h5 className="text-xs font-bold uppercase tracking-wider">{l.docs.tieredTitle}</h5>
                   </div>
                   <p className="text-xs text-[#94a3b8]">
-                    Двухфазное разделение нагрузки: <strong>L1 Fast Triage</strong> (&lt; 1 сек) через Capa/Radare2
-                    для выявления криптографии и секций, и <strong>L2 Deep Decompile</strong> (Ghidra/Jadx) strictly on-demand.
+                    {l.docs.tieredDesc}
                   </p>
                 </div>
 
                 <div className="p-4 rounded-xl bg-[#14161f] border border-[#222533] space-y-2">
                   <div className="flex items-center gap-2 text-[#f97316]">
                     <Shield className="w-4 h-4" />
-                    <h5 className="text-xs font-bold uppercase tracking-wider">Air-Gapped & Local</h5>
+                    <h5 className="text-xs font-bold uppercase tracking-wider">{l.docs.airGappedTitle}</h5>
                   </div>
                   <p className="text-xs text-[#94a3b8]">
-                    Полная поддержка локальных офлайн-моделей (через Ollama и LM Studio) и изолированных локальных
-                    CLI-инструментов без отправки конфиденциального проприетарного кода во внешние облака.
+                    {l.docs.airGappedDesc}
                   </p>
                 </div>
               </div>
@@ -203,29 +209,16 @@ export const DocumentationModal: React.FC<DocumentationModalProps> = ({ isOpen, 
               <div className="p-4 rounded-xl bg-[#13151e] border border-[#202432] space-y-3">
                 <h5 className="text-xs font-bold text-[#f0f1f5] uppercase tracking-wider flex items-center gap-2">
                   <Layers className="w-4 h-4 text-[#38bdf8]" />
-                  <span>Концепция Multi-Hop Evidence Collection</span>
+                  <span>{l.docs.multiHopTitle}</span>
                 </h5>
                 <p className="text-xs text-[#94a3b8]">
-                  В отличие от обычных чат-ботов, которые "галлюцинируют" логику закрытых бинарников, DecompFlow
-                  использует методику <em>Multi-Hop Verification</em>:
+                  {l.docs.multiHopDesc}
                 </p>
                 <ol className="list-decimal list-inside text-xs text-[#cbd5e1] space-y-1.5 pl-1">
-                  <li>
-                    <strong className="text-[#f0f1f5]">Hop 1 — Surface Indexing:</strong> Сбор хешей,
-                    архитектуры (x86_64, ARM64, Dalvik), строк и таблицы внешних библиотек.
-                  </li>
-                  <li>
-                    <strong className="text-[#f0f1f5]">Hop 2 — Capability Scanning:</strong> Выявление паттернов
-                    (AES/RSA константы, сетевые сокеты, системные вызовы через Capa).
-                  </li>
-                  <li>
-                    <strong className="text-[#f0f1f5]">Hop 3 — Targeted Decompilation:</strong> Декомпиляция только
-                    интересующих функций (sub_*, handlers, onClick) вместо трансляции всего бинарника.
-                  </li>
-                  <li>
-                    <strong className="text-[#f0f1f5]">Hop 4 — Evidence Pinning:</strong> Каждый вывод в итоговом
-                    отчете подтверждается ссылкой на точный адрес памяти или файл со сниппетом в инспекторе кода.
-                  </li>
+                  <li>{l.docs.hop1}</li>
+                  <li>{l.docs.hop2}</li>
+                  <li>{l.docs.hop3}</li>
+                  <li>{l.docs.hop4}</li>
                 </ol>
               </div>
             </div>
@@ -235,8 +228,9 @@ export const DocumentationModal: React.FC<DocumentationModalProps> = ({ isOpen, 
           {activeTab === "engines" && (
             <div className="space-y-4 animate-in fade-in duration-150">
               <p className="text-xs text-[#94a3b8]">
-                Архитектура <strong>Zero-Overhead</strong> гарантирует ленивый запуск (Lazy Spawn): процессы
-                поднимаются строго по необходимости и выгружаются по тайм-ауту без расхода системных ресурсов.
+                {language === "ru"
+                  ? "Архитектура Zero-Overhead гарантирует ленивый запуск (Lazy Spawn): процессы поднимаются строго по необходимости и выгружаются по тайм-ауту без расхода системных ресурсов."
+                  : "Zero-Overhead lazy spawn architecture ensures MCP processes are spawned strictly on-demand by graph nodes and unloaded after idle timeouts."}
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
@@ -245,15 +239,14 @@ export const DocumentationModal: React.FC<DocumentationModalProps> = ({ isOpen, 
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Zap className="w-4 h-4 text-amber-400" />
-                      <span className="text-xs font-bold text-[#f0f1f5]">Capa Explorer</span>
+                      <span className="text-xs font-bold text-[#f0f1f5]">{l.docs.capaTitle}</span>
                     </div>
                     <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                      Tier 1 · Heuristic
+                      {l.docs.capaBadge}
                     </span>
                   </div>
                   <p className="text-xs text-[#94a3b8]">
-                    Молниеносный детектор возможностей бинарных файлов (Mandiant Capa). Определяет упаковщики,
-                    анти-отладку, криптографические алгоритмы и сетевую активность за миллисекунды по базе правил.
+                    {l.docs.capaDesc}
                   </p>
                 </div>
 
@@ -262,15 +255,14 @@ export const DocumentationModal: React.FC<DocumentationModalProps> = ({ isOpen, 
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Cpu className="w-4 h-4 text-sky-400" />
-                      <span className="text-xs font-bold text-[#f0f1f5]">Radare2 / Rizin</span>
+                      <span className="text-xs font-bold text-[#f0f1f5]">{l.docs.r2Title}</span>
                     </div>
                     <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-500/10 text-sky-400 border border-sky-500/20">
-                      Tier 1 · Fast Recon
+                      {l.docs.r2Badge}
                     </span>
                   </div>
                   <p className="text-xs text-[#94a3b8]">
-                    Легковесный парсер PE/ELF/Mach-O. Извлекает точки входа, энтропию секций, импорты,
-                    экспорты и строковые литералы без тяжелых виртуальных машин.
+                    {l.docs.r2Desc}
                   </p>
                 </div>
 
@@ -279,15 +271,14 @@ export const DocumentationModal: React.FC<DocumentationModalProps> = ({ isOpen, 
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Code2 className="w-4 h-4 text-[#f97316]" />
-                      <span className="text-xs font-bold text-[#f0f1f5]">Ghidra Decompiler</span>
+                      <span className="text-xs font-bold text-[#f0f1f5]">{l.docs.ghidraTitle}</span>
                     </div>
                     <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#f97316]/10 text-[#f97316] border border-[#f97316]/20">
-                      Tier 2 · Deep Decompile
+                      {l.docs.ghidraBadge}
                     </span>
                   </div>
                   <p className="text-xs text-[#94a3b8]">
-                    Промышленный JVM-декомпилятор АНБ (NSA). Строит Abstract Syntax Tree (AST), перекрестные ссылки (Xrefs)
-                    и генерирует чистый C-псевдокод для целевых ассемблерных функций.
+                    {l.docs.ghidraDesc}
                   </p>
                 </div>
 
@@ -296,15 +287,14 @@ export const DocumentationModal: React.FC<DocumentationModalProps> = ({ isOpen, 
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Package className="w-4 h-4 text-emerald-400" />
-                      <span className="text-xs font-bold text-[#f0f1f5]">Jadx Mobile Engine</span>
+                      <span className="text-xs font-bold text-[#f0f1f5]">{l.docs.jadxTitle}</span>
                     </div>
                     <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                      Tier 2 · Mobile APK
+                      {l.docs.jadxBadge}
                     </span>
                   </div>
                   <p className="text-xs text-[#94a3b8]">
-                    Транслятор Android Dalvik Executable (DEX/APK) в исходный Java/Kotlin код.
-                    Парсит AndroidManifest.xml, службы, разрешения и deeplinks.
+                    {l.docs.jadxDesc}
                   </p>
                 </div>
 
@@ -313,15 +303,14 @@ export const DocumentationModal: React.FC<DocumentationModalProps> = ({ isOpen, 
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Workflow className="w-4 h-4 text-purple-400" />
-                      <span className="text-xs font-bold text-[#f0f1f5]">REA Protocol Bridge</span>
+                      <span className="text-xs font-bold text-[#f0f1f5]">{l.docs.reaTitle}</span>
                     </div>
                     <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                      MCP · Introspection
+                      {l.docs.reaBadge}
                     </span>
                   </div>
                   <p className="text-xs text-[#94a3b8]">
-                    Reverse Engineering Assistant MCP Server. Интерактивная среда для запросов метаданных,
-                    вызова локальных дизассемблеров и сопоставления сигнатур функций.
+                    {l.docs.reaDesc}
                   </p>
                 </div>
 
@@ -330,15 +319,14 @@ export const DocumentationModal: React.FC<DocumentationModalProps> = ({ isOpen, 
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Globe className="w-4 h-4 text-blue-400" />
-                      <span className="text-xs font-bold text-[#f0f1f5]">Playwright Web Agent</span>
+                      <span className="text-xs font-bold text-[#f0f1f5]">{l.docs.playwrightTitle}</span>
                     </div>
                     <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                      MCP · Web & API
+                      {l.docs.playwrightBadge}
                     </span>
                   </div>
                   <p className="text-xs text-[#94a3b8]">
-                    Headless браузерный движок для аудита веб-приложений. Картографирует скрытые API-роуты,
-                    перехватывает трафик и извлекает бандлы клиентского JavaScript.
+                    {l.docs.playwrightDesc}
                   </p>
                 </div>
               </div>
@@ -355,11 +343,10 @@ export const DocumentationModal: React.FC<DocumentationModalProps> = ({ isOpen, 
                     <span className="w-6 h-6 rounded-full bg-[#f97316] text-[#111319] text-xs font-bold flex items-center justify-center">
                       1
                     </span>
-                    <h5 className="text-xs font-bold text-[#f0f1f5]">Выбор цели для исследования</h5>
+                    <h5 className="text-xs font-bold text-[#f0f1f5]">{l.docs.step1Title}</h5>
                   </div>
                   <p className="text-xs text-[#94a3b8] pl-8">
-                    Перетащите исследуемый файл прямо в окно DecompFlow Studio (Drag-and-Drop) или нажмите
-                    на иконку папки в строке ввода.
+                    {l.docs.step1Desc}
                   </p>
                   <div className="pl-8 flex flex-wrap gap-2 pt-1">
                     <span className="text-[11px] font-mono px-2 py-1 rounded bg-[#0d0f15] border border-[#1f222e] text-[#cbd5e1]">
@@ -383,28 +370,28 @@ export const DocumentationModal: React.FC<DocumentationModalProps> = ({ isOpen, 
                     <span className="w-6 h-6 rounded-full bg-[#38bdf8] text-[#111319] text-xs font-bold flex items-center justify-center">
                       2
                     </span>
-                    <h5 className="text-xs font-bold text-[#f0f1f5]">Настройка профиля скорости (Engine Profile)</h5>
+                    <h5 className="text-xs font-bold text-[#f0f1f5]">{l.docs.step2Title}</h5>
                   </div>
                   <p className="text-xs text-[#94a3b8] pl-8">
-                    В панели ввода выберите оптимальный режим оркестрации в зависимости от глубины задачи:
+                    {l.docs.step2Desc}
                   </p>
                   <div className="pl-8 grid grid-cols-1 md:grid-cols-3 gap-2.5 pt-1 text-xs">
                     <div className="p-2.5 rounded-lg bg-[#0d0f15] border border-[#1f222e]">
-                      <span className="text-amber-400 font-bold block text-[11px]">⚡ Fast Triage</span>
+                      <span className="text-amber-400 font-bold block text-[11px]">⚡ {l.input.profileFast}</span>
                       <span className="text-[#8b8f9e] text-[10px] mt-0.5 block">
-                        Мгновенный срез поверхностей атаки, Capa-правила и строки (&lt; 1 сек).
+                        {language === "ru" ? "Мгновенный срез поверхностей атаки, Capa-правила и строки (< 1 сек)." : "Instant attack surface scan, Capa rules, and strings (< 1s)."}
                       </span>
                     </div>
                     <div className="p-2.5 rounded-lg bg-[#0d0f15] border border-[#1f222e]">
-                      <span className="text-[#38bdf8] font-bold block text-[11px]">⚖️ Auto (Balanced)</span>
+                      <span className="text-[#38bdf8] font-bold block text-[11px]">⚖️ {l.input.profileAuto}</span>
                       <span className="text-[#8b8f9e] text-[10px] mt-0.5 block">
-                        Умный эвристический запуск L1, переход к Ghidra только для подозрительных функций.
+                        {language === "ru" ? "Умный эвристический запуск L1, переход к Ghidra только для подозрительных функций." : "Heuristic L1 triage, triggering Ghidra only for suspicious functions."}
                       </span>
                     </div>
                     <div className="p-2.5 rounded-lg bg-[#0d0f15] border border-[#1f222e]">
-                      <span className="text-[#f97316] font-bold block text-[11px]">🔬 Deep Decompile</span>
+                      <span className="text-[#f97316] font-bold block text-[11px]">🔬 {l.input.profileDeep}</span>
                       <span className="text-[#8b8f9e] text-[10px] mt-0.5 block">
-                        Полномасштабный реверс-инжиниринг с генерацией всего C/Java псевдокода.
+                        {language === "ru" ? "Полномасштабный реверс-инжиниринг с генерацией всего C/Java псевдокода." : "Full-scale reverse engineering with full C/Java pseudocode generation."}
                       </span>
                     </div>
                   </div>
@@ -416,12 +403,10 @@ export const DocumentationModal: React.FC<DocumentationModalProps> = ({ isOpen, 
                     <span className="w-6 h-6 rounded-full bg-[#22c55e] text-[#111319] text-xs font-bold flex items-center justify-center">
                       3
                     </span>
-                    <h5 className="text-xs font-bold text-[#f0f1f5]">Интерактивная работа с EvidenceCodeDrawer</h5>
+                    <h5 className="text-xs font-bold text-[#f0f1f5]">{l.docs.step3Title}</h5>
                   </div>
                   <p className="text-xs text-[#94a3b8] pl-8">
-                    Кликайте на любые найденные символы, адреса памяти (0x...) или теги доказательств в чате и отчете.
-                    Справа откроется инспектор кода с подсветкой синтаксиса, Cross References (Xrefs) и кнопкой
-                    <strong> "Запустить Deep Dive"</strong> для целенаправленного разбора логики без перезапуска сессии.
+                    {l.docs.step3Desc}
                   </p>
                 </div>
               </div>
@@ -435,47 +420,47 @@ export const DocumentationModal: React.FC<DocumentationModalProps> = ({ isOpen, 
               <div className="space-y-3">
                 <h5 className="text-xs font-bold text-[#f0f1f5] uppercase tracking-wider flex items-center gap-2">
                   <Command className="w-4 h-4 text-[#38bdf8]" />
-                  <span>Горячие клавиши (Keyboard Shortcuts)</span>
+                  <span>{l.docs.shortcutsTitle}</span>
                 </h5>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
                   <div className="flex items-center justify-between p-2.5 rounded-lg bg-[#141620] border border-[#222533]">
-                    <span className="text-[#cbd5e1]">Быстрый поиск по чатам и проектам</span>
+                    <span className="text-[#cbd5e1]">{language === "ru" ? "Быстрый поиск по чатам и проектам" : "Quick search across chats & projects"}</span>
                     <kbd className="px-2 py-0.5 text-[11px] font-mono rounded bg-[#0d0f15] border border-[#242838] text-[#38bdf8]">
                       {isMac ? "⌘K" : "Ctrl+K"}
                     </kbd>
                   </div>
 
                   <div className="flex items-center justify-between p-2.5 rounded-lg bg-[#141620] border border-[#222533]">
-                    <span className="text-[#cbd5e1]">Создать новый чат / сессию</span>
+                    <span className="text-[#cbd5e1]">{language === "ru" ? "Создать новый чат / сессию" : "Create new chat session"}</span>
                     <kbd className="px-2 py-0.5 text-[11px] font-mono rounded bg-[#0d0f15] border border-[#242838] text-[#38bdf8]">
                       {isMac ? "⌘N" : "Ctrl+N"}
                     </kbd>
                   </div>
 
                   <div className="flex items-center justify-between p-2.5 rounded-lg bg-[#141620] border border-[#222533]">
-                    <span className="text-[#cbd5e1]">Закрыть панель кода или модальное окно</span>
+                    <span className="text-[#cbd5e1]">{language === "ru" ? "Закрыть панель кода или модальное окно" : "Close code drawer or active modal"}</span>
                     <kbd className="px-2 py-0.5 text-[11px] font-mono rounded bg-[#0d0f15] border border-[#242838] text-[#cbd5e1]">
                       Esc
                     </kbd>
                   </div>
 
                   <div className="flex items-center justify-between p-2.5 rounded-lg bg-[#141620] border border-[#222533]">
-                    <span className="text-[#cbd5e1]">Отправить запрос на анализ</span>
+                    <span className="text-[#cbd5e1]">{language === "ru" ? "Отправить запрос на анализ" : "Launch analysis run"}</span>
                     <kbd className="px-2 py-0.5 text-[11px] font-mono rounded bg-[#0d0f15] border border-[#242838] text-[#22c55e]">
                       Enter
                     </kbd>
                   </div>
 
                   <div className="flex items-center justify-between p-2.5 rounded-lg bg-[#141620] border border-[#222533]">
-                    <span className="text-[#cbd5e1]">Перенос строки в поле ввода</span>
+                    <span className="text-[#cbd5e1]">{language === "ru" ? "Перенос строки в поле ввода" : "Newline in prompt input"}</span>
                     <kbd className="px-2 py-0.5 text-[11px] font-mono rounded bg-[#0d0f15] border border-[#242838] text-[#cbd5e1]">
                       Shift+Enter
                     </kbd>
                   </div>
 
                   <div className="flex items-center justify-between p-2.5 rounded-lg bg-[#141620] border border-[#222533]">
-                    <span className="text-[#cbd5e1]">Свернуть / развернуть боковое меню</span>
-                    <span className="text-[11px] font-mono text-[#8b8f9e]">Кнопка в верхнем баре</span>
+                    <span className="text-[#cbd5e1]">{language === "ru" ? "Свернуть / развернуть боковое меню" : "Toggle sidebar visibility"}</span>
+                    <span className="text-[11px] font-mono text-[#8b8f9e]">{language === "ru" ? "Кнопка в верхнем баре" : "Top bar icon"}</span>
                   </div>
                 </div>
               </div>
@@ -484,7 +469,7 @@ export const DocumentationModal: React.FC<DocumentationModalProps> = ({ isOpen, 
               <div className="space-y-3">
                 <h5 className="text-xs font-bold text-[#f0f1f5] uppercase tracking-wider flex items-center gap-2">
                   <Terminal className="w-4 h-4 text-[#f97316]" />
-                  <span>Команды CLI (Headless & CI/CD Mode)</span>
+                  <span>{l.docs.cliTitle}</span>
                 </h5>
 
                 <div className="space-y-2.5">
@@ -492,7 +477,7 @@ export const DocumentationModal: React.FC<DocumentationModalProps> = ({ isOpen, 
                   <div className="p-3 rounded-xl bg-[#0b0c10] border border-[#1f222e] flex items-center justify-between font-mono text-xs">
                     <div className="space-y-0.5 min-w-0 pr-2">
                       <span className="text-[#64748b] text-[10px] block font-sans">
-                        Быстрый триаж бинарного файла:
+                        {l.docs.cmd1Desc}
                       </span>
                       <code className="text-[#f97316] truncate block">
                         npx decompflow analyze ./sample.exe --mode binary --profile fast
@@ -520,7 +505,7 @@ export const DocumentationModal: React.FC<DocumentationModalProps> = ({ isOpen, 
                   <div className="p-3 rounded-xl bg-[#0b0c10] border border-[#1f222e] flex items-center justify-between font-mono text-xs">
                     <div className="space-y-0.5 min-w-0 pr-2">
                       <span className="text-[#64748b] text-[10px] block font-sans">
-                        Глубокий аудит безопасности через Ghidra:
+                        {l.docs.cmd2Desc}
                       </span>
                       <code className="text-[#38bdf8] truncate block">
                         npx decompflow analyze ./target.elf --skill security-audit --backend ghidra
@@ -548,7 +533,7 @@ export const DocumentationModal: React.FC<DocumentationModalProps> = ({ isOpen, 
                   <div className="p-3 rounded-xl bg-[#0b0c10] border border-[#1f222e] flex items-center justify-between font-mono text-xs">
                     <div className="space-y-0.5 min-w-0 pr-2">
                       <span className="text-[#64748b] text-[10px] block font-sans">
-                        Детекция локальных моделей (Ollama / LM Studio):
+                        {l.docs.cmd3Desc}
                       </span>
                       <code className="text-[#22c55e] truncate block">
                         npx decompflow detect-models
@@ -579,7 +564,7 @@ export const DocumentationModal: React.FC<DocumentationModalProps> = ({ isOpen, 
             onClick={onClose}
             className="px-4 py-1.5 rounded-lg bg-[#1a1d27] hover:bg-[#232736] text-[#cbd5e1] hover:text-[#f0f1f5] font-medium transition-colors cursor-pointer border border-[#272b3b]"
           >
-            Got it
+            {l.common.gotIt}
           </button>
         </div>
       </div>

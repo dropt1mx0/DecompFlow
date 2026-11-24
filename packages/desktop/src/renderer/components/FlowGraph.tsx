@@ -12,6 +12,7 @@ import "@xyflow/react/dist/style.css";
 import { CustomNode } from "./CustomNode";
 import { CustomEdge } from "./CustomEdge";
 import { TargetMode, NodeExecutionStatus, EngineProfile } from "../types";
+import { useI18n } from "../i18n";
 
 interface FlowGraphProps {
   mode: TargetMode;
@@ -35,6 +36,9 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
   completedNodes,
   engineProfile = "auto",
 }) => {
+  const { language } = useI18n();
+  const isRu = language === "ru";
+
   const getNodeStatus = (nodeId: string): NodeExecutionStatus => {
     if (activeNode === nodeId) return "running";
     if (completedNodes.includes(nodeId)) return "completed";
@@ -54,8 +58,8 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
         type: "custom",
         position: { x: 640, y: 30 },
         data: {
-          label: "Trigger / Input Target",
-          sublabel: "Target ingestion & auto-detect",
+          label: isRu ? "Вход / Целевой объект" : "Trigger / Input Target",
+          sublabel: isRu ? "Загрузка и авто-определение" : "Target ingestion & auto-detect",
           iconName: "trigger",
           status: getNodeStatus("__start__"),
         },
@@ -65,8 +69,8 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
         type: "custom",
         position: { x: 640, y: 170 },
         data: {
-          label: "Switch Router",
-          sublabel: `Auto-route: ${mode} / target format`,
+          label: isRu ? "Маршрутизатор LangGraph" : "Switch Router",
+          sublabel: isRu ? `Авто-выбор: ${mode} / формат цели` : `Auto-route: ${mode} / target format`,
           iconName: "router",
           status: getNodeStatus("router"),
         },
@@ -76,8 +80,12 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
         type: "custom",
         position: { x: 0, y: 330 },
         data: {
-          label: engineProfile === "fast-triage" ? "Tier 1: Capa + r2 Triage" : "Capa + Heavy Decompile",
-          sublabel: isBinaryActive ? "Fast Triage & Capability Scan..." : "Mandiant Capa & r2 Fast Index",
+          label: engineProfile === "fast-triage"
+            ? (isRu ? "Tier 1: Capa + r2 Триаж" : "Tier 1: Capa + r2 Triage")
+            : (isRu ? "Capa + Ghidra Декомпиляция" : "Capa + Heavy Decompile"),
+          sublabel: isBinaryActive
+            ? (isRu ? "Быстрый триаж и анализ возможностей..." : "Fast Triage & Capability Scan...")
+            : (isRu ? "Эвристика Mandiant Capa и r2" : "Mandiant Capa & r2 Fast Index"),
           iconName: "capa",
           status: getNodeStatus("binary_recon"),
         },
@@ -87,8 +95,10 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
         type: "custom",
         position: { x: 320, y: 330 },
         data: {
-          label: "Mobile: Jadx APK Engine",
-          sublabel: isMobileActive ? "Parsing Manifest & DEX..." : "Android APK & DEX Classes",
+          label: isRu ? "Mobile: Jadx APK Движок" : "Mobile: Jadx APK Engine",
+          sublabel: isMobileActive
+            ? (isRu ? "Парсинг Manifest и DEX классов..." : "Parsing Manifest & DEX...")
+            : (isRu ? "Android APK и DEX классы" : "Android APK & DEX Classes"),
           iconName: "jadx",
           status: getNodeStatus("mobile_recon"),
         },
@@ -98,8 +108,10 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
         type: "custom",
         position: { x: 640, y: 330 },
         data: {
-          label: "REA MCP Engine",
-          sublabel: isReaActive ? "Active: Inspecting ASAR/JS..." : "Electron, ASAR & JS Bundles",
+          label: isRu ? "REA MCP Мост" : "REA MCP Engine",
+          sublabel: isReaActive
+            ? (isRu ? "Интроспекция ASAR и JS бандлов..." : "Active: Inspecting ASAR/JS...")
+            : (isRu ? "Electron, ASAR и JS бандлы" : "Electron, ASAR & JS Bundles"),
           iconName: "rea",
           status: getNodeStatus("rea_recon"),
         },
@@ -109,8 +121,10 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
         type: "custom",
         position: { x: 960, y: 330 },
         data: {
-          label: "Playwright MCP Recon",
-          sublabel: isWebActive ? "Active: Browser Crawling..." : "DOM, Bundle & API Mapping",
+          label: isRu ? "Playwright Web Агент" : "Playwright MCP Recon",
+          sublabel: isWebActive
+            ? (isRu ? "Браузерный аудит и картографирование..." : "Active: Browser Crawling...")
+            : (isRu ? "DOM, бандлы и скрытые API" : "DOM, Bundle & API Mapping"),
           iconName: "playwright",
           status: getNodeStatus("web_recon"),
         },
@@ -120,8 +134,10 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
         type: "custom",
         position: { x: 1280, y: 330 },
         data: {
-          label: "Source AST Recon",
-          sublabel: isSourceActive ? "Active: Scanning AST..." : "Directory & Module Analysis",
+          label: isRu ? "AST Анализ исходников" : "Source AST Recon",
+          sublabel: isSourceActive
+            ? (isRu ? "Сканирование дерева модулей..." : "Active: Scanning AST...")
+            : (isRu ? "Синтаксис, импорты и зависимости" : "Directory & Module Analysis"),
           iconName: "source",
           status: getNodeStatus("source_recon"),
         },
@@ -131,8 +147,8 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
         type: "custom",
         position: { x: 640, y: 500 },
         data: {
-          label: "LLM Reasoning Node",
-          sublabel: "Applies Markdown Skill & Evidence",
+          label: isRu ? "Узел LLM-рассуждений" : "LLM Reasoning Node",
+          sublabel: isRu ? "Анализ по скиллам и сбор доказательств" : "Applies Markdown Skill & Evidence",
           iconName: "llm",
           status: getNodeStatus("analyze"),
         },
@@ -142,13 +158,13 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
         type: "custom",
         position: { x: 980, y: 500 },
         data: {
-          label: "Deep Dive Loop",
+          label: isRu ? "Цикл Deep Dive" : "Deep Dive Loop",
           sublabel:
             activeNode === "deep_dive"
-              ? "Targeted Symbol Decompilation..."
+              ? (isRu ? "Декомпиляция целевого символа..." : "Targeted Symbol Decompilation...")
               : completedNodes.includes("deep_dive")
-              ? "Multi-hop Evidence Refined"
-              : "Targeted MCP Fetch (Ghidra/r2/Jadx)",
+              ? (isRu ? "Доказательства Multi-hop собраны" : "Multi-hop Evidence Refined")
+              : (isRu ? "Точечный вызов MCP (Ghidra/Jadx)" : "Targeted MCP Fetch (Ghidra/r2/Jadx)"),
           iconName: "deep_dive",
           status: getNodeStatus("deep_dive"),
         },
@@ -158,8 +174,8 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
         type: "custom",
         position: { x: 640, y: 670 },
         data: {
-          label: "Report Generator",
-          sublabel: "Evidence Table & Reconstructed Code",
+          label: isRu ? "Генератор отчета" : "Report Generator",
+          sublabel: isRu ? "Таблица доказательств и код фичи" : "Evidence Table & Reconstructed Code",
           iconName: "report",
           status: getNodeStatus("report"),
         },
