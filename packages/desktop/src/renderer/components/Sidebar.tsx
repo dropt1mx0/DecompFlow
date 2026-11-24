@@ -17,6 +17,7 @@ import { ProjectItem, SessionItem } from "../types";
 
 interface SidebarProps {
   isOpen: boolean;
+  username?: string;
   projects: ProjectItem[];
   activeProjectId: string;
   activeSessionId: string | null;
@@ -42,6 +43,7 @@ function formatTimeAgo(timestamp: number): string {
 
 export const Sidebar: React.FC<SidebarProps> = ({
   isOpen,
+  username,
   projects,
   activeProjectId,
   activeSessionId,
@@ -405,10 +407,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
         >
           <div className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-orange-600 to-amber-500 flex items-center justify-center text-xs font-bold text-white shadow-sm">
-              D
+              {(username || "Guest").trim()[0]?.toUpperCase() || "G"}
             </div>
             <div className="flex flex-col">
-              <span className="text-xs font-semibold text-[#f0f1f5]">dropt1m</span>
+              <span className="text-xs font-semibold text-[#f0f1f5] truncate max-w-[120px]">
+                {username || "Guest"}
+              </span>
               <span className="text-[10px] text-[#565a69]">Local workspace</span>
             </div>
           </div>

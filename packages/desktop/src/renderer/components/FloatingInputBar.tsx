@@ -192,12 +192,6 @@ export const FloatingInputBar: React.FC<FloatingInputBarProps> = ({
     }
   };
 
-  // Dynamic token calculation based on input + target + message history
-  const totalChars = promptText.length + target.length + sessionContextChars;
-  const approxTokens = Math.max(8, Math.round(totalChars / 3.8));
-  const maxTokens = 256000;
-  const percentUsed = Math.min(100, Math.max(1, (approxTokens / maxTokens) * 100));
-
   const targetBasename = target
     ? target.split("/").filter(Boolean).pop() || target
     : "No target";
@@ -452,24 +446,8 @@ export const FloatingInputBar: React.FC<FloatingInputBarProps> = ({
             </div>
           </div>
 
-          {/* Right Controls: Token usage + Send/Stop button */}
+          {/* Right Controls: Send/Stop button */}
           <div className="flex items-center gap-3">
-            {/* Dynamic Context Meter */}
-            <div
-              title={`${approxTokens} tokens used / 256,000 max context window`}
-              className="flex items-center gap-1.5 text-[11px] font-mono text-[#565a69]"
-            >
-              <span>{approxTokens >= 1000 ? `${(approxTokens / 1000).toFixed(1)}k` : approxTokens}</span>
-              <span>/</span>
-              <span>256k</span>
-              <div className="w-12 h-1 bg-[#262933] rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-[#38bdf8] transition-all duration-300"
-                  style={{ width: `${percentUsed}%` }}
-                />
-              </div>
-            </div>
-
             {/* Send / Stop Button with AbortController */}
             {isRunning ? (
               <button

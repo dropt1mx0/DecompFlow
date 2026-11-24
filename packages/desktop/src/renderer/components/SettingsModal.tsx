@@ -17,19 +17,32 @@ import {
   RefreshCw,
   ShieldCheck,
   Sparkles,
+  User,
 } from "lucide-react";
 import { McpTestResult, SystemInfo } from "../types";
 
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  username?: string;
+  onSaveUsername?: (username: string) => void;
 }
 
-export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
+export const SettingsModal: React.FC<SettingsModalProps> = ({
+  isOpen,
+  onClose,
+  username,
+  onSaveUsername,
+}) => {
   const [activeTab, setActiveTab] = useState<"system" | "llm" | "mcp">("system");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
+
+  // User Profile
+  const [usernameInput, setUsernameInput] = useState<string>(
+    username || localStorage.getItem("decompflow_username") || "dropt1m"
+  );
 
   // System Info
   const [systemInfo, setSystemInfo] = useState<SystemInfo | null>(null);
@@ -70,6 +83,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
   useEffect(() => {
     if (!isOpen) return;
+    setUsernameInput(username || localStorage.getItem("decompflow_username") || "dropt1m");
     setLoading(true);
     setSavedSuccess(false);
 
@@ -244,6 +258,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         });
       }
 
+      const trimmedUser = usernameInput.trim() || "dropt1m";
+      localStorage.setItem("decompflow_username", trimmedUser);
+      if (onSaveUsername) {
+        onSaveUsername(trimmedUser);
+      }
+
       setSavedSuccess(true);
       setTimeout(() => {
         setSavedSuccess(false);
@@ -339,6 +359,28 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
           ) : activeTab === "system" ? (
             /* TAB 1: SYSTEM & ENVIRONMENT */
             <div className="space-y-5">
+              {/* User Profile Card */}
+              <div className="p-4 rounded-xl bg-[#181a22] border border-[#242834] space-y-3">
+                <span className="text-[10px] font-mono uppercase text-[#8b8f9e] tracking-wider block font-semibold flex items-center gap-1.5">
+                  <User className="w-3.5 h-3.5 text-[#f97316]" />
+                  <span>User Profile & Workspace Identity</span>
+                </span>
+
+                <div className="space-y-1.5">
+                  <label className="text-[11px] text-[#cbd5e1] font-medium block">Username / Analyst Handle</label>
+                  <input
+                    type="text"
+                    value={usernameInput}
+                    onChange={(e) => setUsernameInput(e.target.value)}
+                    placeholder="Enter username (e.g. dropt1m)"
+                    className="w-full bg-[#11131a] border border-[#262a38] rounded-lg px-3 py-2 text-xs text-[#f0f1f5] font-mono focus:outline-none focus:border-[#f97316]"
+                  />
+                  <span className="text-[10px] text-[#6b7280] block">
+                    Saved in your local profile session and displayed in the sidebar profile badge.
+                  </span>
+                </div>
+              </div>
+
               {/* OS Summary Card */}
               <div className="p-4 rounded-xl bg-[#181a22] border border-[#242834] space-y-3">
                 <span className="text-[10px] font-mono uppercase text-[#8b8f9e] tracking-wider block font-semibold flex items-center gap-1.5">

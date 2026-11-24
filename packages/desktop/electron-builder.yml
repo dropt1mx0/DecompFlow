@@ -1,6 +1,7 @@
 appId: com.decompflow.studio
 productName: DecompFlow
 executableName: decompflow
+icon: build/icon.png
 electronVersion: 33.2.1
 artifactName: "${productName}-${version}-${os}-${arch}.${ext}"
 directories:
@@ -14,6 +15,7 @@ files:
   - package.json
 linux:
   executableName: decompflow
+  icon: build/icon.png
   maintainer: "dropt1mx0 <dropt1m@users.noreply.github.com>"
   target:
     - AppImage
@@ -26,13 +28,20 @@ deb:
   artifactName: "${productName}-${version}-amd64.deb"
 appImage:
   artifactName: "${productName}-${version}.AppImage"
+nsis:
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  oneClick: false
+  allowToChangeInstallationDirectory: true
 win:
   executableName: decompflow
+  icon: build/icon.ico
   target:
     - nsis
     - portable
   artifactName: "${productName}-Setup-${version}.${ext}"
 mac:
+  icon: build/icon.png
   target:
     - dmg
     - zip

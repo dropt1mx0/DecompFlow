@@ -56,7 +56,9 @@
     <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <a href="#" class="flex items-center gap-2.5 font-bold text-lg text-white hover:opacity-90 transition-opacity">
-          <span class="w-8 h-8 rounded-lg bg-[#f97316]/10 border border-[#f97316]/40 flex items-center justify-center text-[#f97316] text-base">⚡</span>
+          <span class="w-8 h-8 rounded-lg bg-[#f97316]/10 border border-[#f97316]/40 flex items-center justify-center overflow-hidden p-1">
+            <img src="assets/mascot.svg" alt="DecompFlow Mascot" class="w-full h-full object-contain" />
+          </span>
           <span>DecompFlow</span>
         </a>
         <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-zinc-900 border border-zinc-700/60 text-[11px] font-mono text-zinc-400">
@@ -84,7 +86,15 @@
 
   <!-- Hero Section -->
   <main class="flex-1">
-    <section class="max-w-5xl mx-auto px-6 pt-20 pb-16 text-center flex flex-col items-center">
+    <section class="max-w-5xl mx-auto px-6 pt-16 pb-16 text-center flex flex-col items-center">
+      <!-- Mascot Avatar -->
+      <div class="mb-6 relative group">
+        <div class="absolute -inset-1 bg-gradient-to-r from-orange-600 to-amber-500 rounded-2xl blur opacity-35 group-hover:opacity-70 transition duration-500"></div>
+        <div class="relative w-20 h-20 rounded-2xl bg-[#0e1015] border border-orange-500/30 p-2 flex items-center justify-center shadow-2xl">
+          <img src="assets/mascot.svg" alt="DecompFlow Mascot" class="w-full h-full object-contain" />
+        </div>
+      </div>
+
       <!-- Eyebrow Pill -->
       <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-900/90 border border-zinc-800 text-xs font-mono text-[#f97316] mb-8 shadow-inner">
         <span class="w-2 h-2 rounded-full bg-[#f97316]"></span>
@@ -257,7 +267,8 @@
   <footer class="border-t border-zinc-800/80 py-10 bg-black/60">
     <div class="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500">
       <div class="flex items-center gap-2">
-        <span>⚡ DecompFlow</span>
+        <img src="assets/mascot.svg" alt="DecompFlow Mascot" class="w-4 h-4 object-contain inline-block" />
+        <span class="font-semibold text-zinc-300">DecompFlow</span>
         <span>•</span>
         <span>Built for authorized security auditing, interoperability & software preservation.</span>
       </div>

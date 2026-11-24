@@ -16,6 +16,9 @@ export const App: React.FC = () => {
   const [activeView, setActiveView] = useState<"chat" | "graph" | "report">("chat");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [globalDragOver, setGlobalDragOver] = useState(false);
+  const [username, setUsername] = useState<string>(
+    () => localStorage.getItem("decompflow_username") || "dropt1m"
+  );
 
   // Evidence Code Drawer State
   const [selectedEvidence, setSelectedEvidence] = useState<EvidenceItem | null>(null);
@@ -716,6 +719,7 @@ export const App: React.FC = () => {
           projects={projects}
           activeProjectId={activeProjectId}
           activeSessionId={activeSessionId}
+          username={username}
           onSelectProject={handleSelectProject}
           onSelectSession={handleSelectSession}
           onNewSession={handleNewSession}
@@ -806,7 +810,12 @@ export const App: React.FC = () => {
       />
 
       {/* Settings Modal (Syncs with decompflow.yaml & mcp-servers.json) */}
-      <SettingsModal isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <SettingsModal
+        isOpen={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        username={username}
+        onSaveUsername={setUsername}
+      />
     </div>
   );
 };
