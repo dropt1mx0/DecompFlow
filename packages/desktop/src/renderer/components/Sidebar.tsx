@@ -11,6 +11,8 @@ import {
   Check,
   X,
   FolderPlus,
+  BookOpen,
+  HelpCircle,
 } from "lucide-react";
 import { PixelMascot } from "./PixelMascot";
 import { ProjectItem, SessionItem } from "../types";
@@ -30,6 +32,7 @@ interface SidebarProps {
   onRenameSession: (sessionId: string, newTitle: string) => void;
   onDeleteSession: (sessionId: string) => void;
   onOpenSettings: () => void;
+  onOpenDocumentation?: () => void;
 }
 
 function formatTimeAgo(timestamp: number): string {
@@ -56,6 +59,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onRenameSession,
   onDeleteSession,
   onOpenSettings,
+  onOpenDocumentation,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [collapsedProjects, setCollapsedProjects] = useState<Record<string, boolean>>({});
@@ -418,6 +422,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
           <Settings className="w-4 h-4 text-[#565a69] group-hover:text-[#8b8f9e] transition-colors" />
         </div>
+
+        {/* Documentation & Guide Button */}
+        {onOpenDocumentation && (
+          <button
+            onClick={onOpenDocumentation}
+            className="flex items-center justify-between px-2.5 py-2 rounded-xl text-[#8b8f9e] hover:text-[#f0f1f5] hover:bg-[#181a20] transition-all cursor-pointer group border border-transparent hover:border-[#232630]"
+            title="Open Documentation & Guide"
+          >
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-[#181a20] border border-[#262933] flex items-center justify-center text-[#38bdf8] group-hover:border-[#38bdf8]/40 transition-colors">
+                <BookOpen className="w-3.5 h-3.5" />
+              </div>
+              <div className="flex flex-col text-left">
+                <span className="text-xs font-medium text-[#cbd5e1] group-hover:text-[#f0f1f5]">
+                  Documentation & Guide
+                </span>
+                <span className="text-[10px] text-[#565a69]">Manual & Architecture</span>
+              </div>
+            </div>
+            <HelpCircle className="w-3.5 h-3.5 text-[#565a69] group-hover:text-[#8b8f9e] transition-colors" />
+          </button>
+        )}
       </div>
     </aside>
   );

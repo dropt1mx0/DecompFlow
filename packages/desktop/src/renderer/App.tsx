@@ -7,6 +7,7 @@ import { ChatStream, MessageItem } from "./components/ChatStream";
 import { FlowGraph } from "./components/FlowGraph";
 import { ReportViewer } from "./components/ReportViewer";
 import { SettingsModal } from "./components/SettingsModal";
+import { DocumentationModal } from "./components/DocumentationModal";
 import { EvidenceCodeDrawer } from "./components/EvidenceCodeDrawer";
 import {
   TargetMode,
@@ -24,6 +25,7 @@ export const App: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeView, setActiveView] = useState<"chat" | "graph" | "report">("chat");
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [docsOpen, setDocsOpen] = useState(false);
   const [globalDragOver, setGlobalDragOver] = useState(false);
   const [username, setUsername] = useState<string>(
     () => localStorage.getItem("decompflow_username") || "dropt1m"
@@ -775,6 +777,7 @@ export const App: React.FC = () => {
         onSelectTarget={handleSelectTarget}
         onClearTarget={handleClearTarget}
         onOpenSettings={() => setSettingsOpen(true)}
+        onOpenDocumentation={() => setDocsOpen(true)}
         onNewSession={handleNewSession}
         onSaveReport={handleSaveReport}
         onClearChat={handleClearChat}
@@ -799,6 +802,7 @@ export const App: React.FC = () => {
           onRenameSession={handleRenameSession}
           onDeleteSession={handleDeleteSession}
           onOpenSettings={() => setSettingsOpen(true)}
+          onOpenDocumentation={() => setDocsOpen(true)}
         />
 
         {/* Right Main Content Area */}
@@ -891,6 +895,12 @@ export const App: React.FC = () => {
         onSaveUsername={setUsername}
         preferredBackend={preferredBackend}
         onSavePreferredBackend={setPreferredBackend}
+      />
+
+      {/* Interactive Documentation & Guide Modal */}
+      <DocumentationModal
+        isOpen={docsOpen}
+        onClose={() => setDocsOpen(false)}
       />
     </div>
   );

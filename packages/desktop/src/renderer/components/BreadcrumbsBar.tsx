@@ -14,6 +14,7 @@ import {
   Trash2,
   X,
   FileCode,
+  BookOpen,
 } from "lucide-react";
 
 interface BreadcrumbsBarProps {
@@ -29,6 +30,7 @@ interface BreadcrumbsBarProps {
   onSelectTarget: () => void;
   onClearTarget: () => void;
   onOpenSettings: () => void;
+  onOpenDocumentation?: () => void;
   onNewSession: () => void;
   onSaveReport?: () => void;
   onClearChat?: () => void;
@@ -48,6 +50,7 @@ export const BreadcrumbsBar: React.FC<BreadcrumbsBarProps> = ({
   onSelectTarget,
   onClearTarget,
   onOpenSettings,
+  onOpenDocumentation,
   onNewSession,
   onSaveReport,
   onClearChat,
@@ -246,6 +249,19 @@ export const BreadcrumbsBar: React.FC<BreadcrumbsBarProps> = ({
                 <Settings className="w-3.5 h-3.5" />
                 <span>Settings</span>
               </button>
+
+              {onOpenDocumentation && (
+                <button
+                  onClick={() => {
+                    onOpenDocumentation();
+                    setMoreMenuOpen(false);
+                  }}
+                  className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-[#8b8f9e] hover:bg-[#20232c] hover:text-[#38bdf8] text-left transition-colors cursor-pointer"
+                >
+                  <BookOpen className="w-3.5 h-3.5 text-[#38bdf8]" />
+                  <span>Docs & Guide</span>
+                </button>
+              )}
 
               {onClearChat && (
                 <button
