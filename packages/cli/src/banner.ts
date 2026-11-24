@@ -37,27 +37,28 @@ export function visibleLength(str: string): number {
 }
 
 /**
- * Returns pixel-accurate mascot ASCII art lines (Mage Robot with wand and ears):
- * - Exactly 12-14 chars wide and 13 lines high.
- * - Distinct ears/horns, face eye-slits, narrow body, wand with star on the right.
+ * Returns pixel-accurate mascot ASCII art lines based on official PixelMascot:
+ * - 14 chars wide and 13 rows high.
+ * - Ear squares, solid cap, eyes row with wand sparkle, straight mouth line,
+ *   solid head base, solid orange torso, and dual straight legs with center arch.
  */
 export function getMascotLines(): string[] {
-  const { orange, orange214, orangeSoft, orangeBody, yellowStar, yellowSpark, wand, reset } = ANSI;
+  const { orange, orange214, orangeSoft, orangeBody, yellowStar, yellowSpark, wand, dim, reset } = ANSI;
 
   return [
-    `            ${yellowStar}★${reset}`,
-    `  ${orange214}▄    ▄${reset}   ${yellowSpark}✦${yellowStar}*${yellowSpark}✦${reset}`,
-    `  ${orange214}█    █${reset}    ${wand}│${reset}`,
-    ` ${orange}▄██████▄${reset}   ${wand}│${reset}`,
-    `${orange}██████████${reset}  ${wand}│${reset}`,
-    `${orange}██  ██  ██${reset}  ${wand}│${reset}`,
-    `${orange}██████████${reset} ${yellowSpark}─┴─${reset}`,
-    `${orangeSoft}███ ▀▀ ███${reset}`,
-    ` ${orangeBody}████████${reset}`,
-    `  ${orangeBody}██████${reset}`,
-    `  ${orangeBody}█    █${reset}`,
-    `  ${orangeBody}█    █${reset}`,
-    ` ${orangeBody}▀▀    ▀▀${reset}`,
+    `  ${orange214}█ █${reset}         `,
+    ` ${orange214}█████${reset}   ${yellowStar}★${reset}    `,
+    `${orange}█${reset} ${orange}█${reset} ${orange}█${reset} ${orange}█${reset}  ${yellowSpark}*${reset} ${yellowStar}✦${reset}  `,
+    `${orange}█${reset} ${dim}───${reset} ${orange}█${reset}  ${wand}│${reset}    `,
+    `${orange}███████${reset}  ${wand}│${reset}    `,
+    ` ${orangeSoft}█████${reset}   ${wand}│${reset}    `,
+    ` ${orangeSoft}█████${reset}        `,
+    ` ${orangeBody}█████${reset}        `,
+    ` ${orangeBody}█████${reset}        `,
+    ` ${orangeBody}█████${reset}        `,
+    ` ${orangeBody}█   █${reset}        `,
+    ` ${orangeBody}█   █${reset}        `,
+    ` ${orangeBody}█   █${reset}        `,
   ];
 }
 
