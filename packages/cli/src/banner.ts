@@ -53,10 +53,6 @@ export function getMascotLines(): string[] {
     `${orange}████████${reset} ${yellowSpark}─┴─${reset}`,
     `${orangeSoft}██ ▀▀ ██${reset}`,
     ` ${orangeBody}██████${reset}`,
-    `  ${orangeBody}████${reset}`,
-    `  ${orangeBody}█  █${reset}`,
-    `  ${orangeBody}█  █${reset}`,
-    `  ${orangeBody}█  █${reset}`,
     `  ${orangeBody}█  █${reset}`,
     ` ${orangeBody}▀▀  ▀▀${reset}`,
   ];
@@ -126,10 +122,6 @@ export function printCliBanner(options: CliBannerOptions = {}): void {
     `${dim}─────────────────────────────────────────────────────────────${reset}`,
     `${dim}Interactive TUI: Type ${reset}${bold}${orange}?${reset}${dim} or ${reset}${bold}${orange}help${reset}${dim} for shortcuts & palette${reset}`,
     `${dim}Quickstart: ${reset}${white}analyze <path>${reset} ${dim}|${reset} ${white}triage <path>${reset} ${dim}|${reset} ${white}model <name>${reset}`,
-    `${dim}Local AI:   ${reset}${white}100% offline ready (Ollama / LM Studio / R2)${reset}`,
-    `${dim}Security:   ${reset}${white}Authorized Research Only · Zero Cloud Telemetry${reset}`,
-    `${dim}Repository: ${reset}${cyan}https://github.com/dropt1mx0/DecompFlow${reset}`,
-    `${dim}Authors:    ${reset}${white}dropt1m (@dropt1mx0)${reset}`,
   ];
 
   console.log("");
