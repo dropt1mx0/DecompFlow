@@ -69,37 +69,47 @@
   fill: #38bdf8 !important;
 }
 
-/* React Flow Edges - Ultra-crisp vector styling with non-scaling stroke */
+/* React Flow Edges & Canvas - Ultra-crisp vector rendering with zoom compensation */
+.react-flow__viewport {
+  transform-style: flat;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.react-flow__edges {
+  overflow: visible !important;
+}
+
 .react-flow__edge-path {
-  stroke: rgba(255, 255, 255, 0.22);
-  stroke-width: 1.2px;
+  shape-rendering: geometricPrecision !important;
   vector-effect: non-scaling-stroke !important;
-  transition: stroke 0.2s cubic-bezier(0.4, 0, 0.2, 1), stroke-width 0.2s ease, opacity 0.2s ease;
+  transition: stroke 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
 }
 
 /* Hover effect on edge */
 .react-flow__edge:hover .react-flow__edge-path {
-  stroke: rgba(255, 255, 255, 0.6) !important;
-  stroke-width: 1.5px !important;
+  stroke: rgba(255, 255, 255, 0.8) !important;
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.5));
 }
 
 /* Selected or active edge */
 .react-flow__edge.selected .react-flow__edge-path,
 .react-flow__edge:focus .react-flow__edge-path {
-  stroke: rgba(255, 255, 255, 0.75) !important;
-  stroke-width: 1.5px !important;
+  stroke: rgba(255, 255, 255, 0.9) !important;
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.6));
 }
 
 /* Hover on edge markers */
 .react-flow__edge:hover .react-flow__arrowhead path,
 .react-flow__edge:hover marker path {
-  fill: rgba(255, 255, 255, 0.6) !important;
-  stroke: rgba(255, 255, 255, 0.6) !important;
+  fill: rgba(255, 255, 255, 0.8) !important;
+  stroke: rgba(255, 255, 255, 0.8) !important;
 }
 
 /* Arrowhead markers non-scaling vector-effect */
 .react-flow__arrowhead path,
 marker path {
+  shape-rendering: geometricPrecision !important;
   vector-effect: non-scaling-stroke !important;
 }
 

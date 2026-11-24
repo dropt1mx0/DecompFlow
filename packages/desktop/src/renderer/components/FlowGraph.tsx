@@ -52,7 +52,7 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
       {
         id: "__start__",
         type: "custom",
-        position: { x: 440, y: 30 },
+        position: { x: 640, y: 30 },
         data: {
           label: "Trigger / Input Target",
           sublabel: "Target ingestion & auto-detect",
@@ -63,7 +63,7 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
       {
         id: "router",
         type: "custom",
-        position: { x: 440, y: 150 },
+        position: { x: 640, y: 170 },
         data: {
           label: "Switch Router",
           sublabel: `Auto-route: ${mode} / target format`,
@@ -74,7 +74,7 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
       {
         id: "binary_recon",
         type: "custom",
-        position: { x: 0, y: 290 },
+        position: { x: 0, y: 330 },
         data: {
           label: engineProfile === "fast-triage" ? "Tier 1: Capa + r2 Triage" : "Capa + Heavy Decompile",
           sublabel: isBinaryActive ? "Fast Triage & Capability Scan..." : "Mandiant Capa & r2 Fast Index",
@@ -85,7 +85,7 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
       {
         id: "mobile_recon",
         type: "custom",
-        position: { x: 220, y: 290 },
+        position: { x: 320, y: 330 },
         data: {
           label: "Mobile: Jadx APK Engine",
           sublabel: isMobileActive ? "Parsing Manifest & DEX..." : "Android APK & DEX Classes",
@@ -96,7 +96,7 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
       {
         id: "rea_recon",
         type: "custom",
-        position: { x: 440, y: 290 },
+        position: { x: 640, y: 330 },
         data: {
           label: "REA MCP Engine",
           sublabel: isReaActive ? "Active: Inspecting ASAR/JS..." : "Electron, ASAR & JS Bundles",
@@ -107,7 +107,7 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
       {
         id: "web_recon",
         type: "custom",
-        position: { x: 660, y: 290 },
+        position: { x: 960, y: 330 },
         data: {
           label: "Playwright MCP Recon",
           sublabel: isWebActive ? "Active: Browser Crawling..." : "DOM, Bundle & API Mapping",
@@ -118,7 +118,7 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
       {
         id: "source_recon",
         type: "custom",
-        position: { x: 880, y: 290 },
+        position: { x: 1280, y: 330 },
         data: {
           label: "Source AST Recon",
           sublabel: isSourceActive ? "Active: Scanning AST..." : "Directory & Module Analysis",
@@ -129,7 +129,7 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
       {
         id: "analyze",
         type: "custom",
-        position: { x: 440, y: 440 },
+        position: { x: 640, y: 500 },
         data: {
           label: "LLM Reasoning Node",
           sublabel: "Applies Markdown Skill & Evidence",
@@ -140,7 +140,7 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
       {
         id: "deep_dive",
         type: "custom",
-        position: { x: 750, y: 440 },
+        position: { x: 980, y: 500 },
         data: {
           label: "Deep Dive Loop",
           sublabel:
@@ -156,7 +156,7 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
       {
         id: "report",
         type: "custom",
-        position: { x: 440, y: 570 },
+        position: { x: 640, y: 670 },
         data: {
           label: "Report Generator",
           sublabel: "Evidence Table & Reconstructed Code",
@@ -172,10 +172,10 @@ export const FlowGraph: React.FC<FlowGraphProps> = ({
     const isWeb = mode === "web";
     const isSource = mode === "source";
 
-    const defaultStroke = "rgba(255, 255, 255, 0.22)";
+    const defaultStroke = "rgba(255, 255, 255, 0.32)";
     const defaultMarker = {
       type: MarkerType.ArrowClosed,
-      color: "rgba(255, 255, 255, 0.35)",
+      color: "rgba(255, 255, 255, 0.45)",
       width: 14,
       height: 14,
     };

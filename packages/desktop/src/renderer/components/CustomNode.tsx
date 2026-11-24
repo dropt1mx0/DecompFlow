@@ -65,7 +65,7 @@ export const CustomNode: React.FC<{ data: NodeData; isConnectable?: boolean }> =
 
   return (
     <div
-      className={`relative px-4 py-3 rounded-xl border backdrop-blur-md min-w-[210px] transition-all duration-300 ${getStatusStyles()}`}
+      className={`relative px-3.5 py-3 rounded-xl border backdrop-blur-md w-[240px] transition-all duration-300 shadow-lg ${getStatusStyles()}`}
     >
       <Handle
         type="target"
