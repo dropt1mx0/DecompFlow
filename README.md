@@ -1,9 +1,9 @@
 <div align="center">
 
-# ⚡ DecompFlow
+# ⚡ DecompFlow — Professional AI Reverse Engineering Studio & Multi-Model Orchestrator
 
-**Autonomous AI Reverse Engineering, Binary Decompilation & Feature Reconstruction Studio**  
-*Powered by LangGraph, Model Context Protocol (MCP), REA, Ghidra & Playwright*
+**Autonomous AI Reverse Engineering, Automated Binary Analysis & Feature Reconstruction Studio**  
+*Powered by LangGraph, DeepSeek-R1, Ghidra, Mandiant Capa, Radare2, REA & Playwright MCP*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-orange.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20Windows%20%7C%20macOS-blue)](#-cross-platform-packaging)
@@ -35,9 +35,9 @@
 
 ## 📖 Overview
 
-**DecompFlow** is a cross-platform AI agent and desktop workspace designed for software architecture reconstruction, binary analysis, Electron/ASAR inspection, and web API mapping. 
+**DecompFlow** is an open-source, cross-platform **AI reverse engineering studio** and powerful **DecompFlow CLI** tailored for **automated binary analysis**, executable triage, software architecture reconstruction, Electron/ASAR auditing, and API discovery. 
 
-Instead of locking you into a fragile custom loop or a terminal-only chat, DecompFlow combines deterministic **LangGraph** state orchestration with industry-standard **MCP (Model Context Protocol)** engines (**REA**, **Ghidra**, **Playwright**) and delivers both a high-speed **CLI** and a modern **Desktop Studio GUI**.
+Instead of locking you into a fragile custom loop or a terminal-only chat, DecompFlow combines deterministic **LangGraph** multi-agent state orchestration with leading AI models (**DeepSeek-R1**, **DeepSeek-V3**, **Qwen 2.5 Coder**, **Llama 3.3**, and 100% offline **Ollama / LM Studio**) and industry-grade tools (**Ghidra**, **Mandiant Capa**, **Radare2 / Rizin**, **REA**, **Playwright**). DecompFlow delivers both a high-speed interactive **CLI client (`dfw` / `decomp`)** and an intuitive, modern **Desktop Studio GUI**.
 
 ### ✨ Key Capabilities
 

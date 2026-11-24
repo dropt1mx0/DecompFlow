@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://dropt1mx0.github.io/DecompFlow/sitemap.xml
