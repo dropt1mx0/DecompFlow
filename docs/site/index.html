@@ -340,6 +340,146 @@
     </div>
   </footer>
 
+  <!-- Mandatory Legal Disclaimer & Terms Gate Modal -->
+  <div id="legal-disclaimer-modal" class="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 transition-all duration-300 hidden select-none">
+    <!-- Main Agreement Card -->
+    <div id="legal-modal-card" class="w-full max-w-2xl bg-[#0c0d11] border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+      <!-- Header -->
+      <div class="px-6 py-4 border-b border-zinc-800/80 bg-zinc-950/60 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-orange-950/40 border border-orange-700/50 flex items-center justify-center text-orange-400 shadow-inner">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-sm sm:text-base font-bold text-white tracking-wide">DecompFlow Legal Disclaimer & Terms Gate</h2>
+            <p class="text-[11px] text-zinc-400 font-mono">Mandatory security research and liability agreement</p>
+          </div>
+        </div>
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono font-medium bg-orange-500/10 text-orange-400 border border-orange-500/20">
+          Authorized Research
+        </span>
+      </div>
+
+      <!-- Scrollable Clauses -->
+      <div class="flex-1 overflow-y-auto px-6 py-5 space-y-4 text-xs text-zinc-300 leading-relaxed font-sans">
+        <!-- Developer Attribution -->
+        <div class="p-3.5 rounded-xl bg-gradient-to-r from-orange-950/20 to-zinc-900/40 border border-orange-800/30 flex items-start gap-3">
+          <svg class="w-4 h-4 text-orange-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <div class="space-y-1">
+            <div class="text-[11px] font-mono font-bold text-orange-300 uppercase tracking-wider">
+              Developer Attribution & Protection: dropt1m (@dropt1mx0)
+            </div>
+            <p class="text-[11.5px] text-zinc-300 leading-normal">
+              DecompFlow is open-source security engineering software created by dropt1m. It is provided strictly under the terms of the MIT License for defensive research and educational purposes.
+            </p>
+          </div>
+        </div>
+
+        <!-- 1. Scope -->
+        <div class="p-3.5 rounded-xl bg-zinc-900/40 border border-zinc-800/80 space-y-1">
+          <div class="font-semibold text-zinc-200 text-xs flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            1. Authorized Security Research & Lawful Scope
+          </div>
+          <p class="text-zinc-400 text-[11.5px] leading-relaxed">
+            DecompFlow Studio and CLI are intended solely for lawful security audits, penetration testing, malware analysis in isolated sandboxes, CTF challenges, and interoperability research permitted under applicable laws. You must obtain explicit authorization before analyzing or decompiling third-party software or systems.
+          </p>
+        </div>
+
+        <!-- 2. AS IS -->
+        <div class="p-3.5 rounded-xl bg-zinc-900/40 border border-zinc-800/80 space-y-1">
+          <div class="font-semibold text-zinc-200 text-xs flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+            2. "AS IS" Provision & Complete Disclaimer of Warranty
+          </div>
+          <p class="text-zinc-400 text-[11.5px] leading-relaxed">
+            The software is provided "AS IS" and "AS AVAILABLE", without warranty of any kind, express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, non-infringement, or execution stability. Decompiled artifacts, AST reconstructions, and AI reasoning are research estimates and may contain inaccuracies.
+          </p>
+        </div>
+
+        <!-- 3. Liability -->
+        <div class="p-3.5 rounded-xl bg-zinc-900/40 border border-zinc-800/80 space-y-1">
+          <div class="font-semibold text-zinc-200 text-xs flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-orange-400"></span>
+            3. Absolute Limitation of Developer Liability
+          </div>
+          <p class="text-zinc-400 text-[11.5px] leading-relaxed">
+            Under no circumstances shall the author and developer dropt1m (@dropt1mx0) or contributors be held liable for any direct, indirect, incidental, punitive, or consequential damages (including data loss, hardware damage, network interruption, regulatory sanctions, or civil liabilities) arising out of the use or misuse of DecompFlow.
+          </p>
+        </div>
+
+        <!-- 4. EULA -->
+        <div class="p-3.5 rounded-xl bg-zinc-900/40 border border-zinc-800/80 space-y-1">
+          <div class="font-semibold text-zinc-200 text-xs flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
+            4. Intellectual Property & EULA Compliance
+          </div>
+          <p class="text-zinc-400 text-[11.5px] leading-relaxed">
+            The end user assumes 100% sole legal responsibility for compliance with all applicable local, federal, and international laws, intellectual property rights, and third-party End User License Agreements (EULAs). Reverse engineering proprietary binaries in violation of valid legal restrictions without authorization is strictly prohibited.
+          </p>
+        </div>
+
+        <!-- 5. Local AI & Privacy -->
+        <div class="p-3.5 rounded-xl bg-zinc-900/40 border border-zinc-800/80 space-y-1">
+          <div class="font-semibold text-zinc-200 text-xs flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+            5. Local Processing & Data Confidentiality
+          </div>
+          <p class="text-zinc-400 text-[11.5px] leading-relaxed">
+            DecompFlow prioritizes local LLMs and offline reverse engineering tools. When connecting external cloud providers (OpenAI, DeepSeek, Qwen, etc.), API keys and code snippets are transmitted under the third-party providers' privacy policies. The user is responsible for reviewing data confidentiality.
+          </p>
+        </div>
+      </div>
+
+      <!-- Footer with Checkbox & Actions -->
+      <div class="px-6 py-4 border-t border-zinc-800/80 bg-zinc-950/70 space-y-3.5">
+        <label id="legal-checkbox-label" for="legal-agree-checkbox" class="flex items-start gap-3 p-3 rounded-xl border border-zinc-800 bg-zinc-900/50 hover:border-zinc-700 text-zinc-400 hover:text-zinc-300 transition-all cursor-pointer">
+          <input id="legal-agree-checkbox" type="checkbox" class="mt-0.5 rounded border-zinc-700 text-orange-600 focus:ring-orange-500 bg-zinc-950 cursor-pointer" />
+          <span class="text-[11.5px] font-medium leading-snug">
+            I have read, understood, and unconditionally agree to the DecompFlow Legal Disclaimer, Author Liability Waiver, and Usage Policy.
+          </span>
+        </label>
+
+        <div class="flex items-center justify-between gap-3 pt-1">
+          <button id="legal-decline-btn" type="button" class="px-4 py-2 rounded-xl text-xs font-mono text-zinc-400 hover:text-zinc-200 bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 transition-all">
+            Decline
+          </button>
+          <button id="legal-accept-btn" type="button" disabled class="px-5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all shadow-lg bg-zinc-800/80 text-zinc-500 border border-zinc-800 cursor-not-allowed opacity-50">
+            Accept & Continue
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Declined View Card -->
+    <div id="legal-declined-card" class="w-full max-w-md bg-[#0e1015] border border-red-900/50 rounded-2xl p-6 sm:p-8 shadow-2xl flex flex-col items-center text-center space-y-5 hidden">
+      <div class="w-14 h-14 rounded-2xl bg-red-950/40 border border-red-800/60 flex items-center justify-center text-red-400 shadow-inner">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+        </svg>
+      </div>
+
+      <div class="space-y-1.5">
+        <h2 class="text-lg font-bold text-white tracking-wide">Access Restricted</h2>
+        <p class="text-xs text-red-400 font-mono">Terms must be accepted to use DecompFlow</p>
+      </div>
+
+      <p class="text-xs text-zinc-300 leading-relaxed bg-zinc-900/60 p-4 rounded-xl border border-zinc-800">
+        You have declined the DecompFlow Legal Disclaimer. For the legal protection of developer dropt1m and adherence to security policies, site resources and downloads remain restricted until terms are accepted.
+      </p>
+
+      <div class="w-full pt-2">
+        <button id="legal-review-btn" type="button" class="w-full py-2.5 px-4 rounded-xl text-xs font-semibold bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 transition-all flex items-center justify-center gap-2">
+          Review Terms Again
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Interactive JavaScript: OS Detection & CLI Copy -->
   <script>
     // 1. OS Auto-Detection for Desktop Studio Download
@@ -392,6 +532,81 @@
         }, 2000);
       });
     }
+
+    // 4. Mandatory Legal Disclaimer & Terms Gate
+    (function initLegalGate() {
+      const modal = document.getElementById('legal-disclaimer-modal');
+      const modalCard = document.getElementById('legal-modal-card');
+      const declinedCard = document.getElementById('legal-declined-card');
+      const checkbox = document.getElementById('legal-agree-checkbox');
+      const acceptBtn = document.getElementById('legal-accept-btn');
+      const declineBtn = document.getElementById('legal-decline-btn');
+      const reviewBtn = document.getElementById('legal-review-btn');
+      const checkboxLabel = document.getElementById('legal-checkbox-label');
+
+      if (!modal) return;
+
+      const isAccepted = localStorage.getItem('decompflow_legal_accepted') === 'true';
+      if (!isAccepted) {
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      }
+
+      // Prevent closing via Escape key
+      window.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && localStorage.getItem('decompflow_legal_accepted') !== 'true') {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      }, true);
+
+      // Checkbox state handling
+      if (checkbox && acceptBtn) {
+        checkbox.addEventListener('change', function() {
+          if (checkbox.checked) {
+            acceptBtn.disabled = false;
+            acceptBtn.className = 'px-5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all shadow-lg bg-orange-600 hover:bg-orange-500 text-white shadow-orange-950/50 cursor-pointer active:scale-[0.98]';
+            if (checkboxLabel) {
+              checkboxLabel.className = 'flex items-start gap-3 p-3 rounded-xl border border-orange-500/50 bg-orange-950/20 text-white transition-all cursor-pointer';
+            }
+          } else {
+            acceptBtn.disabled = true;
+            acceptBtn.className = 'px-5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all shadow-lg bg-zinc-800/80 text-zinc-500 border border-zinc-800 cursor-not-allowed opacity-50';
+            if (checkboxLabel) {
+              checkboxLabel.className = 'flex items-start gap-3 p-3 rounded-xl border border-zinc-800 bg-zinc-900/50 hover:border-zinc-700 text-zinc-400 hover:text-zinc-300 transition-all cursor-pointer';
+            }
+          }
+        });
+      }
+
+      // Accept button handler
+      if (acceptBtn) {
+        acceptBtn.addEventListener('click', function() {
+          if (!checkbox || !checkbox.checked) return;
+          try {
+            localStorage.setItem('decompflow_legal_accepted', 'true');
+          } catch (e) {}
+          modal.classList.add('hidden');
+          document.body.style.overflow = '';
+        });
+      }
+
+      // Decline button handler
+      if (declineBtn && modalCard && declinedCard) {
+        declineBtn.addEventListener('click', function() {
+          modalCard.classList.add('hidden');
+          declinedCard.classList.remove('hidden');
+        });
+      }
+
+      // Review terms again handler
+      if (reviewBtn && modalCard && declinedCard) {
+        reviewBtn.addEventListener('click', function() {
+          declinedCard.classList.add('hidden');
+          modalCard.classList.remove('hidden');
+        });
+      }
+    })();
   </script>
 </body>
 </html>

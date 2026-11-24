@@ -8,6 +8,7 @@ import { FlowGraph } from "./components/FlowGraph";
 import { ReportViewer } from "./components/ReportViewer";
 import { SettingsModal } from "./components/SettingsModal";
 import { DocumentationModal } from "./components/DocumentationModal";
+import { DisclaimerModal } from "./components/DisclaimerModal";
 import { EvidenceCodeDrawer } from "./components/EvidenceCodeDrawer";
 import {
   TargetMode,
@@ -28,6 +29,13 @@ export const App: React.FC = () => {
   const [activeView, setActiveView] = useState<"chat" | "graph" | "report">("chat");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [docsOpen, setDocsOpen] = useState(false);
+  const [legalAccepted, setLegalAccepted] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem("decompflow_legal_accepted") === "true";
+    } catch {
+      return false;
+    }
+  });
   const [globalDragOver, setGlobalDragOver] = useState(false);
   const [username, setUsername] = useState<string>(
     () => localStorage.getItem("decompflow_username") || "dropt1m"
@@ -903,6 +911,12 @@ export const App: React.FC = () => {
       <DocumentationModal
         isOpen={docsOpen}
         onClose={() => setDocsOpen(false)}
+      />
+
+      {/* Mandatory Legal Disclaimer & Terms Gate */}
+      <DisclaimerModal
+        isOpen={!legalAccepted}
+        onAccept={() => setLegalAccepted(true)}
       />
     </div>
   );

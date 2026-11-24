@@ -469,6 +469,11 @@ function setupIpc() {
     return createDesktopShortcut();
   });
 
+  // Safe Application Exit
+  ipcMain.handle("system:quit", () => {
+    app.quit();
+  });
+
   // Workspace persistence
   ipcMain.handle("workspace:load", async () => {
     ensureWorkspaceFile();
