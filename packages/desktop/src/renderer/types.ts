@@ -42,6 +42,7 @@ export interface MessageItem {
   evidence?: EvidenceItem[];
   reconstructedCode?: string;
   detectedCapabilities?: DetectedCapability[];
+  reasoningTree?: string;
 }
 
 export interface SessionItem {
@@ -57,6 +58,7 @@ export interface SessionItem {
   evidence?: EvidenceItem[];
   reconstructedCode?: string;
   detectedCapabilities?: DetectedCapability[];
+  reasoningTree?: string;
 }
 
 export interface ProjectItem {
@@ -141,6 +143,7 @@ export interface ElectronAPI {
   getConfig: () => Promise<{ yamlConfig: any; mcpConfig: any; envApiKey: string }>;
   saveConfig: (data: { yamlConfig?: any; mcpConfig?: any; envApiKey?: string }) => Promise<{ success: boolean; error?: string }>;
   detectLocalModels: () => Promise<LocalLlmDetectionResult>;
+  testLlmConnection: (params: { provider: string; baseUrl?: string; apiKey?: string; model?: string }) => Promise<{ success: boolean; latencyMs?: number; error?: string; modelUsed?: string }>;
   testMcpConnections: () => Promise<Record<string, McpTestResult>>;
   getSystemInfo: () => Promise<SystemInfo>;
   createDesktopShortcut: () => Promise<{ success: boolean; path?: string; error?: string }>;

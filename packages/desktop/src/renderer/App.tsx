@@ -569,6 +569,7 @@ export const App: React.FC = () => {
           const evidence = response.data.evidence || [];
           const reconstructedCode = response.data.reconstructedCode;
           const caps = response.data.detectedCapabilities || [];
+          const reasoningTree = response.data.reasoningTree;
 
           setFinalReport(reportText);
           setDetectedCapabilities(caps);
@@ -587,6 +588,7 @@ export const App: React.FC = () => {
                 evidence,
                 reconstructedCode,
                 detectedCapabilities: caps,
+                reasoningTree,
               };
             }
             return m;
@@ -614,6 +616,7 @@ export const App: React.FC = () => {
                       evidence,
                       reconstructedCode,
                       detectedCapabilities: caps,
+                      reasoningTree,
                     };
                   }
                   return s;

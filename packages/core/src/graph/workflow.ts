@@ -119,6 +119,7 @@ export async function runAnalysisWithProgress(
     engineProfile: initialState.engineProfile || "auto",
     preferredNativeBackend: initialState.preferredNativeBackend || "ghidra",
     detectedCapabilities: [],
+    reasoningTree: undefined,
   };
 
   try {

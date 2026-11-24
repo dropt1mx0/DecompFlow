@@ -48,6 +48,7 @@ export const DecompFlowState = Annotation.Root({
   engineProfile: Annotation<EngineProfile | undefined>, // ⚡ Fast | 🔬 Deep | 📱 Auto
   preferredNativeBackend: Annotation<PreferredNativeBackend | undefined>, // ghidra | radare2 | ida | binja
   detectedCapabilities: Annotation<DetectedCapability[] | undefined>, // Capa triage capabilities
+  reasoningTree: Annotation<string | undefined>, // Extracted reasoning thought process (<think> from DeepSeek R1 / QwQ)
 });
 
 export type DecompFlowStateType = typeof DecompFlowState.State;

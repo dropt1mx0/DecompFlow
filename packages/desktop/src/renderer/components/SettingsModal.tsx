@@ -18,8 +18,111 @@ import {
   ShieldCheck,
   Sparkles,
   User,
+  AlertCircle,
 } from "lucide-react";
 import { McpTestResult, SystemInfo, PreferredNativeBackend } from "../types";
+
+interface ProviderMeta {
+  label: string;
+  desc: string;
+  badge?: string;
+  defaultUrl: string;
+  defaultModel: string;
+  recommendedModels: string[];
+  keyPlaceholder: string;
+  keyLabel: string;
+  isLocal?: boolean;
+}
+
+const PROVIDER_METADATA: Record<string, ProviderMeta> = {
+  openai: {
+    label: "OpenAI Cloud",
+    desc: "GPT-4o & o-series",
+    defaultUrl: "https://api.openai.com/v1",
+    defaultModel: "gpt-4o",
+    recommendedModels: ["gpt-4o", "gpt-4o-mini", "o1", "o3-mini"],
+    keyPlaceholder: "sk-proj-...",
+    keyLabel: "OpenAI API Key",
+  },
+  deepseek: {
+    label: "DeepSeek AI",
+    desc: "Chat & R1 Reasoning",
+    badge: "🧠 R1",
+    defaultUrl: "https://api.deepseek.com/v1",
+    defaultModel: "deepseek-chat",
+    recommendedModels: ["deepseek-chat", "deepseek-reasoner"],
+    keyPlaceholder: "sk-...",
+    keyLabel: "DeepSeek API Key",
+  },
+  qwen: {
+    label: "Qwen (DashScope)",
+    desc: "Alibaba Cloud / QwQ",
+    badge: "🧠 QwQ",
+    defaultUrl: "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+    defaultModel: "qwen2.5-coder-32b-instruct",
+    recommendedModels: [
+      "qwen2.5-coder-32b-instruct",
+      "qwen-max",
+      "qwen2.5-coder-72b-instruct",
+      "qwq-32b-preview",
+    ],
+    keyPlaceholder: "sk-...",
+    keyLabel: "DashScope API Key",
+  },
+  nvidia: {
+    label: "NVIDIA NIM",
+    desc: "Nemotron & Open Weights",
+    defaultUrl: "https://integrate.api.nvidia.com/v1",
+    defaultModel: "nvidia/nemotron-4-34b-instruct",
+    recommendedModels: [
+      "nvidia/nemotron-4-34b-instruct",
+      "meta/llama-3.3-70b-instruct",
+      "deepseek-ai/deepseek-r1",
+    ],
+    keyPlaceholder: "nvapi-...",
+    keyLabel: "NVIDIA NIM API Key",
+  },
+  meta: {
+    label: "Meta Llama (Groq)",
+    desc: "Ultra-Fast Inference",
+    defaultUrl: "https://api.groq.com/openai/v1",
+    defaultModel: "llama-3.3-70b-versatile",
+    recommendedModels: ["llama-3.3-70b-versatile", "llama-3.1-70b-versatile"],
+    keyPlaceholder: "gsk_...",
+    keyLabel: "Groq API Key",
+  },
+  ollama: {
+    label: "Ollama Local",
+    desc: "Port 11434 (Private)",
+    badge: "💻 Local",
+    defaultUrl: "http://127.0.0.1:11434/v1",
+    defaultModel: "qwen2.5-coder",
+    recommendedModels: ["qwen2.5-coder", "deepseek-r1", "llama3.3"],
+    keyPlaceholder: "Not required for local engine",
+    keyLabel: "Optional Key",
+    isLocal: true,
+  },
+  lmstudio: {
+    label: "LM Studio",
+    desc: "Port 1234 (Private)",
+    badge: "💻 Local",
+    defaultUrl: "http://127.0.0.1:1234/v1",
+    defaultModel: "deepseek-coder",
+    recommendedModels: ["deepseek-coder", "qwen2.5-coder-7b", "deepseek-r1"],
+    keyPlaceholder: "Not required for local engine",
+    keyLabel: "Optional Key",
+    isLocal: true,
+  },
+  custom: {
+    label: "Custom Endpoint",
+    desc: "OpenAI-Compatible",
+    defaultUrl: "http://127.0.0.1:8000/v1",
+    defaultModel: "gpt-4o",
+    recommendedModels: ["gpt-4o", "deepseek-chat"],
+    keyPlaceholder: "Bearer token",
+    keyLabel: "Custom API Key / Token",
+  },
+};
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -67,6 +170,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [apiKey, setApiKey] = useState("");
   const [baseUrl, setBaseUrl] = useState("");
   const [temperature, setTemperature] = useState(0.1);
+  const [apiKeys, setApiKeys] = useState<Record<string, string>>({
+    openai: "",
+    deepseek: "",
+    qwen: "",
+    nvidia: "",
+    meta: "",
+  });
+
+  // LLM Connection Testing
+  const [testingLlm, setTestingLlm] = useState(false);
+  const [llmTestResult, setLlmTestResult] = useState<{
+    success: boolean;
+    latencyMs?: number;
+    error?: string;
+    modelUsed?: string;
+  } | null>(null);
 
   // Local LLM Detection
   const [scanningLocal, setScanningLocal] = useState(false);
@@ -123,9 +242,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             setModelName(yamlCfg.llm.model || "gpt-4o");
             setTemperature(yamlCfg.llm.temperature ?? 0.1);
             setBaseUrl(yamlCfg.llm.base_url || "");
+            if (yamlCfg.llm.api_keys) {
+              setApiKeys((prev) => ({
+                ...prev,
+                ...yamlCfg.llm.api_keys,
+                openai: yamlCfg.llm.api_keys.openai || res.envApiKey || prev.openai || "",
+              }));
+            }
           }
 
-          setApiKey(res.envApiKey || "");
+          if (res.envApiKey) {
+            setApiKey(res.envApiKey);
+            setApiKeys((prev) => ({ ...prev, openai: prev.openai || res.envApiKey }));
+          }
 
           if (mcpCfg.mcpServers?.rea) {
             setReaEnabled(mcpCfg.mcpServers.rea.enabled !== false);
@@ -228,6 +357,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     }
   };
 
+  const handleTestLlmConnection = async () => {
+    setTestingLlm(true);
+    setLlmTestResult(null);
+    try {
+      if (window.electronAPI?.testLlmConnection) {
+        const activeKey = apiKeys[provider] || apiKey;
+        const res = await window.electronAPI.testLlmConnection({
+          provider,
+          baseUrl: baseUrl || undefined,
+          apiKey: activeKey || undefined,
+          model: modelName || undefined,
+        });
+        setLlmTestResult(res);
+      }
+    } catch (err: any) {
+      setLlmTestResult({ success: false, error: err.message || String(err) });
+    } finally {
+      setTestingLlm(false);
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -235,14 +385,24 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       if (onSavePreferredBackend) {
         onSavePreferredBackend(preferredDecompiler);
       }
+      const activeKey = apiKey || apiKeys[provider] || "";
+      const updatedApiKeys = {
+        ...apiKeys,
+        [provider]: activeKey,
+      };
+
       const updatedYaml = {
         ...rawYaml,
+        native_decompiler: {
+          preferred: preferredDecompiler,
+        },
         llm: {
           ...(rawYaml.llm || {}),
           provider,
           model: modelName,
           temperature,
           ...(baseUrl ? { base_url: baseUrl } : {}),
+          api_keys: updatedApiKeys,
         },
       };
 
@@ -287,7 +447,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         await window.electronAPI.saveConfig({
           yamlConfig: updatedYaml,
           mcpConfig: updatedMcp,
-          envApiKey: apiKey,
+          envApiKey: updatedApiKeys.openai || apiKey,
         });
       }
 
@@ -671,17 +831,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-mono uppercase text-[#8b8f9e] tracking-wider block font-semibold flex items-center gap-1.5">
                   <Key className="w-3.5 h-3.5 text-[#f97316]" />
-                  <span>LLM Reasoning Engine & Local Offline AI</span>
+                  <span>Multi-Model Provider Hub & Offline Engines</span>
                 </span>
 
-                <button
-                  onClick={handleScanLocal}
-                  disabled={scanningLocal}
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#181a24] hover:bg-[#202432] border border-[#2d3144] text-[11px] text-[#cbd5e1] hover:text-[#f0f1f5] transition-colors cursor-pointer"
-                >
-                  <RefreshCw className={`w-3 h-3 text-[#22c55e] ${scanningLocal ? "animate-spin" : ""}`} />
-                  <span>{scanningLocal ? "Scanning :11434 / :1234..." : "Scan Local LLMs (Ollama / LM Studio)"}</span>
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleScanLocal}
+                    disabled={scanningLocal}
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#181a24] hover:bg-[#202432] border border-[#2d3144] text-[11px] text-[#cbd5e1] hover:text-[#f0f1f5] transition-colors cursor-pointer"
+                  >
+                    <RefreshCw className={`w-3 h-3 text-[#22c55e] ${scanningLocal ? "animate-spin" : ""}`} />
+                    <span>{scanningLocal ? "Scanning :11434 / :1234..." : "Scan Local (Ollama / LM Studio)"}</span>
+                  </button>
+                </div>
               </div>
 
               {localScanMessage && (
@@ -691,45 +853,52 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
               )}
 
-              {/* Provider Selection Buttons */}
+              {/* Provider Selection Grid */}
               <div className="space-y-1.5">
-                <label className="text-[11px] font-medium text-[#8b8f9e] block">Select LLM Provider</label>
-                <div className="grid grid-cols-4 gap-2">
-                  {[
-                    { id: "openai", label: "OpenAI Cloud", desc: "gpt-4o", defaultUrl: "" },
-                    { id: "ollama", label: "Ollama Local", desc: "Port 11434", defaultUrl: "http://127.0.0.1:11434/v1" },
-                    { id: "lmstudio", label: "LM Studio", desc: "Port 1234", defaultUrl: "http://127.0.0.1:1234/v1" },
-                    { id: "custom", label: "Custom OpenAI", desc: "Self-hosted", defaultUrl: baseUrl || "http://127.0.0.1:8000/v1" },
-                  ].map((p) => (
-                    <button
-                      key={p.id}
-                      type="button"
-                      onClick={() => {
-                        setProvider(p.id);
-                        if (p.defaultUrl) setBaseUrl(p.defaultUrl);
-                        if (p.id === "ollama") {
-                          if (localOllamaModels.length > 0) setModelName(localOllamaModels[0]);
-                          else setModelName("qwen2.5-coder");
-                        } else if (p.id === "lmstudio") {
-                          if (localLmStudioModels.length > 0) setModelName(localLmStudioModels[0]);
-                          else setModelName("deepseek-coder");
-                        } else if (p.id === "openai") {
-                          setModelName("gpt-4o");
-                          setBaseUrl("");
-                        }
-                      }}
-                      className={`p-2 rounded-xl border text-left flex flex-col gap-0.5 transition-all cursor-pointer ${
-                        provider === p.id
-                          ? "border-[#f97316] bg-[#221812] shadow-md shadow-[#f97316]/10"
-                          : "border-[#262a38] bg-[#12141a] hover:border-[#38bdf8]/40"
-                      }`}
-                    >
-                      <span className={`text-xs font-semibold ${provider === p.id ? "text-[#f97316]" : "text-[#f0f1f5]"}`}>
-                        {p.label}
-                      </span>
-                      <span className="text-[10px] text-[#8b8f9e] font-mono">{p.desc}</span>
-                    </button>
-                  ))}
+                <label className="text-[11px] font-medium text-[#8b8f9e] block">Select Inference Provider</label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {Object.entries(PROVIDER_METADATA).map(([id, meta]) => {
+                    const isSelected = provider === id;
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        onClick={() => {
+                          setProvider(id);
+                          setBaseUrl(meta.defaultUrl);
+                          setLlmTestResult(null);
+                          if (id === "ollama") {
+                            if (localOllamaModels.length > 0) setModelName(localOllamaModels[0]);
+                            else setModelName("qwen2.5-coder");
+                          } else if (id === "lmstudio") {
+                            if (localLmStudioModels.length > 0) setModelName(localLmStudioModels[0]);
+                            else setModelName("deepseek-coder");
+                          } else {
+                            setModelName(meta.defaultModel);
+                          }
+                        }}
+                        className={`p-2.5 rounded-xl border text-left flex flex-col justify-between transition-all cursor-pointer ${
+                          isSelected
+                            ? "border-[#f97316] bg-[#221812] shadow-md shadow-[#f97316]/10"
+                            : "border-[#262a38] bg-[#12141a] hover:border-[#38bdf8]/40"
+                        }`}
+                      >
+                        <div>
+                          <div className="flex items-center justify-between mb-0.5">
+                            <span className={`text-xs font-semibold ${isSelected ? "text-[#f97316]" : "text-[#f0f1f5]"}`}>
+                              {meta.label}
+                            </span>
+                            {meta.badge && (
+                              <span className="text-[9px] px-1 py-0.2 rounded bg-[#f97316]/15 text-[#f97316] font-mono">
+                                {meta.badge}
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[10px] text-[#8b8f9e] font-mono block truncate">{meta.desc}</span>
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -738,7 +907,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <div className="flex items-center gap-2.5 p-3 rounded-xl bg-[#142319] border border-[#22c55e]/30 text-[#22c55e]">
                   <ShieldCheck className="w-5 h-5 shrink-0" />
                   <div className="text-xs">
-                    <span className="font-semibold block">LOCAL / OFFLINE — 100% Private Mode Active</span>
+                    <span className="font-semibold block">LOCAL / OFFLINE — 100% Private Engine Active</span>
                     <span className="text-[11px] text-[#a7f3d0] opacity-90">
                       All decompiled code, disassembly, and AST structures are processed locally on your hardware. Zero telemetry.
                     </span>
@@ -746,71 +915,179 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
               )}
 
-              {/* Model Picker or Manual Input */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-[11px] font-medium text-[#8b8f9e] mb-1 block">Active Model</label>
-                  {provider === "ollama" && localOllamaModels.length > 0 ? (
-                    <select
-                      value={modelName}
-                      onChange={(e) => setModelName(e.target.value)}
-                      className="w-full px-2.5 py-1.5 rounded-lg bg-[#101217] border border-[#2d3140] text-[#f0f1f5] outline-none focus:border-[#f97316] font-mono text-xs cursor-pointer"
-                    >
-                      {localOllamaModels.map((m) => (
-                        <option key={m} value={m}>
-                          {m}
-                        </option>
+              {/* Reasoning Model Alert */}
+              {(modelName.toLowerCase().includes("reasoner") ||
+                modelName.toLowerCase().includes("r1") ||
+                modelName.toLowerCase().includes("qwq")) && (
+                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-[#241a14] border border-[#f97316]/40 text-[#f97316]">
+                  <Sparkles className="w-5 h-5 shrink-0 text-[#f97316]" />
+                  <div className="text-xs">
+                    <span className="font-semibold block">Reasoning Engine Activated</span>
+                    <span className="text-[11px] text-[#fed7aa] opacity-90">
+                      Multi-hop chain of thought (<code className="text-[#f97316] font-mono">&lt;think&gt;...&lt;/think&gt;</code>) is streamed directly into the Agent Reasoning Tree without breaking structured output schemas.
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Model Picker & Recommended Pills */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-[11px] font-medium text-[#8b8f9e] block">Model Identifier</label>
+                  {PROVIDER_METADATA[provider]?.recommendedModels && (
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="text-[10px] text-[#6b7280]">Presets:</span>
+                      {PROVIDER_METADATA[provider].recommendedModels.map((rec) => (
+                        <button
+                          key={rec}
+                          type="button"
+                          onClick={() => {
+                            setModelName(rec);
+                            setLlmTestResult(null);
+                          }}
+                          className={`text-[10px] px-2 py-0.5 rounded font-mono border transition-colors cursor-pointer ${
+                            modelName === rec
+                              ? "bg-[#f97316]/20 border-[#f97316] text-[#f97316]"
+                              : "bg-[#11131a] border-[#252838] text-[#8b8f9e] hover:text-[#f0f1f5]"
+                          }`}
+                        >
+                          {rec}
+                        </button>
                       ))}
-                    </select>
-                  ) : provider === "lmstudio" && localLmStudioModels.length > 0 ? (
-                    <select
-                      value={modelName}
-                      onChange={(e) => setModelName(e.target.value)}
-                      className="w-full px-2.5 py-1.5 rounded-lg bg-[#101217] border border-[#2d3140] text-[#f0f1f5] outline-none focus:border-[#f97316] font-mono text-xs cursor-pointer"
-                    >
-                      {localLmStudioModels.map((m) => (
-                        <option key={m} value={m}>
-                          {m}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    <input
-                      type="text"
-                      value={modelName}
-                      onChange={(e) => setModelName(e.target.value)}
-                      placeholder={provider === "ollama" ? "qwen2.5-coder" : provider === "lmstudio" ? "deepseek-coder" : "gpt-4o"}
-                      className="w-full px-2.5 py-1.5 rounded-lg bg-[#101217] border border-[#2d3140] text-[#f0f1f5] outline-none focus:border-[#f97316] font-mono text-xs"
-                    />
+                    </div>
                   )}
                 </div>
 
-                <div>
-                  <label className="text-[11px] font-medium text-[#8b8f9e] mb-1 block">
-                    API Key {provider === "ollama" || provider === "lmstudio" ? "(Optional for Local)" : "(Required for Cloud)"}
-                  </label>
-                  <input
-                    type="password"
-                    value={apiKey}
-                    onChange={(e) => setApiKey(e.target.value)}
-                    placeholder={provider === "ollama" || provider === "lmstudio" ? "local (not needed)" : "sk-proj-..."}
-                    className="w-full px-2.5 py-1.5 rounded-lg bg-[#101217] border border-[#2d3140] text-[#f0f1f5] outline-none focus:border-[#f97316] font-mono text-xs placeholder:text-[#424656]"
-                  />
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    {provider === "ollama" && localOllamaModels.length > 0 ? (
+                      <select
+                        value={modelName}
+                        onChange={(e) => {
+                          setModelName(e.target.value);
+                          setLlmTestResult(null);
+                        }}
+                        className="w-full px-2.5 py-1.5 rounded-lg bg-[#101217] border border-[#2d3140] text-[#f0f1f5] outline-none focus:border-[#f97316] font-mono text-xs cursor-pointer"
+                      >
+                        {localOllamaModels.map((m) => (
+                          <option key={m} value={m}>
+                            {m} (Detected)
+                          </option>
+                        ))}
+                      </select>
+                    ) : provider === "lmstudio" && localLmStudioModels.length > 0 ? (
+                      <select
+                        value={modelName}
+                        onChange={(e) => {
+                          setModelName(e.target.value);
+                          setLlmTestResult(null);
+                        }}
+                        className="w-full px-2.5 py-1.5 rounded-lg bg-[#101217] border border-[#2d3140] text-[#f0f1f5] outline-none focus:border-[#f97316] font-mono text-xs cursor-pointer"
+                      >
+                        {localLmStudioModels.map((m) => (
+                          <option key={m} value={m}>
+                            {m} (Detected)
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        type="text"
+                        value={modelName}
+                        onChange={(e) => {
+                          setModelName(e.target.value);
+                          setLlmTestResult(null);
+                        }}
+                        placeholder={PROVIDER_METADATA[provider]?.defaultModel || "model-name"}
+                        className="w-full px-2.5 py-1.5 rounded-lg bg-[#101217] border border-[#2d3140] text-[#f0f1f5] outline-none focus:border-[#f97316] font-mono text-xs"
+                      />
+                    )}
+                  </div>
+
+                  <div>
+                    <input
+                      type="password"
+                      value={apiKeys[provider] ?? apiKey}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setApiKey(val);
+                        setApiKeys((prev) => ({ ...prev, [provider]: val }));
+                        setLlmTestResult(null);
+                      }}
+                      placeholder={PROVIDER_METADATA[provider]?.keyPlaceholder || "API Key"}
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-[#101217] border border-[#2d3140] text-[#f0f1f5] outline-none focus:border-[#f97316] font-mono text-xs placeholder:text-[#424656]"
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div>
-                <label className="text-[11px] font-medium text-[#8b8f9e] mb-1 block">
+              {/* Base URL and Test Connection Row */}
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-medium text-[#8b8f9e] block">
                   API Endpoint / Base URL
                 </label>
-                <input
-                  type="text"
-                  value={baseUrl}
-                  onChange={(e) => setBaseUrl(e.target.value)}
-                  placeholder="http://127.0.0.1:11434/v1"
-                  className="w-full px-2.5 py-1.5 rounded-lg bg-[#101217] border border-[#2d3140] text-[#f0f1f5] outline-none focus:border-[#f97316] font-mono text-xs placeholder:text-[#424656]"
-                />
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={baseUrl}
+                    onChange={(e) => {
+                      setBaseUrl(e.target.value);
+                      setLlmTestResult(null);
+                    }}
+                    placeholder={PROVIDER_METADATA[provider]?.defaultUrl || "https://api.openai.com/v1"}
+                    className="flex-1 px-2.5 py-1.5 rounded-lg bg-[#101217] border border-[#2d3140] text-[#f0f1f5] outline-none focus:border-[#f97316] font-mono text-xs placeholder:text-[#424656]"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={handleTestLlmConnection}
+                    disabled={testingLlm}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1c202a] hover:bg-[#252b3a] border border-[#2f3548] text-xs text-[#cbd5e1] hover:text-white font-medium transition-colors cursor-pointer shrink-0 disabled:opacity-50"
+                  >
+                    {testingLlm ? (
+                      <Loader2 className="w-3.5 h-3.5 text-[#f97316] animate-spin" />
+                    ) : (
+                      <Activity className="w-3.5 h-3.5 text-[#22c55e]" />
+                    )}
+                    <span>{testingLlm ? "Pinging..." : "Test Connection"}</span>
+                  </button>
+                </div>
               </div>
+
+              {/* Live Test Connection Result */}
+              {llmTestResult && (
+                <div
+                  className={`p-3 rounded-xl border text-xs flex items-center justify-between ${
+                    llmTestResult.success
+                      ? "bg-[#142319] border-[#22c55e]/40 text-[#22c55e]"
+                      : "bg-[#251414] border-[#ef4444]/40 text-[#fca5a5]"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    {llmTestResult.success ? (
+                      <CheckCircle2 className="w-4 h-4 shrink-0 text-[#22c55e]" />
+                    ) : (
+                      <AlertCircle className="w-4 h-4 shrink-0 text-[#ef4444]" />
+                    )}
+                    <div>
+                      <span className="font-semibold block">
+                        {llmTestResult.success ? "Connection Verified Successfully" : "Connection Failed"}
+                      </span>
+                      <span className="text-[11px] opacity-90 block">
+                        {llmTestResult.success
+                          ? `Model: ${llmTestResult.modelUsed || modelName} • Latency: ${llmTestResult.latencyMs ?? 0}ms`
+                          : llmTestResult.error || "Unable to reach endpoint"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {llmTestResult.success && (
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#22c55e]/20 text-[#22c55e] border border-[#22c55e]/30">
+                      ONLINE
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
           ) : (
             /* TAB 3: MCP SERVERS */

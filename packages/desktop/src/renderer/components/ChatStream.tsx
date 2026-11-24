@@ -11,6 +11,7 @@ import {
   Code,
   Copy,
   Check,
+  ChevronDown,
 } from "lucide-react";
 import { MessageItem, EvidenceItem } from "../types";
 
@@ -173,6 +174,27 @@ export const ChatStream: React.FC<ChatStreamProps> = ({
                 <p className="text-xs text-[#8b8f9e] leading-relaxed whitespace-pre-wrap font-sans">
                   {msg.text}
                 </p>
+              )}
+
+              {/* Collapsible Agent Reasoning Tree (DeepSeek-R1 / QwQ / Multi-hop Thinking) */}
+              {msg.reasoningTree && (
+                <details className="group bg-[#12141c] border border-[#2b3145] rounded-xl overflow-hidden shadow-md">
+                  <summary className="flex items-center justify-between px-3.5 py-2.5 bg-[#171a26] hover:bg-[#1d2232] border-b border-transparent group-open:border-[#272d40] cursor-pointer select-none transition-colors">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm">🧠</span>
+                      <span className="text-xs font-bold text-[#f0f1f5]">Agent Reasoning Tree</span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#f97316]/15 text-[#f97316] font-mono font-medium border border-[#f97316]/30">
+                        Multi-hop Thinking Process
+                      </span>
+                    </div>
+                    <ChevronDown className="w-3.5 h-3.5 text-[#8b8f9e] transition-transform duration-200 group-open:rotate-180" />
+                  </summary>
+                  <div className="p-3.5 bg-[#0e1017] border-t border-[#1e2230]">
+                    <pre className="text-[11px] font-mono text-[#cbd5e1] whitespace-pre-wrap leading-relaxed max-h-72 overflow-y-auto selection:bg-[#f97316]/30 selection:text-white">
+                      {msg.reasoningTree}
+                    </pre>
+                  </div>
+                </details>
               )}
 
               {/* Key Architectural Findings */}

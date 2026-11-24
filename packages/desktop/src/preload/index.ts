@@ -28,6 +28,7 @@ export interface ElectronAPI {
     ollama: { available: boolean; models: string[]; host: string };
     lmstudio: { available: boolean; models: string[]; host: string };
   }>;
+  testLlmConnection: (params: { provider: string; baseUrl?: string; apiKey?: string; model?: string }) => Promise<{ success: boolean; latencyMs?: number; error?: string; modelUsed?: string }>;
   testMcpConnections: () => Promise<Record<string, { success: boolean; latencyMs?: number; error?: string }>>;
   getSystemInfo: () => Promise<any>;
   createDesktopShortcut: () => Promise<{ success: boolean; path?: string; error?: string }>;
@@ -49,6 +50,7 @@ const api: ElectronAPI = {
   getConfig: () => ipcRenderer.invoke("config:get"),
   saveConfig: (data: any) => ipcRenderer.invoke("config:save", data),
   detectLocalModels: () => ipcRenderer.invoke("llm:detect-local"),
+  testLlmConnection: (params: any) => ipcRenderer.invoke("llm:test-connection", params),
   testMcpConnections: () => ipcRenderer.invoke("mcp:testConnections"),
   getSystemInfo: () => ipcRenderer.invoke("system:get-info"),
   createDesktopShortcut: () => ipcRenderer.invoke("system:create-desktop-shortcut"),

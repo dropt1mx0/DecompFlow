@@ -20,6 +20,7 @@ import {
   findProjectRoot,
   defaultMcpManager,
   SystemEnvManager,
+  testLlmConnection,
 } from "@decompflow/core";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -448,6 +449,13 @@ function setupIpc() {
     try {
       if (yamlConfig) {
         fs.writeFileSync(yamlPath, yaml.stringify(yamlConfig), "utf-8");
+        if (yamlConfig.llm?.api_keys) {
+          if (yamlConfig.llm.api_keys.openai) process.env.OPENAI_API_KEY = yamlConfig.llm.api_keys.openai;
+          if (yamlConfig.llm.api_keys.deepseek) process.env.DEEPSEEK_API_KEY = yamlConfig.llm.api_keys.deepseek;
+          if (yamlConfig.llm.api_keys.qwen) process.env.DASHSCOPE_API_KEY = yamlConfig.llm.api_keys.qwen;
+          if (yamlConfig.llm.api_keys.nvidia) process.env.NVIDIA_API_KEY = yamlConfig.llm.api_keys.nvidia;
+          if (yamlConfig.llm.api_keys.meta) process.env.GROQ_API_KEY = yamlConfig.llm.api_keys.meta;
+        }
       }
       if (mcpConfig) {
         fs.writeFileSync(mcpPath, JSON.stringify(mcpConfig, null, 2), "utf-8");
@@ -502,6 +510,17 @@ function setupIpc() {
     }
 
     return result;
+  });
+
+  // Test LLM Connection (DeepSeek, Qwen, NVIDIA NIM, Meta Llama, OpenAI, Ollama, LM Studio)
+  ipcMain.handle("llm:test-connection", async (_, params: { provider: string; baseUrl?: string; apiKey?: string; model?: string }) => {
+    try {
+      console.log(`[Main IPC] Testing LLM connection for provider: ${params?.provider}...`);
+      return await testLlmConnection(params.provider, params);
+    } catch (err: any) {
+      console.error("[Main IPC] Error testing LLM connection:", err);
+      return { success: false, error: err.message || String(err) };
+    }
   });
 
   // Test MCP Connections

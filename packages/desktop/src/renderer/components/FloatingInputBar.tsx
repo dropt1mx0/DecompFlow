@@ -128,6 +128,46 @@ export const FloatingInputBar: React.FC<FloatingInputBarProps> = ({
 
   const isLocalActive = activeProvider === "ollama" || activeProvider === "lmstudio";
 
+  const modelCategories = [
+    {
+      category: "Cloud Coders",
+      icon: "🌟",
+      models: [
+        { p: "openai", m: "gpt-4o", label: "GPT-4o (OpenAI)" },
+        { p: "openai", m: "o1", label: "o1 (OpenAI Reasoning)", isReasoning: true },
+        { p: "deepseek", m: "deepseek-chat", label: "DeepSeek-Chat (V3)" },
+        { p: "deepseek", m: "deepseek-reasoner", label: "DeepSeek-Reasoner (R1)", isReasoning: true },
+        { p: "qwen", m: "qwen2.5-coder-32b-instruct", label: "Qwen 2.5 Coder 32B" },
+        { p: "qwen", m: "qwen-max", label: "Qwen Max" },
+      ],
+    },
+    {
+      category: "Open Source Weights",
+      icon: "⚡",
+      models: [
+        { p: "meta", m: "llama-3.3-70b-versatile", label: "Meta Llama 3.3 70B (Groq)" },
+        { p: "nvidia", m: "nvidia/nemotron-4-34b-instruct", label: "NVIDIA Nemotron 4 34B" },
+        { p: "qwen", m: "qwen2.5-coder-72b-instruct", label: "Qwen 2.5 Coder 72B" },
+        { p: "qwen", m: "qwq-32b-preview", label: "QwQ 32B (Qwen Reasoning)", isReasoning: true },
+      ],
+    },
+    {
+      category: "Local / Offline",
+      icon: "💻",
+      models: [
+        { p: "ollama", m: "qwen2.5-coder", label: "Qwen 2.5 Coder (Ollama)" },
+        { p: "lmstudio", m: "deepseek-coder", label: "DeepSeek Coder (LM Studio)" },
+        { p: "ollama", m: "deepseek-r1", label: "DeepSeek R1 (Ollama)", isReasoning: true },
+        ...detectedLocalModels.map((m) => ({
+          p: "ollama",
+          m,
+          label: `${m} (Local Detected)`,
+          isReasoning: m.toLowerCase().includes("r1") || m.toLowerCase().includes("qwq"),
+        })),
+      ],
+    },
+  ];
+
   // Click outside listener for dropdowns
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -391,10 +431,10 @@ export const FloatingInputBar: React.FC<FloatingInputBarProps> = ({
               </button>
 
               {modelMenuOpen && (
-                <div className="absolute bottom-full left-0 mb-2 w-64 bg-[#181a20] border border-[#2d313e] rounded-xl shadow-2xl p-2 z-50 flex flex-col gap-1.5 animate-in fade-in slide-in-from-bottom-2 duration-150">
+                <div className="absolute bottom-full left-0 mb-2 w-72 bg-[#181a20] border border-[#2d313e] rounded-xl shadow-2xl p-2 z-50 flex flex-col gap-1.5 animate-in fade-in slide-in-from-bottom-2 duration-150">
                   <div className="flex items-center justify-between px-1 pb-1 border-b border-[#262a38]">
                     <span className="text-[10px] font-mono uppercase text-[#8b8f9e] tracking-wider font-semibold">
-                      Reasoning Model
+                      Multi-Model Hub
                     </span>
                     <button
                       type="button"
@@ -403,37 +443,44 @@ export const FloatingInputBar: React.FC<FloatingInputBarProps> = ({
                       className="text-[10px] text-[#38bdf8] hover:underline flex items-center gap-1 cursor-pointer"
                     >
                       <RefreshCw className={`w-2.5 h-2.5 ${isScanningLocal ? "animate-spin" : ""}`} />
-                      <span>{isScanningLocal ? "Scanning..." : "Scan"}</span>
+                      <span>{isScanningLocal ? "Scanning..." : "Scan Local"}</span>
                     </button>
                   </div>
 
-                  <div className="flex flex-col gap-0.5 max-h-48 overflow-y-auto">
-                    {[
-                      { p: "openai", m: "gpt-4o", label: "gpt-4o (OpenAI Cloud)" },
-                      { p: "ollama", m: "qwen2.5-coder", label: "qwen2.5-coder (Ollama)" },
-                      { p: "lmstudio", m: "deepseek-coder", label: "deepseek-coder (LM Studio)" },
-                      ...detectedLocalModels.map((m) => ({
-                        p: "ollama",
-                        m,
-                        label: `${m} (Local Detected)`,
-                      })),
-                    ]
-                      .filter((item, idx, arr) => arr.findIndex((x) => x.m === item.m) === idx)
-                      .map((opt) => (
-                        <button
-                          key={opt.m}
-                          type="button"
-                          onClick={() => handleSelectModel(opt.p, opt.m)}
-                          className={`text-left px-2.5 py-1.5 rounded-lg text-xs transition-colors flex items-center justify-between cursor-pointer ${
-                            activeModel === opt.m
-                              ? "bg-[#282c38] text-[#f97316] font-medium"
-                              : "text-[#8b8f9e] hover:bg-[#20232c] hover:text-[#f0f1f5]"
-                          }`}
-                        >
-                          <span className="truncate">{opt.label}</span>
-                          {activeModel === opt.m && <span className="w-1.5 h-1.5 rounded-full bg-[#f97316]" />}
-                        </button>
-                      ))}
+                  <div className="flex flex-col gap-2 max-h-64 overflow-y-auto pr-1">
+                    {modelCategories.map((cat) => (
+                      <div key={cat.category} className="space-y-0.5">
+                        <div className="text-[9px] font-mono uppercase tracking-wider text-[#f97316] font-semibold px-1.5 py-0.5 flex items-center gap-1 opacity-90">
+                          <span>{cat.icon}</span>
+                          <span>{cat.category}</span>
+                        </div>
+
+                        <div className="flex flex-col gap-0.5">
+                          {cat.models.map((opt) => (
+                            <button
+                              key={`${cat.category}-${opt.m}`}
+                              type="button"
+                              onClick={() => handleSelectModel(opt.p, opt.m)}
+                              className={`text-left px-2 py-1 rounded-lg text-xs transition-colors flex items-center justify-between cursor-pointer ${
+                                activeModel === opt.m
+                                  ? "bg-[#282c38] text-[#f97316] font-medium"
+                                  : "text-[#cbd5e1] hover:bg-[#20232c] hover:text-white"
+                              }`}
+                            >
+                              <div className="flex items-center gap-1.5 min-w-0">
+                                <span className="truncate">{opt.label}</span>
+                                {opt.isReasoning && (
+                                  <span className="text-[8px] font-mono px-1 py-0.2 rounded bg-[#f97316]/20 text-[#f97316] border border-[#f97316]/30 shrink-0">
+                                    🧠 R1
+                                  </span>
+                                )}
+                              </div>
+                              {activeModel === opt.m && <span className="w-1.5 h-1.5 rounded-full bg-[#f97316] shrink-0" />}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
                   </div>
 
                   {onOpenSettings && (
