@@ -140,6 +140,39 @@ export const App: React.FC = () => {
     }
   }, []);
 
+  // 2b. Automatic OS Theme Synchronization
+  useEffect(() => {
+    const applyTheme = (theme: "dark" | "light") => {
+      const root = document.documentElement;
+      if (theme === "dark") {
+        root.classList.add("dark");
+        root.classList.remove("light");
+      } else {
+        root.classList.add("light");
+        root.classList.remove("dark");
+      }
+    };
+
+    if (window.electronAPI) {
+      window.electronAPI.getSystemInfo().then((info) => {
+        if (info?.theme) {
+          applyTheme(info.theme);
+        }
+      });
+
+      const unsubscribe = window.electronAPI.onThemeUpdated((theme) => {
+        applyTheme(theme);
+      });
+
+      return () => {
+        unsubscribe();
+      };
+    } else {
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      applyTheme(prefersDark ? "dark" : "light");
+    }
+  }, []);
+
   // 3. Save workspace changes to IPC
   const saveWorkspaceState = (newProjects: ProjectItem[], projId: string, sessId: string | null) => {
     if (window.electronAPI) {
@@ -749,7 +782,7 @@ export const App: React.FC = () => {
       />
 
       {/* Main Two-Panel Layout */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden min-w-0 min-h-0">
         {/* Left Sidebar */}
         <Sidebar
           isOpen={sidebarOpen}
@@ -769,8 +802,8 @@ export const App: React.FC = () => {
         />
 
         {/* Right Main Content Area */}
-        <div className="flex-1 flex flex-col overflow-hidden bg-[#131418]">
-          <div className="flex-1 relative flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden bg-[#131418] min-w-0 min-h-0">
+          <div className="flex-1 relative flex flex-col overflow-hidden min-w-0 min-h-0">
             {/* View: Chat */}
             {activeView === "chat" && (
               <>

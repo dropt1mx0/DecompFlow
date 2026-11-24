@@ -120,7 +120,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     .filter(Boolean) as ProjectItem[];
 
   return (
-    <aside className="w-64 bg-[#0f1013] border-r border-[#1c1e26] flex flex-col justify-between shrink-0 select-none h-full transition-all duration-200">
+    <aside className="w-64 bg-[#0f1013] border-r border-[#1c1e26] flex flex-col justify-between shrink-0 select-none h-full transition-all duration-200 min-w-0 min-h-0">
       {/* Top Header & Search */}
       <div className="flex flex-col p-3 gap-3">
         {/* Workspace Brand Card */}

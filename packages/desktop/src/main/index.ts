@@ -8,6 +8,7 @@ import {
   nativeTheme,
   systemPreferences,
   session,
+  screen,
 } from "electron";
 import path from "node:path";
 import fs from "node:fs";
@@ -53,6 +54,38 @@ let currentAbortController: AbortController | null = null;
 // Native OS user data & workspace paths
 const USER_DATA_DIR = SystemEnvManager.getUserDataDir();
 const WORKSPACE_FILE = SystemEnvManager.getWorkspaceFile();
+const WINDOW_STATE_FILE = path.join(USER_DATA_DIR, "window-state.json");
+
+interface WindowState {
+  x?: number;
+  y?: number;
+  width: number;
+  height: number;
+  isMaximized: boolean;
+}
+
+function loadWindowState(): WindowState | null {
+  try {
+    if (fs.existsSync(WINDOW_STATE_FILE)) {
+      const data = JSON.parse(fs.readFileSync(WINDOW_STATE_FILE, "utf-8"));
+      if (typeof data.width === "number" && typeof data.height === "number") {
+        return data;
+      }
+    }
+  } catch (err) {
+    console.warn("[Main] Failed to load window state:", err);
+  }
+  return null;
+}
+
+function saveWindowState(state: WindowState) {
+  try {
+    SystemEnvManager.ensureUserDataDir();
+    fs.writeFileSync(WINDOW_STATE_FILE, JSON.stringify(state, null, 2), "utf-8");
+  } catch (err) {
+    console.warn("[Main] Failed to save window state:", err);
+  }
+}
 
 function ensureWorkspaceFile() {
   SystemEnvManager.ensureUserDataDir();
@@ -246,21 +279,59 @@ StartupWMClass=decompflow
 
 function createWindow() {
   const isMac = process.platform === "darwin";
+  const isWindows = process.platform === "win32";
 
   if (!isMac) {
     Menu.setApplicationMenu(null);
   }
 
   const appIcon = getAppIconPath();
+  const savedState = loadWindowState();
 
-  mainWindow = new BrowserWindow({
-    width: 1400,
-    height: 900,
+  // Screen adaptive size calculation
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const workArea = primaryDisplay.workArea;
+
+  // Responsive defaults: 85% of work area, bounded between 1024x680 and 1440x900
+  const defaultWidth = Math.min(1440, Math.max(1024, Math.round(workArea.width * 0.85)));
+  const defaultHeight = Math.min(900, Math.max(680, Math.round(workArea.height * 0.85)));
+
+  let initialWidth = savedState ? savedState.width : defaultWidth;
+  let initialHeight = savedState ? savedState.height : defaultHeight;
+
+  // Validate bounds against minimum dimensions
+  if (initialWidth < 1024) initialWidth = 1024;
+  if (initialHeight < 680) initialHeight = 680;
+
+  // Validate saved x, y so window does not open off-screen if monitors changed
+  let initialX: number | undefined = undefined;
+  let initialY: number | undefined = undefined;
+
+  if (savedState && typeof savedState.x === "number" && typeof savedState.y === "number") {
+    const allDisplays = screen.getAllDisplays();
+    const isVisible = allDisplays.some((disp) => {
+      const dArea = disp.workArea;
+      return (
+        savedState.x! >= dArea.x - 20 &&
+        savedState.x! <= dArea.x + dArea.width - 100 &&
+        savedState.y! >= dArea.y - 20 &&
+        savedState.y! <= dArea.y + dArea.height - 100
+      );
+    });
+
+    if (isVisible) {
+      initialX = savedState.x;
+      initialY = savedState.y;
+    }
+  }
+
+  const browserWindowOptions: Electron.BrowserWindowConstructorOptions = {
+    width: initialWidth,
+    height: initialHeight,
+    x: initialX,
+    y: initialY,
     minWidth: 1024,
-    minHeight: 700,
-    autoHideMenuBar: !isMac,
-    titleBarStyle: isMac ? "hiddenInset" : "default",
-    trafficLightPosition: isMac ? { x: 14, y: 14 } : undefined,
+    minHeight: 680,
     backgroundColor: "#131418",
     icon: appIcon || undefined,
     webPreferences: {
@@ -269,10 +340,82 @@ function createWindow() {
       nodeIntegration: false,
     },
     show: false,
-  });
+  };
+
+  // Platform-specific styling & frame configurations
+  if (isMac) {
+    browserWindowOptions.titleBarStyle = "hiddenInset";
+    browserWindowOptions.trafficLightPosition = { x: 16, y: 16 };
+  } else if (isWindows) {
+    browserWindowOptions.titleBarStyle = "hidden";
+    browserWindowOptions.titleBarOverlay = {
+      color: "#101217",
+      symbolColor: "#94a3b8",
+      height: 38,
+    };
+  } else {
+    // Linux: standard stable window frame to prevent Mutter/KWin/XFWM titlebar rendering glitches
+    browserWindowOptions.frame = true;
+    browserWindowOptions.autoHideMenuBar = true;
+  }
+
+  mainWindow = new BrowserWindow(browserWindowOptions);
 
   mainWindow.once("ready-to-show", () => {
+    if (savedState?.isMaximized) {
+      mainWindow?.maximize();
+    }
     mainWindow?.show();
+  });
+
+  // Debounced window state persistence on resize, move and close
+  let saveTimer: NodeJS.Timeout | null = null;
+  const debouncedSaveState = () => {
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      if (!mainWindow || mainWindow.isDestroyed()) return;
+      try {
+        const isMax = mainWindow.isMaximized();
+        const bounds =
+          typeof mainWindow.getNormalBounds === "function" && isMax
+            ? mainWindow.getNormalBounds()
+            : mainWindow.getBounds();
+
+        saveWindowState({
+          x: bounds.x,
+          y: bounds.y,
+          width: bounds.width,
+          height: bounds.height,
+          isMaximized: isMax,
+        });
+      } catch (err) {
+        // ignore
+      }
+    }, 400);
+  };
+
+  mainWindow.on("resize", debouncedSaveState);
+  mainWindow.on("move", debouncedSaveState);
+  mainWindow.on("close", () => {
+    if (saveTimer) clearTimeout(saveTimer);
+    if (!mainWindow || mainWindow.isDestroyed()) return;
+    try {
+      const isMax = mainWindow.isMaximized();
+      const bounds =
+        typeof mainWindow.getNormalBounds === "function" && isMax
+          ? mainWindow.getNormalBounds()
+          : mainWindow.getBounds();
+
+      saveWindowState({
+        x: bounds.x,
+        y: bounds.y,
+        width: bounds.width,
+        height: bounds.height,
+        isMaximized: isMax,
+      });
+    } catch (err) {
+      // ignore
+    }
   });
 
   const devUrl = process.env.VITE_DEV_SERVER_URL;

@@ -78,10 +78,24 @@ export const BreadcrumbsBar: React.FC<BreadcrumbsBarProps> = ({
     }
   };
 
+  const isMac =
+    typeof navigator !== "undefined" &&
+    (navigator.platform?.toLowerCase().includes("mac") ||
+      navigator.userAgent.toLowerCase().includes("mac"));
+
+  const isWindows =
+    typeof navigator !== "undefined" &&
+    (navigator.platform?.toLowerCase().includes("win") ||
+      navigator.userAgent.toLowerCase().includes("windows"));
+
   return (
-    <div className="h-12 bg-[#131418] border-b border-[#1c1e26] px-4 flex items-center justify-between select-none shrink-0 z-30 font-sans">
+    <div
+      className={`h-12 bg-[#131418] border-b border-[#1c1e26] flex items-center justify-between select-none shrink-0 z-30 font-sans titlebar-drag ${
+        isMac ? "pl-20 pr-4" : isWindows ? "pl-4 pr-36" : "px-4"
+      }`}
+    >
       {/* Left: Sidebar Toggle + Breadcrumbs */}
-      <div className="flex items-center gap-2.5 min-w-0">
+      <div className="flex items-center gap-2.5 min-w-0 titlebar-no-drag">
         <button
           onClick={onToggleSidebar}
           className="p-1.5 rounded-lg text-[#8b8f9e] hover:text-[#f0f1f5] hover:bg-[#181a20] transition-colors shrink-0 cursor-pointer"
@@ -101,7 +115,7 @@ export const BreadcrumbsBar: React.FC<BreadcrumbsBarProps> = ({
       </div>
 
       {/* Center: View Switcher (Chat | Visual Graph | Report) */}
-      <div className="flex items-center gap-1 bg-[#181a20] p-1 rounded-xl border border-[#232630]">
+      <div className="flex items-center gap-1 bg-[#181a20] p-1 rounded-xl border border-[#232630] titlebar-no-drag">
         <button
           onClick={() => setActiveView("chat")}
           className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer ${
@@ -144,7 +158,7 @@ export const BreadcrumbsBar: React.FC<BreadcrumbsBarProps> = ({
       </div>
 
       {/* Right: Actions & Pills */}
-      <div className="flex items-center gap-2 relative" ref={menuRef}>
+      <div className="flex items-center gap-2 relative titlebar-no-drag" ref={menuRef}>
         {/* GitHub Button */}
         <button
           onClick={handleOpenGithub}

@@ -3,13 +3,35 @@
 @tailwind utilities;
 
 @layer base {
-  body {
+  html, body, #root {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
     background-color: #131418;
     color: #f0f1f5;
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
     user-select: none;
     -webkit-user-select: none;
   }
+
+  html.light, html.light body, html.light #root {
+    background-color: #f8fafc;
+    color: #0f172a;
+  }
+}
+
+/* Custom Titlebar Drag Regions for Electron (Windows & macOS) */
+.titlebar-drag {
+  -webkit-app-region: drag;
+}
+
+.titlebar-no-drag,
+.titlebar-no-drag * {
+  -webkit-app-region: no-drag;
 }
 
 /* Custom Scrollbar matching Anchored */
