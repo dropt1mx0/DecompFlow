@@ -37,22 +37,22 @@ export function visibleLength(str: string): number {
 }
 
 /**
- * Returns pixel-accurate mascot ASCII art lines (Mage Robot with wand and ears),
- * scaled compactly (~12 chars wide, 13 rows high).
+ * Returns pixel-accurate mascot ASCII art lines:
+ * Official Retro 8-bit Robot Mage with magic star wand.
  */
 export function getMascotLines(): string[] {
   const { orange, orange214, orangeSoft, orangeBody, yellowStar, yellowSpark, wand, reset } = ANSI;
 
   return [
-    `          ${yellowStar}★${reset}`,
-    `  ${orange214}▄  ▄${reset}   ${yellowSpark}✦${yellowStar}*${yellowSpark}✦${reset}`,
-    `  ${orange214}█  █${reset}    ${wand}│${reset}`,
-    ` ${orange}▄████▄${reset}   ${wand}│${reset}`,
+    `  ${orange214}█  █${reset}    ${yellowStar}✦${reset}`,
+    `  ${orange214}█  █${reset}   ${yellowSpark}─${yellowStar}★${yellowSpark}─${reset}`,
+    ` ${orange}██████${reset}   ${wand}│${reset}`,
     `${orange}████████${reset}  ${wand}│${reset}`,
-    `${orange}█  ██  █${reset}  ${wand}│${reset}`,
-    `${orange}████████${reset} ${yellowSpark}─┴─${reset}`,
-    `${orangeSoft}██ ▀▀ ██${reset}`,
-    ` ${orangeBody}██████${reset}`,
+    `${orange}█ ▀  ▀ █${reset}  ${wand}│${reset}`,
+    `${orange}██ ▄▄ ██${reset} ${yellowSpark}─┴─${reset}`,
+    `${orange}████████${reset}`,
+    ` ${orangeSoft}██████${reset}`,
+    `  ${orangeBody}████${reset}`,
     `  ${orangeBody}█  █${reset}`,
     ` ${orangeBody}▀▀  ▀▀${reset}`,
   ];
